@@ -1,0 +1,24 @@
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://${WEB_HOST}:${WEB_PORT};
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location /api/ {
+        proxy_pass http://${API_HOST}:${API_PORT}/;
+
+        proxy_set_header Host $host;
+    }
+
+    location = /api {
+        proxy_pass http://${API_HOST}:${API_PORT}/;
+        proxy_set_header Host $host;
+    }
+}
