@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:api\"",
-    "dev:web": "dotenv -e ./.env -- cross-env PORT=$WEB_PORT pnpm --filter web dev",
+    "dev:web": "dotenv -e ./.env -- node scripts/dev-web.js",
     "dev:api": "dotenv -e ./.env -- pnpm --filter api dev",
     "docker:up": "docker compose up -d postgres_dev nginx_dev",
     "docker:down": "docker compose down",
@@ -14,7 +14,6 @@
   "devDependencies": {
     "@types/node": "^25.6.2",
     "concurrently": "^9.0.0",
-    "cross-env": "^10.1.0",
     "dotenv-cli": "^11.0.0",
     "typescript": "^6.0.3"
   }
