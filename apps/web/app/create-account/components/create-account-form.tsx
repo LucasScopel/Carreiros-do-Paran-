@@ -10,7 +10,7 @@ function CreateAccount() {
     name: "",
     email: "",
     password: "",
-    passowrdConfirmation: "",
+    passwordConfirmation: "",
     birthDate: "",
   });
 
@@ -31,7 +31,7 @@ function CreateAccount() {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); //Não usa o comportamento padrão do html, que é recarregar a página e perder os dados quando envia
 
-    if (formData.password != formData.passowrdConfirmation) {
+    if (formData.password != formData.passwordConfirmation) {
       alert("As senhas digitadas não são iguais!");
       return;
     }
@@ -110,9 +110,9 @@ function CreateAccount() {
         />
         <RoundedGreenInput
           type="password"
-          name="passowrdConfirmation"
+          name="passwordConfirmation"
           placeholder="Confirme a senha"
-          value={formData.passowrdConfirmation}
+          value={formData.passwordConfirmation}
           onChange={handleChange}
           required
         />
