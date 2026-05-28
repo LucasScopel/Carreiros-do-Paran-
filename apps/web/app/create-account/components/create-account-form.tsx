@@ -14,6 +14,9 @@ function CreateAccount() {
     birthDate: "",
   });
 
+  //Estado para aceitar os termos
+  const [acceptTerms, setAcceptTerms] = useState(false); 
+
   //Função para atualizar qualquer dado no formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -31,6 +34,11 @@ function CreateAccount() {
     if (formData.password != formData.passowrdConfirmation) {
       alert("As senhas digitadas não são iguais!");
       return;
+    }
+
+    if (!acceptTerms){
+      alert("Você precisa aceitar os termos para criar sua conta!");
+      return; 
     }
 
     //Reúne os dados do usuário em uma variável que será enviada para a api
@@ -121,6 +129,7 @@ function CreateAccount() {
           <input
             type="checkbox"
             id="usageTerms"
+            onChange={(e) => setAcceptTerms(e.target.checked)} 
             className="w-4 h-4 ml-1.5 appearance-none border-2 rounded border-[#424242] hover:border-[#D99C6A] checked:bg-[#D99C6A] checked:border-[#424242] transition-colors duration-300 cursor-pointer"
           />
 
