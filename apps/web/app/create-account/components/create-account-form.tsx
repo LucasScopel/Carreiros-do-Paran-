@@ -15,7 +15,7 @@ function CreateAccount() {
   });
 
   //Estado para aceitar os termos
-  const [acceptTerms, setAcceptTerms] = useState(false); 
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   //Função para atualizar qualquer dado no formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,9 +36,9 @@ function CreateAccount() {
       return;
     }
 
-    if (!acceptTerms){
+    if (!acceptTerms) {
       alert("Você precisa aceitar os termos para criar sua conta!");
-      return; 
+      return;
     }
 
     //Reúne os dados do usuário em uma variável que será enviada para a api
@@ -62,21 +62,18 @@ function CreateAccount() {
       //Erro enviado pela api
       if (!response.ok) {
         //O erro será identificado pela mensagem de erro que a api enviou ou, se não tiver, pelo texto genérico
-        throw new Error(
-          apiData.message || "Error when trying to create account",
-        );
+        throw new Error(apiData.message || "Error when trying to log in");
       }
 
-      console.log("Account sucessfully created", apiData); //Se não deu erro, gg
+      console.log("Login sucess", apiData); //Se não deu erro, gg
     } catch (error) {
-      //Apresenta o erro lançado no console pros dev
-      console.log(error);
+      console.error(error); //Apresenta o erro lançado no console pros dev
 
       if (error instanceof Error) {
         //Se for aquele erro que a gente lançou acima
         alert(error.message); //Mostra o erro pro usuário
       } else {
-        alert("Erro inesperado"); //Do contário, mensagem genérica
+        alert("Erro inesperado"); //Do contrário, mensagem genérica
       }
     }
   };
@@ -137,7 +134,7 @@ function CreateAccount() {
           <input
             type="checkbox"
             id="usageTerms"
-            onChange={(e) => setAcceptTerms(e.target.checked)} 
+            onChange={(e) => setAcceptTerms(e.target.checked)}
             className="w-4 h-4 ml-1.5 appearance-none border-2 rounded border-[#424242] hover:border-[#D99C6A] checked:bg-[#D99C6A] checked:border-[#424242] transition-colors duration-300 cursor-pointer"
           />
 
