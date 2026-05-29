@@ -10,9 +10,12 @@ function CreateAccount() {
     name: "",
     email: "",
     password: "",
-    passowrdConfirmation: "",
+    passwordConfirmation: "",
     birthDate: "",
   });
+
+  //Estado para aceitar os termos
+  const [acceptTerms, setAcceptTerms] = useState(false); 
 
   //Função para atualizar qualquer dado no formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,9 +31,14 @@ function CreateAccount() {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); //Não usa o comportamento padrão do html, que é recarregar a página e perder os dados quando envia
 
-    if (formData.password != formData.passowrdConfirmation) {
+    if (formData.password != formData.passwordConfirmation) {
       alert("As senhas digitadas não são iguais!");
       return;
+    }
+
+    if (!acceptTerms){
+      alert("Você precisa aceitar os termos para criar sua conta!");
+      return; 
     }
 
     //Reúne os dados do usuário em uma variável que será enviada para a api
@@ -42,7 +50,7 @@ function CreateAccount() {
     };
 
     try {
-      const response = await fetch("/api/create_user", {
+      const response = await fetch("/api/auth/register/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
@@ -110,9 +118,9 @@ function CreateAccount() {
         />
         <RoundedGreenInput
           type="password"
-          name="passowrdConfirmation"
+          name="passwordConfirmation"
           placeholder="Confirme a senha"
-          value={formData.passowrdConfirmation}
+          value={formData.passwordConfirmation}
           onChange={handleChange}
           required
         />
@@ -129,6 +137,7 @@ function CreateAccount() {
           <input
             type="checkbox"
             id="usageTerms"
+            onChange={(e) => setAcceptTerms(e.target.checked)} 
             className="w-4 h-4 ml-1.5 appearance-none border-2 rounded border-[#424242] hover:border-[#D99C6A] checked:bg-[#D99C6A] checked:border-[#424242] transition-colors duration-300 cursor-pointer"
           />
 
