@@ -48,20 +48,28 @@ function CreateAccount() {
         body: JSON.stringify(userData),
       });
 
+      //Salva a mensagem que a api mandou de volta
+      const apiData = await response.json();
+
+      //Erro enviado pela api
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("Error returned from server: ", errorData);
+        //O erro será identificado pela mensagem de erro que a api enviou ou, se não tiver, pelo texto genérico
         throw new Error(
-          errorData.error || `Server's error: ${response.status}`,
+          apiData.message || "Error when trying to create account",
         );
       }
 
-      const savedData = await response.json();
-      console.log("User successfully created on database!", savedData);
-      alert("Usuário cadastrado com sucesso");
+      console.log("Account sucessfully created", apiData); //Se não deu erro, gg
     } catch (error) {
-      console.error("Requisition fail: ", error);
-      alert(`Erro ao conectar ao servidor, tente novamente.\n${error}`);
+      //Apresenta o erro lançado no console pros dev
+      console.log(error);
+
+      if (error instanceof Error) {
+        //Se for aquele erro que a gente lançou acima
+        alert(error.message); //Mostra o erro pro usuário
+      } else {
+        alert("Erro inesperado"); //Do contário, mensagem genérica
+      }
     }
   };
 
