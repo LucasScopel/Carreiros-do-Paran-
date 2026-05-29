@@ -12,6 +12,9 @@ export default function LogginForm() {
     password: "",
   });
 
+  //Estado para saber se o usuário manterá o login conectado
+  const [keepConnected, setKeepconnected] = useState(false);
+
   //Função para atualizar qualquer dado no formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,8 +25,49 @@ export default function LogginForm() {
     }));
   };
 
+  //Função para preparar e enviar os dados para a api
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault(); //Não usa o comportamento padrão do html, que é recarregar a página e perder os dados quando envia
+
+    //Reúne os dados do usuário e se quer se manter conectado em uma const para enviar a api
+    const userData = {
+      email: formData.email,
+      password: formData.password,
+      willKeepConnected: keepConnected,
+    };
+
+    try {
+      //Envia os dados para a api
+      const response = await fetch("/api/auth/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      //Salva a mensagem que a api mandou de volta
+      const apiData = await response.json();
+
+      //Erro enviado pela api
+      if (!response.ok) {
+        //O erro será identificado pela mensagem de erro que a api enviou ou, se não tiver, pelo texto genérico
+        throw new Error(apiData.message || "Error when trying to log in");
+      }
+
+      console.log("Login sucess", apiData); //Se não deu erro, gg
+    } catch (error) {
+      console.error(error); //Apresenta o erro lançado no console pros dev
+
+      if (error instanceof Error) {
+        //Se for aquele erro que a gente lançou acima
+        alert(error.message); //Mostra o erro pro usuário
+      } else {
+        alert("Erro inesperado"); //Do contrário, mensagem genérica
+      }
+    }
+  };
+
   return (
-    <MenuWhiteboard>
+    <MenuWhiteboard onSubmit={handleSubmit}>
       <div className="space-y-4 flex flex-col">
         <div className="flex self-center items-center">
           <Image src="/logo.svg" alt="logo" width={80} height={80} />
@@ -62,6 +106,7 @@ export default function LogginForm() {
           <input
             type="checkbox"
             id="usageTerms"
+            onChange={(e) => setKeepconnected(e.target.checked)}
             className="w-4 h-4 ml-1.5 appearance-none border-2 rounded border-[#424242] hover:border-[#D99C6A] checked:bg-[#D99C6A] checked:border-[#424242] transition-colors duration-300 cursor-pointer"
           />
 
@@ -80,7 +125,7 @@ export default function LogginForm() {
         <label className="text-center text-[#263327]">
           Não tem uma conta?{" "}
           <a
-            href="#"
+            href="/create-account"
             className="text-[#D99C6A] hover:underline hover:text-[#c46518] hover:brightness-120  transition-all duration-300"
           >
             Cadastre-se aqui!
