@@ -18,6 +18,7 @@ export const registerSchema = zod.object({
 export const loginSchema = zod.object({
   email: zod.email().toLowerCase(),
   password: zod.string(),
+  rememberMe: zod.boolean(),
 });
 
 export type RegisterInput = zod.infer<typeof registerSchema>;

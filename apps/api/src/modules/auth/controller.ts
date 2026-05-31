@@ -27,7 +27,11 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   const data = loginSchema.parse(req.body);
 
-  const { token, user } = await authService.login(data.email, data.password);
+  const { token, user } = await authService.login(
+    data.email,
+    data.password,
+    data.rememberMe,
+  );
 
   res.cookie(SESSION_COOKIE, token, SESSION_COOKIE_CONFIG);
 

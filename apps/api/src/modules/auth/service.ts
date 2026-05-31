@@ -5,20 +5,23 @@ import { BadRequestError, UnauthorizedError } from "@/utils/errors";
 import {
   EMAIL_VERIFICATION_TOKEN_EXPIRY_MS,
   SESSION_EXPIRY_MS,
-  SESSION_IDLE_EXPIRY_MS,
+  SESSION_REMEMBER_ME_EXPIRY_MS,
 } from "@/config";
 import { generateRandomToken, hashToken } from "@/utils/tokens";
 import { sendEmail } from "@/utils/email";
 
-async function generateSessionToken(userId: bigint) {
+async function generateSessionToken(userId: bigint, rememberMe: boolean) {
   const { token, hash } = generateRandomToken();
 
   await prisma.session.create({
     data: {
       token: hash,
       userId: userId,
-      expiresAt: new Date(Date.now() + SESSION_EXPIRY_MS),
-      idleExpiresAt: new Date(Date.now() + SESSION_IDLE_EXPIRY_MS),
+      rememberMe: rememberMe,
+      expiresAt: new Date(
+        Date.now() +
+          (rememberMe ? SESSION_REMEMBER_ME_EXPIRY_MS : SESSION_EXPIRY_MS),
+      ),
     },
   });
 
@@ -45,7 +48,7 @@ export async function register(
     },
   });
 
-  const token = await generateSessionToken(user.id);
+  const token = await generateSessionToken(user.id, false);
 
   return {
     token,
@@ -53,7 +56,11 @@ export async function register(
   };
 }
 
-export async function login(email: string, password: string) {
+export async function login(
+  email: string,
+  password: string,
+  rememberMe: boolean,
+) {
   const user = await prisma.user.findFirst({
     where: {
       OR: [{ email: email }],
@@ -66,7 +73,7 @@ export async function login(email: string, password: string) {
 
   if (!ok) throw new UnauthorizedError();
 
-  const token = generateSessionToken(user.id);
+  const token = await generateSessionToken(user.id, rememberMe);
 
   return {
     token,
@@ -206,8 +213,23 @@ export async function getMe(userId: bigint) {
       name: true,
       admin: true,
       createdAt: true,
+      avatarUrl: true,
+      birthDate: true,
     },
   });
 
   return user;
+}
+
+export async function renewSessionToken(id: bigint) {
+  const newExpiry = new Date(Date.now() + SESSION_REMEMBER_ME_EXPIRY_MS);
+
+  await prisma.session.update({
+    data: {
+      expiresAt: newExpiry,
+    },
+    where: {
+      id: id,
+    },
+  });
 }
