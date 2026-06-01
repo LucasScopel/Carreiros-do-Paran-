@@ -1,13 +1,14 @@
+import CONFIG from "@/config";
 import nodemailer from "nodemailer";
 
 export const mailer = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
+  host: CONFIG.SMTP_HOST,
+  port: Number(CONFIG.SMTP_PORT),
   secure: false,
 
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
+    user: CONFIG.SMTP_USER,
+    pass: CONFIG.SMTP_PASSWORD,
   },
 });
 
@@ -17,7 +18,7 @@ export async function sendEmail(options: {
   html: string;
 }) {
   await mailer.sendMail({
-    from: process.env.SMTP_FROM,
+    from: CONFIG.SMTP_FROM,
 
     ...options,
   });

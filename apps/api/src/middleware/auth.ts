@@ -1,11 +1,7 @@
 import { prisma } from "database";
 import { NextFunction, Request, Response } from "express";
 import { hashToken } from "@/utils/tokens";
-import {
-  SESSION_COOKIE,
-  SESSION_COOKIE_CONFIG,
-  SESSION_RENEW_INTERVAL_MS,
-} from "@/config";
+import CONFIG from "@/config";
 import { renewSessionToken } from "@/modules/auth/service";
 
 export default async function (
@@ -13,7 +9,7 @@ export default async function (
   res: Response,
   next: NextFunction,
 ) {
-  const token = req.cookies[SESSION_COOKIE];
+  const token = req.cookies[CONFIG.SESSION_COOKIE];
 
   if (!token) return next();
 
@@ -39,7 +35,7 @@ export default async function (
   const now = new Date();
 
   if (!session || session.expiresAt < now) {
-    res.clearCookie(SESSION_COOKIE, SESSION_COOKIE_CONFIG);
+    res.clearCookie(CONFIG.SESSION_COOKIE, CONFIG.SESSION_COOKIE_CONFIG);
 
     if (session) {
       await prisma.session.delete({
@@ -54,7 +50,8 @@ export default async function (
 
   if (
     session.rememberMe &&
-    now.getTime() - session.updatedAt.getTime() > SESSION_RENEW_INTERVAL_MS
+    now.getTime() - session.updatedAt.getTime() >
+      CONFIG.SESSION_RENEW_INTERVAL_MS
   ) {
     await renewSessionToken(session.id);
   }

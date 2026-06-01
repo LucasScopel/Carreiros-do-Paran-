@@ -1,0 +1,11 @@
+export const REQUIRED_ENVIRONMENT_VARIABLES = [
+  "API_PORT",
+  "APP_URL",
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_USER",
+  "SMTP_PASSWORD",
+  "SMTP_FROM",
+] as const;
+
+export default REQUIRED_ENVIRONMENT_VARIABLES;

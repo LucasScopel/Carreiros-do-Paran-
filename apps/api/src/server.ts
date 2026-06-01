@@ -1,4 +1,5 @@
 import { app } from "./app";
+import CONFIG from "./config";
 import jobs from "./jobs";
 
 function startJobs() {
@@ -7,16 +8,7 @@ function startJobs() {
   }
 }
 
-if (process.env.API_PORT) {
-  app.listen(process.env.API_PORT, () => {
-    console.log(`API running on port ${process.env.API_PORT}`);
-    startJobs();
-  });
-} else {
-  const defaultPort = 4000;
-
-  app.listen(defaultPort, () => {
-    console.log(`API running on default port ${defaultPort}`);
-    startJobs();
-  });
-}
+app.listen(CONFIG.API_PORT, () => {
+  console.log(`API running on port ${CONFIG.API_PORT}`);
+  startJobs();
+});

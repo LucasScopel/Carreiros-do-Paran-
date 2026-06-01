@@ -2,11 +2,7 @@ import { prisma } from "database";
 import argon2 from "argon2";
 import { nanoid } from "nanoid";
 import { BadRequestError, UnauthorizedError } from "@/utils/errors";
-import {
-  EMAIL_VERIFICATION_TOKEN_EXPIRY_MS,
-  SESSION_EXPIRY_MS,
-  SESSION_REMEMBER_ME_EXPIRY_MS,
-} from "@/config";
+import CONFIG from "@/config";
 import { generateRandomToken, hashToken } from "@/utils/tokens";
 import { sendEmail } from "@/utils/email";
 
@@ -20,7 +16,9 @@ async function generateSessionToken(userId: bigint, rememberMe: boolean) {
       rememberMe: rememberMe,
       expiresAt: new Date(
         Date.now() +
-          (rememberMe ? SESSION_REMEMBER_ME_EXPIRY_MS : SESSION_EXPIRY_MS),
+          (rememberMe
+            ? CONFIG.SESSION_REMEMBER_ME_EXPIRY_MS
+            : CONFIG.SESSION_EXPIRY_MS),
       ),
     },
   });
@@ -146,11 +144,13 @@ export async function sendEmailVerification(userId: bigint, email: string) {
     data: {
       userId: userId,
       token: hash,
-      expiresAt: new Date(Date.now() + EMAIL_VERIFICATION_TOKEN_EXPIRY_MS),
+      expiresAt: new Date(
+        Date.now() + CONFIG.EMAIL_VERIFICATION_TOKEN_EXPIRY_MS,
+      ),
     },
   });
 
-  const url = `http://${process.env.APP_URL}/api/auth/verify-email?token=${token}`;
+  const url = `http://${CONFIG.APP_URL}/api/auth/verify-email?token=${token}`;
 
   await sendEmail({
     to: email,
@@ -222,7 +222,7 @@ export async function getMe(userId: bigint) {
 }
 
 export async function renewSessionToken(id: bigint) {
-  const newExpiry = new Date(Date.now() + SESSION_REMEMBER_ME_EXPIRY_MS);
+  const newExpiry = new Date(Date.now() + CONFIG.SESSION_REMEMBER_ME_EXPIRY_MS);
 
   await prisma.session.update({
     data: {

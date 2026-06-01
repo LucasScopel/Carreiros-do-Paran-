@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as authService from "./service";
 import { registerSchema, loginSchema } from "./schemas";
-import { SESSION_COOKIE, SESSION_COOKIE_CONFIG } from "@/config";
+import CONFIG from "@/config";
 import { BadRequestError, NotFoundError } from "@/utils/errors";
 
 export async function register(req: Request, res: Response) {
@@ -16,7 +16,7 @@ export async function register(req: Request, res: Response) {
 
   await authService.sendEmailVerification(user.id, user.email);
 
-  res.cookie(SESSION_COOKIE, token, SESSION_COOKIE_CONFIG);
+  res.cookie(CONFIG.SESSION_COOKIE, token, CONFIG.SESSION_COOKIE_CONFIG);
 
   res.json({
     publicId: user.publicId,
@@ -33,7 +33,7 @@ export async function login(req: Request, res: Response) {
     data.rememberMe,
   );
 
-  res.cookie(SESSION_COOKIE, token, SESSION_COOKIE_CONFIG);
+  res.cookie(CONFIG.SESSION_COOKIE, token, CONFIG.SESSION_COOKIE_CONFIG);
 
   res.json({
     publicId: user.publicId,
@@ -42,13 +42,13 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function logout(req: Request, res: Response) {
-  const token = req.cookies[SESSION_COOKIE];
+  const token = req.cookies[CONFIG.SESSION_COOKIE];
 
   if (!token) res.sendStatus(204);
 
   await authService.logout(token);
 
-  res.clearCookie(SESSION_COOKIE, SESSION_COOKIE_CONFIG);
+  res.clearCookie(CONFIG.SESSION_COOKIE, CONFIG.SESSION_COOKIE_CONFIG);
 
   res.sendStatus(204);
 }
@@ -58,7 +58,7 @@ export async function logoutAll(req: Request, res: Response) {
 
   await authService.logoutAll(req.user!.id);
 
-  res.clearCookie(SESSION_COOKIE, SESSION_COOKIE_CONFIG);
+  res.clearCookie(CONFIG.SESSION_COOKIE, CONFIG.SESSION_COOKIE_CONFIG);
 
   res.sendStatus(204);
 }
