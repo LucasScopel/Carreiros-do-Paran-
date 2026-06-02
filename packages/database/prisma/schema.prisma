@@ -21,6 +21,7 @@ model User {
 
   sessions     Session[]
   verification EmailVerification?
+  passwordReset PasswordReset?
 
   @@index([publicId])
   @@index([email])
@@ -54,5 +55,20 @@ model EmailVerification {
   createdAt DateTime @default(now())
 
   @@index([token])
+  @@index([expiresAt])
+}
+
+model PasswordReset {
+  id BigInt @id @default(autoincrement())
+
+  token String @unique
+
+  userId BigInt @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
   @@index([expiresAt])
 }

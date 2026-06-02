@@ -24,5 +24,15 @@ export const cleanupJob: Job = {
         },
       },
     });
+
+    console.log("Cleaning expired password reset tokens...");
+
+    await prisma.passwordReset.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
   },
 };

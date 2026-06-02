@@ -1,9 +1,9 @@
 export const APP_CONFIG = {
   IS_PROD: process.env.NODE_ENV === "production",
 
-  SESSION_EXPIRY_MS: 1 * 24 * 60 * 60 * 1000,
-  SESSION_REMEMBER_ME_EXPIRY_MS: 30 * 24 * 60 * 60 * 1000,
-  SESSION_RENEW_INTERVAL_MS: 2 * 24 * 60 * 60 * 1000,
+  SESSION_EXPIRY_MS: 1 * 24 * 60 * 60 * 1000, // 1 day
+  SESSION_REMEMBER_ME_EXPIRY_MS: 30 * 24 * 60 * 60 * 1000, // 30 days
+  SESSION_RENEW_INTERVAL_MS: 2 * 24 * 60 * 60 * 1000, // 2 days
   SESSION_COOKIE: "sid" as const,
   SESSION_COOKIE_CONFIG: {
     httpOnly: true,
@@ -12,7 +12,8 @@ export const APP_CONFIG = {
     sameSite: "lax" as const,
   },
 
-  EMAIL_VERIFICATION_TOKEN_EXPIRY_MS: 24 * 60 * 60 * 1000,
+  EMAIL_VERIFICATION_TOKEN_EXPIRY_MS: 1 * 24 * 60 * 60 * 1000, // 1 day
+  PASSWORD_RESET_TOKEN_EXPIRY_MS: 1 * 24 * 60 * 60 * 1000, // 1 day
 };
 
 export default APP_CONFIG;

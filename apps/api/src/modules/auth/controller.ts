@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import * as authService from "./service";
-import { registerSchema, loginSchema } from "./schemas";
+import {
+  registerSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  verifyEmailSchema,
+} from "./schemas";
 import CONFIG from "@/config";
 import { BadRequestError, NotFoundError } from "@/utils/errors";
 
@@ -44,7 +50,10 @@ export async function login(req: Request, res: Response) {
 export async function logout(req: Request, res: Response) {
   const token = req.cookies[CONFIG.SESSION_COOKIE];
 
-  if (!token) res.sendStatus(204);
+  if (!token) {
+    res.sendStatus(204);
+    return;
+  }
 
   await authService.logout(token);
 
@@ -54,7 +63,10 @@ export async function logout(req: Request, res: Response) {
 }
 
 export async function logoutAll(req: Request, res: Response) {
-  if (!req.user) res.sendStatus(204);
+  if (!req.user) {
+    res.sendStatus(204);
+    return;
+  }
 
   await authService.logoutAll(req.user!.id);
 
@@ -64,10 +76,7 @@ export async function logoutAll(req: Request, res: Response) {
 }
 
 export async function verifyEmail(req: Request, res: Response) {
-  const token = req.query.token;
-
-  if (typeof token !== "string")
-    throw new BadRequestError("Invalid verification token");
+  const { token } = verifyEmailSchema.parse(req.body);
 
   await authService.verifyEmail(token);
 
@@ -76,6 +85,23 @@ export async function verifyEmail(req: Request, res: Response) {
 
 export async function resendVerificationEmail(req: Request, res: Response) {
   await authService.sendEmailVerification(req.user!.id, req.user!.email);
+
+  res.sendStatus(204);
+}
+
+export async function forgotPassword(req: Request, res: Response) {
+  const data = forgotPasswordSchema.parse(req.body);
+
+  // Ignora o resultado para evitar enumeração de emails
+  await authService.sendPasswordReset(data.email);
+
+  res.sendStatus(204);
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  const data = resetPasswordSchema.parse(req.body);
+
+  await authService.resetPassword(data.token, data.password);
 
   res.sendStatus(204);
 }
