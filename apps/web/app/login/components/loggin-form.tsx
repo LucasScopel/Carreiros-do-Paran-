@@ -13,7 +13,7 @@ export default function LogginForm() {
   });
 
   //Estado para saber se o usuário manterá o login conectado
-  const [rememberMe, setrememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   //Função para atualizar qualquer dado no formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +33,7 @@ export default function LogginForm() {
     const userData = {
       email: formData.email,
       password: formData.password,
-      willrememberMe: rememberMe,
+      rememberMe: rememberMe,
     };
 
     try {
@@ -105,15 +105,14 @@ export default function LogginForm() {
         <div className="flex items-center mb-12">
           <input
             type="checkbox"
-            id="usageTerms"
-            onChange={(e) => setrememberMe(e.target.checked)}
+            onChange={(e) => setRememberMe(e.target.checked)}
             className="w-4 h-4 ml-1.5 appearance-none border-2 rounded border-[#424242] hover:border-[#D99C6A] checked:bg-[#D99C6A] checked:border-[#424242] transition-colors duration-300 cursor-pointer"
           />
 
           <label className="pl-1.5 text-[#D99C6A]">Manter-me conectado</label>
 
           <a
-            href="#"
+            href="/forgot-password"
             className="ml-auto mr-1.5 text-[#D99C6A] hover:underline hover:text-[#c46518] hover:brightness-120  transition-all duration-300"
           >
             Esqueceu a senha?
