@@ -13,7 +13,7 @@ export default function LogginForm() {
   });
 
   //Estado para saber se o usuário manterá o login conectado
-  const [keepConnected, setKeepconnected] = useState(false);
+  const [rememberMe, setrememberMe] = useState(false);
 
   //Função para atualizar qualquer dado no formulário
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +33,7 @@ export default function LogginForm() {
     const userData = {
       email: formData.email,
       password: formData.password,
-      willKeepConnected: keepConnected,
+      willrememberMe: rememberMe,
     };
 
     try {
@@ -106,7 +106,7 @@ export default function LogginForm() {
           <input
             type="checkbox"
             id="usageTerms"
-            onChange={(e) => setKeepconnected(e.target.checked)}
+            onChange={(e) => setrememberMe(e.target.checked)}
             className="w-4 h-4 ml-1.5 appearance-none border-2 rounded border-[#424242] hover:border-[#D99C6A] checked:bg-[#D99C6A] checked:border-[#424242] transition-colors duration-300 cursor-pointer"
           />
 
