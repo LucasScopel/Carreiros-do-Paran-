@@ -12,14 +12,18 @@ export const mailer = nodemailer.createTransport({
   },
 });
 
-export async function sendEmail(options: {
-  to: string;
-  subject: string;
-  html: string;
-}) {
+export async function sendEmail(
+  to: string,
+  email: {
+    subject: string;
+    html: string;
+  },
+) {
   await mailer.sendMail({
     from: CONFIG.SMTP_FROM,
 
-    ...options,
+    to: to,
+    subject: `${email.subject} | Carreiros do Paraná`,
+    html: email.html,
   });
 }
