@@ -80,10 +80,15 @@ export async function verifyEmail(req: Request, res: Response) {
 
   await authService.verifyEmail(token);
 
-  res.redirect("/");
+  res.sendStatus(204);
 }
 
 export async function resendVerificationEmail(req: Request, res: Response) {
+  if (req.user!.emailVerified) {
+    res.sendStatus(204);
+    return;
+  }
+
   await authService.sendEmailVerification(req.user!.id, req.user!.email);
 
   res.sendStatus(204);

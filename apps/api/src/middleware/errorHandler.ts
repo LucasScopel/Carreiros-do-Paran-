@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import { Prisma } from "database";
-import { AppError } from "../utils/errors";
+import { AppError } from "@/utils/errors";
 
 type UniqueConstraintMeta = {
   cause?: {
