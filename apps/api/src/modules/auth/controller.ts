@@ -8,7 +8,6 @@ import {
   verifyEmailSchema,
 } from "./schemas";
 import CONFIG from "@/config";
-import { BadRequestError, NotFoundError } from "@/utils/errors";
 
 export async function register(req: Request, res: Response) {
   const data = registerSchema.parse(req.body);
@@ -24,16 +23,13 @@ export async function register(req: Request, res: Response) {
 
   res.cookie(CONFIG.SESSION_COOKIE, token, CONFIG.SESSION_COOKIE_CONFIG);
 
-  res.json({
-    publicId: user.publicId,
-    name: user.name,
-  });
+  res.send(204);
 }
 
 export async function login(req: Request, res: Response) {
   const data = loginSchema.parse(req.body);
 
-  const { token, user } = await authService.login(
+  const { token } = await authService.login(
     data.email,
     data.password,
     data.rememberMe,
@@ -41,10 +37,7 @@ export async function login(req: Request, res: Response) {
 
   res.cookie(CONFIG.SESSION_COOKIE, token, CONFIG.SESSION_COOKIE_CONFIG);
 
-  res.json({
-    publicId: user.publicId,
-    name: user.name,
-  });
+  res.send(204);
 }
 
 export async function logout(req: Request, res: Response) {
@@ -109,11 +102,4 @@ export async function resetPassword(req: Request, res: Response) {
   await authService.resetPassword(data.token, data.password);
 
   res.sendStatus(204);
-}
-
-export async function me(req: Request, res: Response) {
-  const user = await authService.getMe(req.user!.id);
-
-  if (user) res.json(user);
-  else throw new NotFoundError();
 }

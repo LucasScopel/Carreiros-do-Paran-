@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { QueryProvider } from "@/lib/query";
 
 export const metadata: Metadata = {
   title: "Carreiros do Paraná",
@@ -12,7 +13,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt">
-      <body>{children}</body>
+      <body>
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }

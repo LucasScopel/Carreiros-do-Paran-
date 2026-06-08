@@ -38,24 +38,6 @@ async function getUserByEmail(email: string) {
   return user;
 }
 
-export async function getMe(userId: bigint) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-
-    select: {
-      publicId: true,
-      email: true,
-      name: true,
-      admin: true,
-      createdAt: true,
-      avatarUrl: true,
-      birthDate: true,
-    },
-  });
-
-  return user;
-}
-
 export async function register(
   name: string,
   email: string,

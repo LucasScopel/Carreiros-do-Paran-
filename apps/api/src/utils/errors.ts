@@ -1,7 +1,9 @@
+import { ApiErrorCode } from "shared/types";
+
 export class AppError extends Error {
   constructor(
     public status: number,
-    public code: string,
+    public code: ApiErrorCode,
     message: string,
   ) {
     super(message);

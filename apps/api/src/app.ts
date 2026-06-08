@@ -1,9 +1,10 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 
-import authMiddleware from "@/middleware/auth";
-
 import authRoutes from "@/modules/auth/routes";
+import usersRoutes from "@/modules/users/routes";
+
+import authMiddleware from "@/middleware/auth";
 import { errorHandler } from "@/middleware/errorHandler";
 
 export const app = express();
@@ -14,6 +15,7 @@ app.use(cookieParser());
 app.use(authMiddleware);
 
 app.use("/auth", authRoutes);
+app.use("/users", usersRoutes);
 
 app.get("/", (_, res) => {
   res.send({

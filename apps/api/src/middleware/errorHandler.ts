@@ -19,7 +19,7 @@ export function errorHandler(
 ) {
   if (err instanceof AppError) {
     return res.status(err.status).json({
-      error: err.code,
+      code: err.code,
       message: err.message,
     });
   }
@@ -30,7 +30,7 @@ export function errorHandler(
     );
 
     return res.status(400).json({
-      error: "VALIDATION_ERROR",
+      code: "VALIDATION_ERROR",
       fields,
     });
   }
@@ -44,7 +44,7 @@ export function errorHandler(
 
         if (fields.includes("email")) {
           return res.status(409).json({
-            error: "EMAIL_TAKEN",
+            code: "EMAIL_TAKEN",
           });
         }
 
@@ -54,7 +54,7 @@ export function errorHandler(
       // Record not found
       case "P2025":
         return res.status(404).json({
-          error: "NOT_FOUND",
+          code: "NOT_FOUND",
         });
     }
   }
@@ -62,6 +62,6 @@ export function errorHandler(
   console.error(err);
 
   return res.status(500).json({
-    error: "INTERNAL_ERROR",
+    code: "INTERNAL_ERROR",
   });
 }
