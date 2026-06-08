@@ -5,7 +5,7 @@ import RoundedGreenInput from "@/app/components/rounded-orange-input";
 import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
 import Image from "next/image";
 
-export default function LogginForm() {
+export default function LoginForm() {
   //Estado para os dados do formulário
   const [formData, setFormData] = useState({
     email: "",
