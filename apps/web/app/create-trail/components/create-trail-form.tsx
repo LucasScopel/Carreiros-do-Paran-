@@ -39,6 +39,35 @@ function CreateTrailForm() {
       alert("Todos os campos são obrigatórios!");
       return;
     }
+    // Nome deve conter letras
+    if (!/[a-zA-ZÀ-ÿ]/.test(formData.name)) {
+      alert("O nome da trilha deve conter letras.");
+      return;
+    }
+
+    // Descrição mínima
+    if (formData.description.trim().length < 10) {
+      alert("A descrição deve ter pelo menos 10 caracteres.");
+      return;
+    }
+
+    // Localização deve conter letras
+    if (!/[a-zA-ZÀ-ÿ]/.test(formData.location)) {
+      alert("A localização deve conter letras.");
+      return;
+    }
+
+    // Distância maior que zero
+    if (Number(formData.distance) <= 0) {
+      alert("A distância deve ser maior que zero.");
+      return;
+    }
+
+    // Duração mínima
+    if (formData.estimatedDuration.trim().length <= 0) {
+      alert("Informe uma duração estimada válida.");
+      return;
+    }
 
     const trailData = {
       name: formData.name,
@@ -48,6 +77,11 @@ function CreateTrailForm() {
       distance: Number(formData.distance),
       estimatedDuration: formData.estimatedDuration,
     };
+
+    // Apenas para testes
+    // console.log("Trail data:", trailData);
+    // alert("Trilha validada com sucesso!");
+    // return;
 
     try {
       const response = await fetch("/api/trails/", {
@@ -120,14 +154,23 @@ function CreateTrailForm() {
           required
         />
 
-        <RoundedGreenInput
-          type="text"
+        <select
           name="difficulty"
-          placeholder="Nível de Dificuldade"
           value={formData.difficulty}
-          onChange={handleChange}
+          onChange={(e) =>
+            setFormData((previous) => ({
+              ...previous,
+              difficulty: e.target.value,
+            }))
+          }
           required
-        />
+          className="px-4 py-2 border-2 rounded-md text-black border-[#424242] bg-gray-100 focus:border-[#D99C6A] focus:outline-none hover:border-[#D99C6A] transition-colors duration-300"
+        >
+          <option value="">Selecione a dificuldade</option>
+          <option value="Fácil">Fácil</option>
+          <option value="Médio">Médio</option>
+          <option value="Difícil">Difícil</option>
+        </select>
 
         <RoundedGreenInput
           type="number"
@@ -156,3 +199,5 @@ function CreateTrailForm() {
 }
 
 export default CreateTrailForm;
+
+    
