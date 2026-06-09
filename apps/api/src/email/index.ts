@@ -12,6 +12,23 @@ export const mailer = nodemailer.createTransport({
   },
 });
 
+/**
+ * Envia um email utilizando o serviço de SMTP configurado.
+ *
+ *
+ *
+ * O assunto é automaticamente pós-fixado com o nome da aplicação.
+ *
+ * O conteúdo geralmente é gerado por templates.
+ *
+ * @example
+ * ```ts
+ * import { sendEmail } from "@/email";
+ * import { verifyEmailTemplate } from "@/email/verifyEmail";
+ *
+ * await sendEmail(email, verifyEmailTemplate(url));
+ * ```
+ */
 export async function sendEmail(
   to: string,
   email: {

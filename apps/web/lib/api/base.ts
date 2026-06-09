@@ -1,11 +1,17 @@
 import { ApiErrorResponse, ApiResult, MeResponse } from "shared/types";
 
-const API_BASE_URL = typeof window === "undefined" ? process.env.APP_URL : "";
-
-// Uma camada base de comunicação com a API.
+/**
+ * Função utilitária base responsável por realizar chamadas HTTP para a API.
+ *
+ * - Adiciona automaticamente `Content-Type: application/json` quando necessário
+ * - Faz parsing seguro da resposta JSON
+ * - Normaliza respostas em {@link ApiResult}
+ * - Diferencia erros esperados ({@link ApiErrorResponse}) de erros inesperados
+ */
 export async function baseApiFetch<T>(
   path: string,
   init?: RequestInit,
+  baseUrl: string = "",
 ): Promise<ApiResult<T>> {
   const headers = new Headers(init?.headers);
 
@@ -20,7 +26,7 @@ export async function baseApiFetch<T>(
   }
 
   // Faz a requisição para a rota da API
-  const response = await fetch(`${API_BASE_URL}/api${path}`, {
+  const response = await fetch(`${baseUrl}/api${path}`, {
     ...init,
     credentials: "include",
     headers,
@@ -60,9 +66,23 @@ export async function baseApiFetch<T>(
   };
 }
 
-export type ApiFetcher = typeof baseApiFetch;
+export type ApiFetcher = <T>(
+  path: string,
+  init?: RequestInit | undefined,
+) => Promise<ApiResult<T>>;
 
-// Factory que recebe uma implementação de fetch e cria uma API tipada.
+/**
+ * Fábrica que cria um client de API fortemente tipado.
+ *
+ * Recebe uma implementação de fetch ({@link ApiFetcher}) e retorna
+ * um conjunto de métodos organizados por domínio (auth, users, etc).
+ *
+ * Permite reutilizar a mesma definição de endpoints em:
+ * - Client (browser)
+ * - Server (Next.js SSR)
+ *
+ * @see {@link ApiResult}
+ */
 export function createApi(fetcher: ApiFetcher) {
   return {
     auth: {

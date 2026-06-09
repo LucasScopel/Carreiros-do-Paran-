@@ -2,9 +2,15 @@ import { ApiResult } from "shared/types";
 import { baseApiFetch, createApi } from "./base";
 import { cookies } from "next/headers";
 
-// O fetch executado no servidor não possui acesso automático
-// aos cookies do usuário. Por isso copiamos os cookies da
-// requisição atual para o backend Express.
+/**
+ * Implementação de fetch para o lado do servidor.
+ *
+ * Diferenças em relação ao client:
+ * - Injeta cookies da requisição atual
+ * - Usa APP_URL como base URL
+ *
+ * É preferível utilizar a API pela interface {@link api}
+ */
 export async function apiServerFetch<T>(
   path: string,
   init?: RequestInit,
@@ -13,13 +19,26 @@ export async function apiServerFetch<T>(
   const cookieStore = await cookies();
 
   if (cookieStore.size > 0) {
+    // O fetch executado no servidor não possui acesso automático aos cookies do usuário.
+    // Por isso copiamos os cookies da requisição atual para o backend Express.
     headers.set("Cookie", cookieStore.toString());
   }
 
-  return baseApiFetch(path, {
-    ...init,
-    headers,
-  });
+  return baseApiFetch(
+    path,
+    {
+      ...init,
+      headers,
+    },
+
+    // Server-side é necessário a URL completa da API
+    process.env.APP_URL,
+  );
 }
 
+/**
+ * Instância da API para uso no lado do servidor (Server Components).
+ *
+ * @see {@link ApiResult}
+ */
 export const api = createApi(apiServerFetch);

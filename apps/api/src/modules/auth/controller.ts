@@ -9,6 +9,11 @@ import {
 } from "./schemas";
 import CONFIG from "@/config";
 
+/**
+ * `POST /auth/register`
+ *
+ * Cria uma nova conta e inicia uma sessão.
+ */
 export async function register(req: Request, res: Response) {
   const data = registerSchema.parse(req.body);
 
@@ -26,6 +31,11 @@ export async function register(req: Request, res: Response) {
   res.send(204);
 }
 
+/**
+ * `POST /auth/login`
+ *
+ * Autentica o usuário e cria uma nova sessão.
+ */
 export async function login(req: Request, res: Response) {
   const data = loginSchema.parse(req.body);
 
@@ -40,6 +50,11 @@ export async function login(req: Request, res: Response) {
   res.send(204);
 }
 
+/**
+ * `POST /auth/logout`
+ *
+ * Encerra a sessão atual e limpa o cookie de sessão.
+ */
 export async function logout(req: Request, res: Response) {
   const token = req.cookies[CONFIG.SESSION_COOKIE];
 
@@ -55,6 +70,11 @@ export async function logout(req: Request, res: Response) {
   res.sendStatus(204);
 }
 
+/**
+ * `POST /auth/logout-all`
+ *
+ * Encerra todas as sessões ativas do usuário e limpa o cookie de sessão.
+ */
 export async function logoutAll(req: Request, res: Response) {
   if (!req.user) {
     res.sendStatus(204);
@@ -68,6 +88,11 @@ export async function logoutAll(req: Request, res: Response) {
   res.sendStatus(204);
 }
 
+/**
+ * `POST /auth/verify-email`
+ *
+ * Confirma o endereço de email utilizando um token de verificação.
+ */
 export async function verifyEmail(req: Request, res: Response) {
   const { token } = verifyEmailSchema.parse(req.body);
 
@@ -76,6 +101,11 @@ export async function verifyEmail(req: Request, res: Response) {
   res.sendStatus(204);
 }
 
+/**
+ * `POST /auth/resend-verification-email`
+ *
+ * Gera e envia um novo email de verificação.
+ */
 export async function resendVerificationEmail(req: Request, res: Response) {
   if (req.user!.emailVerified) {
     res.sendStatus(204);
@@ -87,6 +117,11 @@ export async function resendVerificationEmail(req: Request, res: Response) {
   res.sendStatus(204);
 }
 
+/**
+ * `POST /auth/forgot-password`
+ *
+ * Inicia o fluxo de recuperação de senha.
+ */
 export async function forgotPassword(req: Request, res: Response) {
   const data = forgotPasswordSchema.parse(req.body);
 
@@ -96,6 +131,11 @@ export async function forgotPassword(req: Request, res: Response) {
   res.sendStatus(204);
 }
 
+/**
+ * `POST /auth/reset-password`
+ *
+ * Define uma nova senha utilizando um token de recuperação.
+ */
 export async function resetPassword(req: Request, res: Response) {
   const data = resetPasswordSchema.parse(req.body);
 

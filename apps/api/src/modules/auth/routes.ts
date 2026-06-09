@@ -1,6 +1,5 @@
 import { Router } from "express";
 import * as controller from "./controller";
-import requireAuth from "@/middleware/requireAuth";
 import requireUnverifiedAuth from "@/middleware/requireUnverifiedAuth";
 
 const router = Router();

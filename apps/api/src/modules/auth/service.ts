@@ -8,6 +8,11 @@ import { sendEmail } from "@/email";
 import { verifyEmailTemplate } from "@/email/verifyEmail";
 import { passwordResetTemplate } from "@/email/passwordReset";
 
+/**
+ * Cria uma nova sessão para o usuário e retorna o token em texto puro.
+ *
+ * Apenas o hash do token é armazenado no banco.
+ */
 async function generateSessionToken(userId: bigint, rememberMe: boolean) {
   const { token, hash } = generateRandomToken();
 
@@ -28,6 +33,7 @@ async function generateSessionToken(userId: bigint, rememberMe: boolean) {
   return token;
 }
 
+/** Busca um usuário pelo email. */
 async function getUserByEmail(email: string) {
   const user = await prisma.user.findFirst({
     where: {
@@ -38,12 +44,16 @@ async function getUserByEmail(email: string) {
   return user;
 }
 
+/**
+ * Registra um novo usuário e cria sua primeira sessão.
+ */
 export async function register(
   name: string,
   email: string,
   password: string,
   birthDate: Date,
 ) {
+  // Nunca armazenamos a senha em texto puro.
   const hash = await argon2.hash(password);
 
   const publicId = nanoid();
@@ -66,6 +76,9 @@ export async function register(
   };
 }
 
+/**
+ * Autentica um usuário e cria uma nova sessão.
+ */
 export async function login(
   email: string,
   password: string,
@@ -87,6 +100,9 @@ export async function login(
   };
 }
 
+/**
+ * Encerra a sessão correspondente ao token passado.
+ */
 export async function logout(token: string) {
   const hash = hashToken(token);
 
@@ -97,6 +113,9 @@ export async function logout(token: string) {
   });
 }
 
+/**
+ * Encerra todas as sessões ativas do usuário.
+ */
 export async function logoutAll(userId: bigint) {
   await prisma.session.deleteMany({
     where: {
@@ -105,6 +124,9 @@ export async function logoutAll(userId: bigint) {
   });
 }
 
+/**
+ * Renova a validade de uma sessão persistente ("remember me").
+ */
 export async function renewSessionToken(id: bigint) {
   const newExpiry = new Date(Date.now() + CONFIG.SESSION_REMEMBER_ME_EXPIRY_MS);
 
@@ -118,6 +140,9 @@ export async function renewSessionToken(id: bigint) {
   });
 }
 
+/**
+ * Confirma o email do usuário a partir de um token de verificação válido.
+ */
 export async function verifyEmail(token: string) {
   const hash = hashToken(token);
 
@@ -133,6 +158,7 @@ export async function verifyEmail(token: string) {
     throw new BadRequestError("Expired verification token");
   }
 
+  // Marca o email como verificado e remove o token utilizado.
   await prisma.$transaction([
     prisma.user.update({
       where: {
@@ -152,7 +178,11 @@ export async function verifyEmail(token: string) {
   ]);
 }
 
+/**
+ * Gera um token de verificação de email e o envia para o usuário.
+ */
 export async function sendEmailVerification(userId: bigint, email: string) {
+  // Garante que há apenas um token de verificação para este usuário.
   await prisma.emailVerification.deleteMany({
     where: {
       userId: userId,
@@ -176,6 +206,9 @@ export async function sendEmailVerification(userId: bigint, email: string) {
   await sendEmail(email, verifyEmailTemplate(url));
 }
 
+/**
+ * Redefine uma senha utilizando um token de recuperação válido.
+ */
 export async function resetPassword(token: string, password: string) {
   const hash = hashToken(token);
 
@@ -193,6 +226,7 @@ export async function resetPassword(token: string, password: string) {
 
   const passwordHash = await argon2.hash(password);
 
+  // Atualiza a senha e invalida o token de recuperação.
   await prisma.$transaction([
     prisma.user.update({
       where: {
@@ -211,14 +245,21 @@ export async function resetPassword(token: string, password: string) {
     }),
   ]);
 
+  // Invalida todas as sessões após a troca de senha.
   await logoutAll(verification.userId);
 }
 
+/**
+ * Envia um email de recuperação de senha para o usuário.
+ *
+ * Retorna `false` quando o email não existe, `true` caso contrário.
+ */
 export async function sendPasswordReset(email: string) {
   const user = await getUserByEmail(email);
 
   if (!user) return false;
 
+  // Garante que há apenas um token de recuperação para este usuário.
   await prisma.passwordReset.deleteMany({
     where: {
       userId: user.id,

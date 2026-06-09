@@ -1,3 +1,8 @@
+/**
+ * Variáveis de configuração necessárias para o funcionamento do backend Express.
+ *
+ * Acesse os valores pela variável global {@link CONFIG}.
+ */
 export const APP_CONFIG = {
   IS_PROD: process.env.NODE_ENV === "production",
 
@@ -8,7 +13,6 @@ export const APP_CONFIG = {
   SESSION_COOKIE_CONFIG: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-
     sameSite: "lax" as const,
   },
 

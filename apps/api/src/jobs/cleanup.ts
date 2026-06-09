@@ -1,6 +1,14 @@
 import { prisma } from "database";
 import { Job } from ".";
 
+/**
+ * Job de limpeza periódica do sistema.
+ *
+ * Remove registros expirados do banco de dados:
+ * - Sessões expiradas
+ * - Tokens de verificação de email expirados
+ * - Tokens de recuperação de senha expirados
+ */
 export const cleanupJob: Job = {
   interval: 1 * 60 * 60 * 1000, // 1 hour
 
