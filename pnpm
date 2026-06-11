@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ ! -f "./bin/pnpm" ]; then
+	corepack enable > /dev/null
+
+	mkdir bin
+	ln -s /lib/node_modules/corepack/dist/pnpm.js bin/pnpm
+fi
+
+export PATH=$PATH:$PWD/bin
+
+/lib/node_modules/corepack/dist/pnpm.js "$*"
+

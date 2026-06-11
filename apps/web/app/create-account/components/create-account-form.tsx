@@ -1,4 +1,5 @@
 "use client";
+import { api } from "@/lib/api/client"
 import { useState } from "react";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import RoundedGreenInput from "@/app/components/rounded-orange-input";
@@ -41,42 +42,13 @@ function CreateAccount() {
       return;
     }
 
-    //Reúne os dados do usuário em uma variável que será enviada para a api
-    const userData = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      birthDate: formData.birthDate,
-    };
+    const result = await api.auth.register(formData.name, formData.email, formData.password, new Date(formData.birthDate)); 
 
-    try {
-      const response = await fetch("/api/auth/register/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      });
-
-      //Salva a mensagem que a api mandou de volta
-      const apiData = await response.json();
-
-      //Erro enviado pela api
-      if (!response.ok) {
-        //O erro será identificado pela mensagem de erro que a api enviou ou, se não tiver, pelo texto genérico
-        throw new Error(apiData.message || "Error when trying to log in");
-      }
-
-      console.log("Login sucess", apiData); //Se não deu erro, gg
-    } catch (error) {
-      console.error(error); //Apresenta o erro lançado no console pros dev
-
-      if (error instanceof Error) {
-        //Se for aquele erro que a gente lançou acima
-        alert(error.message); //Mostra o erro pro usuário
-      } else {
-        alert("Erro inesperado"); //Do contrário, mensagem genérica
-      }
+    if(result.ok) {
+      //só sucesso
     }
-  };
+    
+  }
 
   return (
     <MenuWhiteboard onSubmit={handleSubmit}>
