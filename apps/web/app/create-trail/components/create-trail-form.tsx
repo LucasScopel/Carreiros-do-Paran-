@@ -7,6 +7,7 @@ import RoundedGreenInput from "@/app/components/rounded-orange-input";
 import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
 
 function CreateTrailForm() {
+  // Estado que guarda todos os valores digitados no formulário.
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -16,6 +17,7 @@ function CreateTrailForm() {
     estimatedDuration: "",
   });
 
+  // Atualiza o campo correto com base no atributo "name" de cada input.
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -25,9 +27,11 @@ function CreateTrailForm() {
     }));
   };
 
+  // Valida os campos, monta os dados da trilha e envia para a API.
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Garante que nenhum campo obrigatório seja enviado vazio.
     if (
       !formData.name ||
       !formData.description ||
@@ -39,36 +43,38 @@ function CreateTrailForm() {
       alert("Todos os campos são obrigatórios!");
       return;
     }
-    // Nome deve conter letras
+
+    // Evita aceitar nomes compostos só por números ou símbolos.
     if (!/[a-zA-ZÀ-ÿ]/.test(formData.name)) {
       alert("O nome da trilha deve conter letras.");
       return;
     }
 
-    // Descrição mínima
+    // Exige uma descrição um pouco mais completa do que apenas uma palavra curta.
     if (formData.description.trim().length < 10) {
       alert("A descrição deve ter pelo menos 10 caracteres.");
       return;
     }
 
-    // Localização deve conter letras
+    // Evita aceitar localizações compostas só por números ou símbolos.
     if (!/[a-zA-ZÀ-ÿ]/.test(formData.location)) {
       alert("A localização deve conter letras.");
       return;
     }
 
-    // Distância maior que zero
+    // O input vem como texto, então converte para número antes de comparar.
     if (Number(formData.distance) <= 0) {
       alert("A distância deve ser maior que zero.");
       return;
     }
 
-    // Duração mínima
+    // Remove espaços antes de validar para não aceitar uma duração vazia.
     if (formData.estimatedDuration.trim().length <= 0) {
       alert("Informe uma duração estimada válida.");
       return;
     }
 
+    // Objeto final enviado para a API. A distância é convertida para número.
     const trailData = {
       name: formData.name,
       description: formData.description,
@@ -78,7 +84,7 @@ function CreateTrailForm() {
       estimatedDuration: formData.estimatedDuration,
     };
 
-    // Apenas para testes
+    // Bloco útil para testar a validação sem enviar dados para a API.
     // console.log("Trail data:", trailData);
     // alert("Trilha validada com sucesso!");
     // return;
@@ -92,6 +98,7 @@ function CreateTrailForm() {
         body: JSON.stringify(trailData),
       });
 
+      // Lê o JSON retornado pela API, seja em caso de sucesso ou de erro.
       const apiData = await response.json();
 
       if (!response.ok) {
@@ -104,6 +111,7 @@ function CreateTrailForm() {
 
       alert("Trilha cadastrada com sucesso!");
     } catch (error) {
+      // Mostra o erro no console para depuração e uma mensagem simples para o usuário.
       console.error(error);
 
       if (error instanceof Error) {
