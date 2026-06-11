@@ -8,10 +8,67 @@ datasource db {
 }
 
 model User {
-  id             Int     @id @default(autoincrement())
-  email          String  @unique
-  password       String
-  name           String
-  email_verified Boolean @default(false)
-  admin          Boolean @default(false)
+  id            BigInt   @id @default(autoincrement())
+  publicId      String   @unique
+  email         String   @unique
+  password      String
+  name          String
+  birthDate     DateTime
+  avatarUrl     String?
+  createdAt     DateTime @default(now())
+  emailVerified Boolean  @default(false)
+  admin         Boolean  @default(false)
+
+  sessions     Session[]
+  verification EmailVerification?
+  passwordReset PasswordReset?
+
+  @@index([publicId])
+  @@index([email])
+}
+
+model Session {
+  id    BigInt @id @default(autoincrement())
+  token String @unique
+
+  userId BigInt
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rememberMe Boolean  @default(false)
+  expiresAt  DateTime
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerification {
+  id    BigInt @id @default(autoincrement())
+  token String @unique
+
+  userId BigInt @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model PasswordReset {
+  id BigInt @id @default(autoincrement())
+
+  token String @unique
+
+  userId BigInt @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
 }

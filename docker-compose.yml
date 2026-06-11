@@ -15,6 +15,7 @@ services:
   nginx_dev:
     image: nginx:latest
     container_name: nginx_proxy
+    restart: unless-stopped
     environment:
       WEB_HOST: host.docker.internal
       WEB_PORT: ${WEB_PORT}
