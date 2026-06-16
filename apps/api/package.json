@@ -10,15 +10,18 @@
     "argon2": "^0.44.0",
     "cookie-parser": "^1.4.7",
     "database": "workspace:*",
-    "shared": "workspace:*",
     "express": "^5.2.1",
+    "multer": "^2.2.0",
     "nanoid": "^5.1.11",
     "nodemailer": "^8.0.9",
+    "shared": "workspace:*",
+    "sharp": "^0.35.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
+    "@types/multer": "^2.1.0",
     "@types/node": "^20.19.40",
     "tsx": "^4.21.0"
   }

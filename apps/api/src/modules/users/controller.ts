@@ -1,4 +1,4 @@
-import { NotFoundError } from "@/utils/errors";
+import { BadRequestError, NotFoundError } from "@/utils/errors";
 import { Request, Response } from "express";
 import { MeResponse } from "shared/types";
 import * as usersService from "./service";
@@ -28,5 +28,33 @@ export async function updateMe(req: Request, res: Response) {
 
   await usersService.updateUser(req.user!.id, data);
 
+  res.send(204);
+}
+
+/**
+ * `POST /users/me/avatar`
+ *
+ *
+ */
+export async function uploadAvatar(req: Request, res: Response) {
+  if (!req.file) {
+    throw new BadRequestError("Invalid image file");
+  }
+
+  await usersService.uploadAvatar(
+    req.user!.id,
+    req.user!.publicId,
+    req.file.buffer,
+  );
+
+  res.send(204);
+}
+
+/**
+ * `DELETE /users/me/avatar`
+ *
+ *
+ */
+export async function deleteAvatar(req: Request, res: Response) {
   res.send(204);
 }
