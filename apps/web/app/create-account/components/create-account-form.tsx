@@ -141,7 +141,7 @@ function CreateAccount() {
           <label className="pl-3">
             Li e concordo com os{" "}
             <a
-              href="#"
+              href="/usage-terms"
               className="text-[#D99C6A] font-bold hover:underline hover:text-[#c46518] hover:brightness-120  transition-all duration-300"
             >
               termos de uso
