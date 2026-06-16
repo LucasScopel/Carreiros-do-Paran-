@@ -1,6 +1,7 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import { api } from "@/lib/api/client";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 import Image from "next/image";
@@ -26,6 +27,12 @@ function VerifyEmailContent() {
   const [status, setStatus] = useState<
     "waiting" | "loading" | "success" | "error"
   >(mockStatus || (token ? "loading" : "waiting"));
+
+  //Faz uma chamada para a API enviar um novo email de verificação 
+  const handleResendVerification = async () => {
+    await api.auth.resendVerificationEmail(); 
+    alert("Enviado"); 
+  }; 
 
   //Verificação do token
   useEffect(() => {
@@ -91,7 +98,7 @@ function VerifyEmailContent() {
                 Não recebeu o e-mail?
               </p>
 
-              <SubmitFilledOrangeButton className="w-64 h-12">
+              <SubmitFilledOrangeButton type="button" onClick={handleResendVerification} className="w-64 h-12">
                 Reenviar
               </SubmitFilledOrangeButton>
             </>
@@ -140,7 +147,7 @@ function VerifyEmailContent() {
                 verficação
               </p>
 
-              <SubmitFilledOrangeButton className="w-64 h-12">
+              <SubmitFilledOrangeButton type="button" onClick={handleResendVerification} className="w-64 h-12">
                 Reenviar
               </SubmitFilledOrangeButton>
             </>
