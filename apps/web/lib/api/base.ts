@@ -146,6 +146,29 @@ export function createApi(fetcher: ApiFetcher) {
           method: "GET",
         });
       },
+
+      updateMe(data: Partial<{ name: string; description: string }>) {
+        return fetcher<void>("/users/me", {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+      },
+
+      uploadAvatar(file: File | Blob) {
+        const formData = new FormData();
+        formData.append("avatar", file);
+
+        return fetcher<void>("/users/me/avatar", {
+          method: "POST",
+          body: formData,
+        });
+      },
+
+      removeAvatar() {
+        return fetcher<void>("/users/me/avatar", {
+          method: "DELETE",
+        });
+      },
     },
   };
 }
