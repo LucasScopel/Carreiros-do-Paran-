@@ -19,6 +19,7 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
       publicId: true,
       email: true,
       name: true,
+      description: true,
       admin: true,
       createdAt: true,
       hasAvatar: true,
@@ -46,15 +47,13 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
  */
 export async function updateUser(
   userId: bigint,
-  data: Partial<{ name: string }>,
+  data: Partial<{ name: string; description: string }>,
 ) {
   await prisma.user.update({
     where: {
       id: userId,
     },
-    data: {
-      name: data.name,
-    },
+    data,
   });
 }
 

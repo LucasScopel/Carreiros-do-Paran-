@@ -13,6 +13,7 @@ model User {
   email         String   @unique
   password      String
   name          String
+  description   String   @default("")
   birthDate     DateTime
   hasAvatar     Boolean  @default(false)
   avatarVersion Int      @default(0)
