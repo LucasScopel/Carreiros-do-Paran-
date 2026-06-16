@@ -14,13 +14,14 @@ model User {
   password      String
   name          String
   birthDate     DateTime
-  avatarUrl     String?
+  hasAvatar     Boolean  @default(false)
+  avatarVersion Int      @default(0)
   createdAt     DateTime @default(now())
   emailVerified Boolean  @default(false)
   admin         Boolean  @default(false)
 
-  sessions     Session[]
-  verification EmailVerification?
+  sessions      Session[]
+  verification  EmailVerification?
   passwordReset PasswordReset?
 
   @@index([publicId])
@@ -64,7 +65,7 @@ model PasswordReset {
   token String @unique
 
   userId BigInt @unique
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   expiresAt DateTime
 

@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { MeResponse } from "shared/types";
 import * as usersService from "./service";
 import { updateUserSchema } from "./schemas";
-import { prisma } from "database";
 
 /**
  * `GET /users/me`
@@ -34,18 +33,20 @@ export async function updateMe(req: Request, res: Response) {
 /**
  * `POST /users/me/avatar`
  *
+ * Recebe um upload de imagem e usa ela como
+ * foto de perfil do usuário autenticado.
  *
+ * Retorna `400 Bad Request` para imagens inválidas
+ * ou pequenas demais.
  */
 export async function uploadAvatar(req: Request, res: Response) {
   if (!req.file) {
     throw new BadRequestError("Invalid image file");
   }
 
-  await usersService.uploadAvatar(
-    req.user!.id,
-    req.user!.publicId,
-    req.file.buffer,
-  );
+  await usersService.uploadAvatar(req.user!.publicId, req.file.buffer);
+
+  await usersService.updateAvatarVersion(req.user!.id);
 
   res.sendStatus(204);
 }
@@ -53,8 +54,10 @@ export async function uploadAvatar(req: Request, res: Response) {
 /**
  * `DELETE /users/me/avatar`
  *
- *
+ * Remove a foto de perfil do usuário autenticado.
  */
 export async function deleteAvatar(req: Request, res: Response) {
+  await usersService.removeAvatar(req.user!.id, req.user!.publicId);
+
   res.sendStatus(204);
 }
