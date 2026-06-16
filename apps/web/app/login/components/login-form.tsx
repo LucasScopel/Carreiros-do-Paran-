@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
-import RoundedGreenInput from "@/app/components/rounded-orange-input";
+import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
 import Image from "next/image";
 
@@ -85,7 +85,7 @@ export default function LoginForm() {
           interagir com a comunidade
         </p>
 
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="email"
           name="email"
           placeholder="Email"
@@ -93,7 +93,7 @@ export default function LoginForm() {
           onChange={handleChange}
           required
         />
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="password"
           name="password"
           placeholder="Senha"

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
-import RoundedGreenInput from "@/app/components/rounded-orange-input";
+import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
 
 function CreateAccount() {
@@ -89,7 +89,7 @@ function CreateAccount() {
           <br />
           interagir com a comunidade
         </p>
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="text"
           name="name"
           placeholder="Nome Completo"
@@ -97,7 +97,7 @@ function CreateAccount() {
           onChange={handleChange}
           required
         />
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="email"
           name="email"
           placeholder="Email"
@@ -105,7 +105,7 @@ function CreateAccount() {
           onChange={handleChange}
           required
         />
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="password"
           name="password"
           placeholder="Senha"
@@ -113,7 +113,7 @@ function CreateAccount() {
           onChange={handleChange}
           required
         />
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="password"
           name="passwordConfirmation"
           placeholder="Confirme a senha"
@@ -121,7 +121,7 @@ function CreateAccount() {
           onChange={handleChange}
           required
         />
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="date"
           name="birthDate"
           placeholder="Data de Nascimento"
