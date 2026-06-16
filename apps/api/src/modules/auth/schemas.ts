@@ -10,7 +10,7 @@ const passwordSchema = zod.string().min(6);
 export const registerSchema = zod.object({
   email: emailSchema,
   password: passwordSchema,
-  name: zod.string().trim().min(2),
+  name: zod.string().trim().min(2).max(100),
   birthDate: zod.iso
     .date()
     .pipe(zod.coerce.date())

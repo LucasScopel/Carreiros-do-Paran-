@@ -22,3 +22,17 @@ export async function getMe(userId: bigint) {
 
   return user;
 }
+
+export async function updateUser(
+  userId: bigint,
+  data: Partial<{ name: string }>,
+) {
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      name: data.name,
+    },
+  });
+}
