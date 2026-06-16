@@ -1,15 +1,18 @@
-interface SubmitFilledGreenButtonProps {
+interface SubmitFilledOrangeButtonProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-export default function SubmitFilledGreenButton({
+export default function SubmitFilledOrangeButton({
   children,
-}: SubmitFilledGreenButtonProps) {
+  className = "",
+}: SubmitFilledOrangeButtonProps) {
   return (
     <button
       type="submit"
-      className="py-2 rounded-md mx-auto mt-auto bg-[#D99C6A] text-white font-bold w-48
-                   cursor-pointer hover:bg-[#c46518] hover:brightness-120  transition-all duration-300"
+      className={`py-2 rounded-md mx-auto mt-auto bg-[#D99C6A] text-white font-bold w-48
+                   cursor-pointer hover:bg-[#c46518] hover:brightness-120  transition-all duration-300
+                   ${className}`}
     >
       {children}
     </button>

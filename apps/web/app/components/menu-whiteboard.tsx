@@ -2,7 +2,7 @@ import React from "react";
 
 //Cria o props para receber o outros elementos gráficos (children) e o onSubmit (onSubmit)
 interface MenuWhiteboardProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onSubmit?: (e: React.SubmitEvent<HTMLFormElement>) => void;
 }
 

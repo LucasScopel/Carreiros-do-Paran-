@@ -1,11 +1,14 @@
 "use client";
-import { api } from "@/lib/api/client"
+import { api } from "@/lib/api/client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import RoundedGreenInput from "@/app/components/rounded-orange-input";
-import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
+import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 
 function CreateAccount() {
+  const router = useRouter();
+
   //Estado para os dados do formulário
   const [formData, setFormData] = useState({
     name: "",
@@ -42,13 +45,19 @@ function CreateAccount() {
       return;
     }
 
-    const result = await api.auth.register(formData.name, formData.email, formData.password, new Date(formData.birthDate)); 
+    const result = await api.auth.register(
+      formData.name,
+      formData.email,
+      formData.password,
+      new Date(formData.birthDate),
+    );
 
-    if(result.ok) {
-      //só sucesso
+    //Se der tudo certo, vai redirecionar o usuário para a tela de confirmar email
+    //e envia o email digitado para ele ser mostrado na tela
+    if (result.ok) {
+      router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     }
-    
-  }
+  };
 
   return (
     <MenuWhiteboard onSubmit={handleSubmit}>
@@ -121,7 +130,7 @@ function CreateAccount() {
           </label>
         </div>
       </div>
-      <SubmitFilledGreenButton>Criar Conta</SubmitFilledGreenButton>
+      <SubmitFilledOrangeButton>Criar Conta</SubmitFilledOrangeButton>
     </MenuWhiteboard>
   );
 }
