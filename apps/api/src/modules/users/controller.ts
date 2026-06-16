@@ -28,7 +28,7 @@ export async function updateMe(req: Request, res: Response) {
 
   await usersService.updateUser(req.user!.id, data);
 
-  res.send(204);
+  res.sendStatus(204);
 }
 
 /**
@@ -47,7 +47,7 @@ export async function uploadAvatar(req: Request, res: Response) {
     req.file.buffer,
   );
 
-  res.send(204);
+  res.sendStatus(204);
 }
 
 /**
@@ -56,5 +56,5 @@ export async function uploadAvatar(req: Request, res: Response) {
  *
  */
 export async function deleteAvatar(req: Request, res: Response) {
-  res.send(204);
+  res.sendStatus(204);
 }

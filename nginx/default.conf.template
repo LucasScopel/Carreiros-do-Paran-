@@ -15,10 +15,20 @@ server {
         proxy_pass http://${API_HOST}:${API_PORT}/;
 
         proxy_set_header Host $host;
+        client_max_body_size 5M;
     }
 
     location = /api {
         proxy_pass http://${API_HOST}:${API_PORT}/;
         proxy_set_header Host $host;
+    }
+
+    location ~ ^/uploads/(?:avatars/)?([^/]+)\.(jpg|jpeg|png|webp)$ {
+        root /var/www;
+
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+
+        access_log off;
     }
 }
