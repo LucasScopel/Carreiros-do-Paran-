@@ -7,7 +7,6 @@ import RoundedGreenInput from "@/app/components/rounded-orange-input";
 import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
 
 function CreateTrailForm() {
-  // Estado que guarda todos os valores digitados no formulário.
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -18,7 +17,6 @@ function CreateTrailForm() {
     estimatedDuration: "",
   });
 
-  // Atualiza o campo correto com base no atributo "name" de cada input.
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -28,7 +26,6 @@ function CreateTrailForm() {
     }));
   };
 
-  // Valida os campos, monta os dados da trilha e envia para a API.
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -37,7 +34,7 @@ function CreateTrailForm() {
     const location = formData.location.trim();
     const coordinates = formData.coordinates.trim();
 
-    // Garante que nenhum campo obrigatório seja enviado vazio.
+    // Validação básica: garante que nenhum campo essencial seja enviado em branco para a API.
     if (
       !name ||
       !description ||
@@ -51,24 +48,24 @@ function CreateTrailForm() {
       return;
     }
 
-    // Evita aceitar nomes compostos só por números ou símbolos.
     if (!/[a-zA-ZÀ-ÿ]/.test(name)) {
       alert("O nome da trilha deve conter letras.");
       return;
     }
 
-    // Exige uma descrição um pouco mais completa do que apenas uma palavra curta.
     if (description.length < 10) {
       alert("A descrição deve ter pelo menos 10 caracteres.");
       return;
     }
 
-    // Evita aceitar localizações compostas só por números ou símbolos.
     if (!/[a-zA-ZÀ-ÿ]/.test(location)) {
       alert("A localização deve conter letras.");
       return;
     }
 
+    // Validação de Coordenadas Geográficas
+    // O Regex abaixo exige o formato exato "latitude, longitude" com ou sem espaço após a vírgula.
+    // Exemplo válido: "-23.5505, -46.6333"
     const coordinatesMatch = coordinates.match(
       /^(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/,
     );
@@ -93,7 +90,8 @@ function CreateTrailForm() {
       return;
     }
 
-    // O input vem como texto, então converte para número antes de comparar.
+    // O input do formulário sempre retorna texto (string). 
+    // Como a API exige que distância e duração sejam números, converte-se com Number() antes de validar.
     const distance = Number(formData.distance);
 
     if (isNaN(distance) || distance <= 0) {
@@ -101,7 +99,6 @@ function CreateTrailForm() {
       return;
     }
 
-    // Remove espaços antes de validar para não aceitar uma duração vazia.
     const duration = Number(formData.estimatedDuration);
 
     if (isNaN(duration) || duration <= 0) {
@@ -120,10 +117,7 @@ function CreateTrailForm() {
     };
 
     // Bloco útil para testar a validação sem enviar dados para a API.
-    // console.log("Trail data:", trailData);
-    // alert("Trilha validada com sucesso!");
-    // return;
-
+    
     try {
       const response = await fetch("/api/trails/", {
         method: "POST",
@@ -133,7 +127,6 @@ function CreateTrailForm() {
         body: JSON.stringify(trailData),
       });
 
-      // Lê o JSON retornado pela API, seja em caso de sucesso ou de erro.
       const apiData = await response.json();
 
       if (!response.ok) {
@@ -144,7 +137,7 @@ function CreateTrailForm() {
 
       alert("Trilha cadastrada com sucesso!");
     } catch (error) {
-      // Mostra o erro no console para depuração e uma mensagem simples para o usuário.
+
       console.error(error);
 
       if (error instanceof Error) {
@@ -198,7 +191,7 @@ function CreateTrailForm() {
         <RoundedGreenInput
           type="text"
           name="coordinates"
-          placeholder="Coordenadas (lat, lng)"
+          placeholder="Coordenadas (ex: -23.5505, -46.6333)"
           value={formData.coordinates}
           onChange={handleChange}
           required
@@ -223,9 +216,9 @@ function CreateTrailForm() {
         </select>
 
         <RoundedGreenInput
-          type="number"
+          type="text"
           name="distance"
-          placeholder="Distância (km)"
+          placeholder="Distância em Quilômetros (ex:1.4)"
           value={formData.distance}
           onChange={handleChange}
           required
@@ -234,7 +227,7 @@ function CreateTrailForm() {
         <RoundedGreenInput
           type="text"
           name="estimatedDuration"
-          placeholder="Duração Estimada"
+          placeholder="Duração Estimada em Minutos"
           value={formData.estimatedDuration}
           onChange={handleChange}
           required
