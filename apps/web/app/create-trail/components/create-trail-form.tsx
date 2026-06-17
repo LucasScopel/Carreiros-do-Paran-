@@ -32,12 +32,17 @@ function CreateTrailForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const name = formData.name.trim();
+    const description = formData.description.trim();
+    const location = formData.location.trim();
+    const coordinates = formData.coordinates.trim();
+
     // Garante que nenhum campo obrigatório seja enviado vazio.
     if (
-      !formData.name ||
-      !formData.description ||
-      !formData.location ||
-      !formData.coordinates ||
+      !name ||
+      !description ||
+      !location ||
+      !coordinates ||
       !formData.difficulty ||
       !formData.distance ||
       !formData.estimatedDuration
@@ -47,29 +52,29 @@ function CreateTrailForm() {
     }
 
     // Evita aceitar nomes compostos só por números ou símbolos.
-    if (!/[a-zA-ZÀ-ÿ]/.test(formData.name)) {
+    if (!/[a-zA-ZÀ-ÿ]/.test(name)) {
       alert("O nome da trilha deve conter letras.");
       return;
     }
 
     // Exige uma descrição um pouco mais completa do que apenas uma palavra curta.
-    if (formData.description.trim().length < 10) {
+    if (description.length < 10) {
       alert("A descrição deve ter pelo menos 10 caracteres.");
       return;
     }
 
     // Evita aceitar localizações compostas só por números ou símbolos.
-    if (!/[a-zA-ZÀ-ÿ]/.test(formData.location)) {
+    if (!/[a-zA-ZÀ-ÿ]/.test(location)) {
       alert("A localização deve conter letras.");
       return;
     }
 
-    const coordinatesMatch = formData.coordinates
-      .trim()
-      .match(/^(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/);
+    const coordinatesMatch = coordinates.match(
+      /^(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/,
+    );
 
     if (!coordinatesMatch) {
-      alert("As coordenadas devem estar no padrão do Google Maps: latitude, longitude.");
+      alert("As coordenadas devem estar no padrão: latitude, longitude.");
       return;
     }
 
@@ -82,31 +87,36 @@ function CreateTrailForm() {
       longitude < -180 ||
       longitude > 180
     ) {
-      alert("Informe coordenadas válidas: latitude entre -90 e 90 e longitude entre -180 e 180.");
+      alert(
+        "Informe coordenadas válidas: latitude entre -90 e 90 e longitude entre -180 e 180.",
+      );
       return;
     }
 
     // O input vem como texto, então converte para número antes de comparar.
-    if (Number(formData.distance) <= 0) {
-      alert("A distância deve ser maior que zero.");
+    const distance = Number(formData.distance);
+
+    if (isNaN(distance) || distance <= 0) {
+      alert("A distância deve ser um número maior que zero.");
       return;
     }
 
     // Remove espaços antes de validar para não aceitar uma duração vazia.
-    if (formData.estimatedDuration.trim().length <= 0) {
-      alert("Informe uma duração estimada válida.");
+    const duration = Number(formData.estimatedDuration);
+
+    if (isNaN(duration) || duration <= 0) {
+      alert("A duração deve ser um número maior que zero.");
       return;
     }
 
-    // Objeto final enviado para a API. A distância é convertida para número.
     const trailData = {
-      name: formData.name,
-      description: formData.description,
-      location: formData.location,
+      name,
+      description,
+      location,
       coordinates: `${latitude}, ${longitude}`,
       difficulty: formData.difficulty,
-      distance: Number(formData.distance),
-      estimatedDuration: formData.estimatedDuration,
+      distance,
+      estimatedDuration: duration,
     };
 
     // Bloco útil para testar a validação sem enviar dados para a API.
@@ -127,9 +137,7 @@ function CreateTrailForm() {
       const apiData = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          apiData.message || "Error when trying to create trail"
-        );
+        throw new Error(apiData.message || "Error when trying to create trail");
       }
 
       console.log("Trail created", apiData);
@@ -233,13 +241,9 @@ function CreateTrailForm() {
         />
       </div>
 
-      <SubmitFilledGreenButton>
-        Cadastrar Trilha
-      </SubmitFilledGreenButton>
+      <SubmitFilledGreenButton>Cadastrar Trilha</SubmitFilledGreenButton>
     </MenuWhiteboard>
   );
 }
 
 export default CreateTrailForm;
-
-    
