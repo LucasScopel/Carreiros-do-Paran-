@@ -90,7 +90,7 @@ function CreateTrailForm() {
       return;
     }
 
-    // O input do formulário sempre retorna texto (string). 
+    // O input do formulário sempre retorna texto (string).
     // Como a API exige que distância e duração sejam números, converte-se com Number() antes de validar.
     const distance = Number(formData.distance);
 
@@ -117,7 +117,9 @@ function CreateTrailForm() {
     };
 
     // Bloco útil para testar a validação sem enviar dados para a API.
-    
+    // console.log("Trail data:", trailData);
+    // alert("Trilha validada com sucesso!");
+    // return;
     try {
       const response = await fetch("/api/trails/", {
         method: "POST",
@@ -137,7 +139,6 @@ function CreateTrailForm() {
 
       alert("Trilha cadastrada com sucesso!");
     } catch (error) {
-
       console.error(error);
 
       if (error instanceof Error) {
