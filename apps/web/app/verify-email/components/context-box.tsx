@@ -28,11 +28,11 @@ function VerifyEmailContent() {
     "waiting" | "loading" | "success" | "error"
   >(mockStatus || (token ? "loading" : "waiting"));
 
-  //Faz uma chamada para a API enviar um novo email de verificação 
+  //Faz uma chamada para a API enviar um novo email de verificação
   const handleResendVerification = async () => {
-    await api.auth.resendVerificationEmail(); 
-    alert("Enviado"); 
-  }; 
+    await api.auth.resendVerificationEmail();
+    alert("Enviado");
+  };
 
   //Verificação do token
   useEffect(() => {
@@ -46,6 +46,7 @@ function VerifyEmailContent() {
         setStatus(response.ok ? "success" : "error");
       } catch (err) {
         //Se der algo muito errado, avisa
+        console.log(err);
         setStatus("error");
       }
     }
@@ -63,8 +64,6 @@ function VerifyEmailContent() {
       return () => clearTimeout(timer); //zera o timer
     }
   }, [status, router]);
-
-  async function handleResend() {}
 
   return (
     <div>
@@ -100,7 +99,11 @@ function VerifyEmailContent() {
                 Não recebeu o e-mail?
               </p>
 
-              <SubmitFilledOrangeButton type="button" onClick={handleResendVerification} className="w-64 h-12">
+              <SubmitFilledOrangeButton
+                type="button"
+                onClick={handleResendVerification}
+                className="w-64 h-12"
+              >
                 Reenviar
               </SubmitFilledOrangeButton>
             </>
@@ -149,7 +152,11 @@ function VerifyEmailContent() {
                 verficação
               </p>
 
-              <SubmitFilledOrangeButton type="button" onClick={handleResendVerification} className="w-64 h-12">
+              <SubmitFilledOrangeButton
+                type="button"
+                onClick={handleResendVerification}
+                className="w-64 h-12"
+              >
                 Reenviar
               </SubmitFilledOrangeButton>
             </>
