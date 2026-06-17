@@ -12,6 +12,7 @@ function CreateTrailForm() {
     name: "",
     description: "",
     location: "",
+    coordinates: "",
     difficulty: "",
     distance: "",
     estimatedDuration: "",
@@ -36,6 +37,7 @@ function CreateTrailForm() {
       !formData.name ||
       !formData.description ||
       !formData.location ||
+      !formData.coordinates ||
       !formData.difficulty ||
       !formData.distance ||
       !formData.estimatedDuration
@@ -62,6 +64,28 @@ function CreateTrailForm() {
       return;
     }
 
+    const coordinatesMatch = formData.coordinates
+      .trim()
+      .match(/^(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/);
+
+    if (!coordinatesMatch) {
+      alert("As coordenadas devem estar no padrão do Google Maps: latitude, longitude.");
+      return;
+    }
+
+    const latitude = Number(coordinatesMatch[1]);
+    const longitude = Number(coordinatesMatch[2]);
+
+    if (
+      latitude < -90 ||
+      latitude > 90 ||
+      longitude < -180 ||
+      longitude > 180
+    ) {
+      alert("Informe coordenadas válidas: latitude entre -90 e 90 e longitude entre -180 e 180.");
+      return;
+    }
+
     // O input vem como texto, então converte para número antes de comparar.
     if (Number(formData.distance) <= 0) {
       alert("A distância deve ser maior que zero.");
@@ -79,6 +103,7 @@ function CreateTrailForm() {
       name: formData.name,
       description: formData.description,
       location: formData.location,
+      coordinates: `${latitude}, ${longitude}`,
       difficulty: formData.difficulty,
       distance: Number(formData.distance),
       estimatedDuration: formData.estimatedDuration,
@@ -162,6 +187,15 @@ function CreateTrailForm() {
           required
         />
 
+        <RoundedGreenInput
+          type="text"
+          name="coordinates"
+          placeholder="Coordenadas (lat, lng)"
+          value={formData.coordinates}
+          onChange={handleChange}
+          required
+        />
+
         <select
           name="difficulty"
           value={formData.difficulty}
@@ -175,9 +209,9 @@ function CreateTrailForm() {
           className="px-4 py-2 border-2 rounded-md text-black border-[#424242] bg-gray-100 focus:border-[#D99C6A] focus:outline-none hover:border-[#D99C6A] transition-colors duration-300"
         >
           <option value="">Selecione a dificuldade</option>
-          <option value="Fácil">Fácil</option>
-          <option value="Médio">Médio</option>
-          <option value="Difícil">Difícil</option>
+          <option value="easy">Fácil</option>
+          <option value="medium">Médio</option>
+          <option value="hard">Difícil</option>
         </select>
 
         <RoundedGreenInput
