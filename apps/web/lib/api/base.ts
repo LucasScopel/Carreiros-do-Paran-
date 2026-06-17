@@ -86,7 +86,12 @@ export type ApiFetcher = <T>(
 export function createApi(fetcher: ApiFetcher) {
   return {
     auth: {
-      register(name: string, email: string, password: string, birthDate: Date) {
+      register(
+        name: string,
+        email: string,
+        password: string,
+        birthDate: string,
+      ) {
         return fetcher<void>("/auth/register", {
           method: "POST",
           body: JSON.stringify({ name, email, password, birthDate }),

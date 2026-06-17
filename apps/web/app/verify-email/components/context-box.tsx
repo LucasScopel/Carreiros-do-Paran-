@@ -57,6 +57,8 @@ function VerifyEmailContent() {
     }
   }, [status, router]);
 
+  async function handleResend() {}
+
   return (
     <div>
       <MenuWhiteboard>
