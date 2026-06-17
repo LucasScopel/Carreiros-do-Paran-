@@ -2,7 +2,7 @@
 import { useState } from "react";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import RoundedOrangeInput from "@/app/components/rounded-orange-input";
-import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
+import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 import Image from "next/image";
 
 export default function LoginForm() {
@@ -119,7 +119,7 @@ export default function LoginForm() {
           </a>
         </div>
 
-        <SubmitFilledGreenButton>Login</SubmitFilledGreenButton>
+        <SubmitFilledOrangeButton>Login</SubmitFilledOrangeButton>
 
         <label className="text-center text-[#263327]">
           Não tem uma conta?{" "}

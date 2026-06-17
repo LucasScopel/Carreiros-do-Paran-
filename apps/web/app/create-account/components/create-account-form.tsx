@@ -2,7 +2,7 @@
 import { useState } from "react";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import RoundedOrangeInput from "@/app/components/rounded-orange-input";
-import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
+import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 
 function CreateAccount() {
   //Estado para os dados do formulário
@@ -149,7 +149,7 @@ function CreateAccount() {
           </label>
         </div>
       </div>
-      <SubmitFilledGreenButton>Criar Conta</SubmitFilledGreenButton>
+      <SubmitFilledOrangeButton>Criar Conta</SubmitFilledOrangeButton>
     </MenuWhiteboard>
   );
 }
