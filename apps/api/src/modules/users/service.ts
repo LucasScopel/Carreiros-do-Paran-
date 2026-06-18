@@ -38,6 +38,7 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
 
   return {
     avatarUrl,
+    hasCustomAvatar: hasAvatar,
     ...rest,
   };
 }

@@ -5,6 +5,7 @@ export interface MeResponse {
   email: string;
   birthDate: Date;
   avatarUrl: string;
+  hasCustomAvatar: boolean;
   createdAt: Date;
   admin: boolean;
 }
