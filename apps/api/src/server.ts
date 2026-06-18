@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import { app } from "./app";
 import CONFIG from "./config";
 import jobs from "./jobs";
+import path from "node:path";
 
 function startJobs() {
   for (const job of jobs) {
@@ -10,6 +11,7 @@ function startJobs() {
 }
 
 async function makeUploadFolders() {
+  console.log(path.join(process.cwd(), CONFIG.AVATARS_DIR));
   await fs.mkdir(CONFIG.AVATARS_DIR, { recursive: true });
 }
 
