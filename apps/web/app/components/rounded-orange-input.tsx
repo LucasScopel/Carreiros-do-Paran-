@@ -1,7 +1,7 @@
 import React from "react";
 
 interface RoundedGreenInputProps {
-  type: "text" | "password" | "date" | "email";
+  type: "text" | "password" | "date" | "email" | "number";
   name: string;
   placeholder?: string;
   value: string; //Isso é controlado pelo componente que usar
