@@ -1,10 +1,14 @@
 "use client";
+import { api } from "@/lib/api/client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 
 function CreateAccount() {
+  const router = useRouter();
+
   //Estado para os dados do formulário
   const [formData, setFormData] = useState({
     name: "",
@@ -41,40 +45,20 @@ function CreateAccount() {
       return;
     }
 
-    //Reúne os dados do usuário em uma variável que será enviada para a api
-    const userData = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      birthDate: formData.birthDate,
-    };
+    console.log(formData.birthDate);
+    console.log(new Date(formData.birthDate));
 
-    try {
-      const response = await fetch("/api/auth/register/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
-      });
+    const result = await api.auth.register(
+      formData.name,
+      formData.email,
+      formData.password,
+      formData.birthDate,
+    );
 
-      //Salva a mensagem que a api mandou de volta
-      const apiData = await response.json();
-
-      //Erro enviado pela api
-      if (!response.ok) {
-        //O erro será identificado pela mensagem de erro que a api enviou ou, se não tiver, pelo texto genérico
-        throw new Error(apiData.message || "Error when trying to log in");
-      }
-
-      console.log("Login sucess", apiData); //Se não deu erro, gg
-    } catch (error) {
-      console.error(error); //Apresenta o erro lançado no console pros dev
-
-      if (error instanceof Error) {
-        //Se for aquele erro que a gente lançou acima
-        alert(error.message); //Mostra o erro pro usuário
-      } else {
-        alert("Erro inesperado"); //Do contrário, mensagem genérica
-      }
+    //Se der tudo certo, vai redirecionar o usuário para a tela de confirmar email
+    //e envia o email digitado para ele ser mostrado na tela
+    if (result.ok) {
+      router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     }
   };
 
@@ -141,7 +125,7 @@ function CreateAccount() {
           <label className="pl-3">
             Li e concordo com os{" "}
             <a
-              href="#"
+              href="/usage-terms"
               className="text-[#D99C6A] font-bold hover:underline hover:text-[#c46518] hover:brightness-120  transition-all duration-300"
             >
               termos de uso

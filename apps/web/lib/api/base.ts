@@ -86,7 +86,12 @@ export type ApiFetcher = <T>(
 export function createApi(fetcher: ApiFetcher) {
   return {
     auth: {
-      register(name: string, email: string, password: string, birthDate: Date) {
+      register(
+        name: string,
+        email: string,
+        password: string,
+        birthDate: string,
+      ) {
         return fetcher<void>("/auth/register", {
           method: "POST",
           body: JSON.stringify({ name, email, password, birthDate }),
@@ -144,6 +149,29 @@ export function createApi(fetcher: ApiFetcher) {
       me() {
         return fetcher<MeResponse>("/users/me", {
           method: "GET",
+        });
+      },
+
+      updateMe(data: Partial<{ name: string; description: string }>) {
+        return fetcher<void>("/users/me", {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+      },
+
+      uploadAvatar(file: File | Blob) {
+        const formData = new FormData();
+        formData.append("avatar", file);
+
+        return fetcher<void>("/users/me/avatar", {
+          method: "POST",
+          body: formData,
+        });
+      },
+
+      removeAvatar() {
+        return fetcher<void>("/users/me/avatar", {
+          method: "DELETE",
         });
       },
     },

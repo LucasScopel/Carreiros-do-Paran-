@@ -28,7 +28,7 @@ export async function register(req: Request, res: Response) {
 
   res.cookie(CONFIG.SESSION_COOKIE, token, CONFIG.SESSION_COOKIE_CONFIG);
 
-  res.send(204);
+  res.sendStatus(204);
 }
 
 /**
@@ -47,7 +47,7 @@ export async function login(req: Request, res: Response) {
 
   res.cookie(CONFIG.SESSION_COOKIE, token, CONFIG.SESSION_COOKIE_CONFIG);
 
-  res.send(204);
+  res.sendStatus(204);
 }
 
 /**
