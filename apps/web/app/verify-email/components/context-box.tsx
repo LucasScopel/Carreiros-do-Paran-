@@ -30,19 +30,20 @@ function VerifyEmailContent() {
 
   //Faz uma chamada para a API enviar um novo email de verificação
   const handleResendVerification = async () => {
-    await api.auth.resendVerificationEmail();
-    alert("Enviado");
+    const response = await api.auth.resendVerificationEmail();
   };
 
   //Verificação do token
   useEffect(() => {
-    //Se não tiver token, nem tem o que fazer
-    if (!token) return;
-
     async function verify() {
+      if (!token) {
+        setStatus("error");
+        return;
+      }
+
       try {
         //Envia o token para a api e armazena a resposta
-        const response = await fetch(`/api/verify-email?token=${token}`);
+        const response = await api.auth.verifyEmail(token);
         setStatus(response.ok ? "success" : "error");
       } catch (err) {
         //Se der algo muito errado, avisa
