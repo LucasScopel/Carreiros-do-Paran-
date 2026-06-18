@@ -74,3 +74,11 @@ model PasswordReset {
 
   @@index([expiresAt])
 }
+
+model Trail {
+  id BigInt @id @default(autoincrement())
+
+  name String
+
+  point Unsupported("geometry(Point,4326)")
+}
