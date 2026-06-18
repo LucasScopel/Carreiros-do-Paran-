@@ -4,7 +4,7 @@ export interface MeResponse {
   publicId: string;
   email: string;
   birthDate: Date;
-  avatarUrl: string | null;
+  avatarUrl: string;
   createdAt: Date;
   admin: boolean;
 }
