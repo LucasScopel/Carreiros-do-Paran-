@@ -1,5 +1,5 @@
 "use client";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import RoundedOrangeInput from "@/app/components/rounded-orange-input";
@@ -10,6 +10,7 @@ import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-butt
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const router = useRouter();
 
   //Para debug
   const mockStatus = searchParams.get("mockStatus") as
@@ -51,7 +52,35 @@ function ResetPasswordContent() {
     }
   };
 
-  const handlePasswordUpdate = as;
+  const handlePasswordUpdate = async () => {
+    if (!token) {
+      setStatus("error");
+      return;
+    }
+
+    if (data.password != data.passwordConfirmation) {
+      alert("As senhas digitadas não são iguais!");
+      return;
+    }
+
+    const response = await api.auth.resetPassword(token, data.password);
+
+    if (response.ok) {
+      setStatus("success");
+    } else {
+      setStatus("error");
+    }
+  };
+
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setTimeout(() => {
+        router.push("/profile"); //vai para a tela de login
+      }, 5000); //após 5 segundos
+
+      return () => clearTimeout(timer); //zera o timer
+    }
+  }, [status, router]);
 
   return (
     <div>
@@ -143,7 +172,13 @@ function ResetPasswordContent() {
                 required
               />
 
-              <SubmitFilledOrangeButton>Redefinir</SubmitFilledOrangeButton>
+              <SubmitFilledOrangeButton
+                type="button"
+                onClick={handlePasswordUpdate}
+                className="w-64 h-12"
+              >
+                Redefinir
+              </SubmitFilledOrangeButton>
             </>
           )}
 
@@ -152,6 +187,10 @@ function ResetPasswordContent() {
               <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-2">
                 Senha Redefinida com Sucesso
               </h1>
+
+              <p className="mt-15 text-2xl text-center leading-tight mb-10">
+                Você será redirecionado <br /> para o seu perfil em breve
+              </p>
             </>
           )}
 
@@ -160,6 +199,23 @@ function ResetPasswordContent() {
               <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-2">
                 Algo deu Errado
               </h1>
+
+              <p className="mt-15 text-2xl text-center leading-tight mb-10">
+                Este link é inválido ou expirou
+              </p>
+
+              <p className="mt-15 text-2xl text-center leading-tight mb-10">
+                Clique no botão abaixo para gerar <br /> um novo link de
+                redefinição de senha
+              </p>
+
+              <SubmitFilledOrangeButton
+                type="button"
+                onClick={handleSendSolicitation}
+                className="w-64 h-12"
+              >
+                Reenviar
+              </SubmitFilledOrangeButton>
             </>
           )}
         </div>
