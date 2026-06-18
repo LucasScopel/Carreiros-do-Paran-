@@ -1,5 +1,5 @@
 import Image from "next/image";
-import ResetPassword from "./components/reset-password-form";
+import ForgotPassword from "./components/forgot-password-form";
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
         className="object-cover -z-10"
       />
 
-      <ResetPassword />
+      <ForgotPassword />
     </div>
   );
 }

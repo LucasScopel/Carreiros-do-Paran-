@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useEffect, useState, Suspense } from "react";
 import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 
-function ResetPasswordContent() {
+function ForgotPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const router = useRouter();
@@ -224,10 +224,10 @@ function ResetPasswordContent() {
   );
 }
 
-export default function ResetPassword() {
+export default function ForgotPassword() {
   return (
     <Suspense fallback={<div className="text-center mt-10">Carregando...</div>}>
-      <ResetPasswordContent />
+      <ForgotPasswordContent />
     </Suspense>
   );
 }
