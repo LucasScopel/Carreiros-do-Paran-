@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MeResponse } from "shared/types";
+import { LogOut, UserRound } from "lucide-react";
 
 interface UserMenuProps {
   user: MeResponse;
@@ -102,12 +103,14 @@ export default function UserMenu({ user }: UserMenuProps) {
             <Link
               href="/profile"
               className="
-                block px-4 py-3
-                text-sm
+                inline-flex items-center gap-3
+                w-full px-4 py-3
+                text-sm text-black font-semibold
                 hover:bg-gray-200 transition-all duration-300
               "
               onClick={handleGoToProfile}
             >
+              <UserRound />
               Perfil
             </Link>
           </div>
@@ -116,12 +119,14 @@ export default function UserMenu({ user }: UserMenuProps) {
             <button
               onClick={handleLogout}
               className="
+                inline-flex items-center gap-3
                 w-full px-4 py-3
-                text-left text-sm text-red-600
+                text-sm text-red-600 font-semibold
                 hover:bg-red-200 transition-all duration-300
                 cursor-pointer
               "
             >
+              <LogOut />
               Sair
             </button>
           </div>
