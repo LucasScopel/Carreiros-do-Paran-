@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/api/client";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
@@ -7,6 +8,8 @@ import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-butt
 import Image from "next/image";
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -23,12 +26,18 @@ export default function LoginForm() {
   };
 
   const handleLogin = async () => {
-    try {
-      await api.auth.login(formData.email, formData.password, rememberMe);
-      console.log("sucesso");
-    } catch (error) {
-      alert("deu errado");
+    const result = await api.auth.login(
+      formData.email,
+      formData.password,
+      rememberMe,
+    );
+
+    if (!result.ok) {
+      alert(result.error.message);
+      return;
     }
+
+    router.push("/create-trail");
   };
 
   return (
