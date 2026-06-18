@@ -9,7 +9,7 @@ export default function SubmitFilledOrangeButton({
   onClick,
   children,
   className = "",
-  type="submit",
+  type = "submit",
 }: SubmitFilledOrangeButtonProps) {
   return (
     <button

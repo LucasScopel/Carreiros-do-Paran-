@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/api/client";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
-import RoundedGreenInput from "@/app/components/rounded-orange-input";
+import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 import Image from "next/image";
 
@@ -60,7 +60,7 @@ export default function LoginForm() {
           interagir com a comunidade
         </p>
 
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="email"
           name="email"
           placeholder="Email"
@@ -68,7 +68,7 @@ export default function LoginForm() {
           onChange={handleChange}
           required
         />
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="password"
           name="password"
           placeholder="Senha"
@@ -100,10 +100,7 @@ export default function LoginForm() {
           </a>
         </div>
 
-        {/* Botão como type="button" chamando sua função diretamente */}
-        <SubmitFilledOrangeButton type="button" onClick={handleLogin}>
-          Login
-        </SubmitFilledOrangeButton>
+        <SubmitFilledOrangeButton>Login</SubmitFilledOrangeButton>
 
         <label className="text-center text-[#263327]">
           Não tem uma conta?{" "}
