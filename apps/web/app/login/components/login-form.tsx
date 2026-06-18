@@ -22,7 +22,6 @@ export default function LoginForm() {
     }));
   };
 
-  // Seu fluxo desejado usando a api direto
   const handleLogin = async () => {
     try {
       await api.auth.login(formData.email, formData.password, rememberMe);
