@@ -30,7 +30,7 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
 
   if (!user) return null;
 
-  const { hasAvatar, avatarVersion, ...rest } = user;
+  const { hasAvatar, avatarVersion, birthDate, createdAt, ...rest } = user;
 
   const avatarUrl = hasAvatar
     ? `/uploads/avatars/${user.publicId}.webp?v=${avatarVersion}`
@@ -39,6 +39,8 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
   return {
     avatarUrl,
     hasCustomAvatar: hasAvatar,
+    birthDate: birthDate.toISOString(),
+    createdAt: createdAt.toISOString(),
     ...rest,
   };
 }

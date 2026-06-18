@@ -3,9 +3,9 @@ export interface MeResponse {
   description: string;
   publicId: string;
   email: string;
-  birthDate: Date;
+  birthDate: string;
   avatarUrl: string;
   hasCustomAvatar: boolean;
-  createdAt: Date;
+  createdAt: string;
   admin: boolean;
 }
