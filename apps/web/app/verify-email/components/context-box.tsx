@@ -30,7 +30,7 @@ function VerifyEmailContent() {
 
   //Faz uma chamada para a API enviar um novo email de verificação
   const handleResendVerification = async () => {
-    const response = await api.auth.resendVerificationEmail();
+    await api.auth.resendVerificationEmail();
   };
 
   //Verificação do token
