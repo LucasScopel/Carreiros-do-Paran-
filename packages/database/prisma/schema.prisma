@@ -81,4 +81,12 @@ model Trail {
   name String
 
   point Unsupported("geometry(Point,4326)")
+
+  description String
+
+  address String
+
+  distance Float
+
+  duration Int
 }

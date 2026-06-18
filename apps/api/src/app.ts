@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 
 import authRoutes from "@/modules/auth/routes";
 import usersRoutes from "@/modules/users/routes";
+import trailsRoutes from "@/modules/trails/routes";
 
 import authMiddleware from "@/middleware/auth";
 import { errorHandler } from "@/middleware/errorHandler";
@@ -16,6 +17,7 @@ app.use(authMiddleware);
 
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
+app.use("/trails", trailsRoutes);
 
 app.get("/", (_, res) => {
   res.send({
