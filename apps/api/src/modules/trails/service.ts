@@ -19,5 +19,3 @@ import { prisma } from "database";
     },
   });
 }
-/*pro cadastro de uma nova trilha você precisa primeiro fazer uma função que cria trilha no service.ts,
- essa função vai receber como parâmetros tudo que ela precisa pra criar uma trilha, e o controller newTrail vai chamar esse service passando os dados já validados
