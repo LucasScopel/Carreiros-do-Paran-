@@ -46,6 +46,8 @@ export async function updateTrail(
     duration: number;
   }>,
 ) {
+  if (!(Object.keys(data).length > 0)) return;
+
   const trail = await prisma.trail.findUnique({
     where: {
       publicId: publicId,
@@ -56,24 +58,24 @@ export async function updateTrail(
     throw new NotFoundError();
   }
 
-  await prisma.trail.update({
-    where: {
-      id: trail.id,
-    },
-    data: {
-      name: data.name,
-      description: data.description,
-      address: data.address,
-      length: data.length,
-      duration: data.duration,
-    },
-  });
+  await prisma.$transaction(async (tx) => {
+    const { point, ...rest } = data;
 
-  if (data.point !== undefined) {
-    await prisma.$executeRaw`
-      UPDATE "Trail"
-      SET point = ST_SetSRID(ST_MakePoint(${data.point.lon}, ${data.point.lat}), 4326)
-      WHERE id = ${trail.id}
-    `;
-  }
+    if (Object.keys(rest).length > 0) {
+      await tx.trail.update({
+        where: {
+          id: trail.id,
+        },
+        data: rest,
+      });
+    }
+
+    if (data.point !== undefined) {
+      await tx.$executeRaw`
+        UPDATE "Trail"
+        SET point = ST_SetSRID(ST_MakePoint(${data.point.lon}, ${data.point.lat}), 4326)
+        WHERE id = ${trail.id}
+      `;
+    }
+  });
 }
