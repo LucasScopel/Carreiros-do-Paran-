@@ -5,6 +5,6 @@ import requireAuth from "@/middleware/requireAuth";
 const router = Router();
 
 router.post("/", requireAuth, controller.newTrail);
-router.patch("/", requireAuth, controller.updateTrail);
+router.patch("/:trailId", requireAuth, controller.updateTrail);
 
 export default router;
