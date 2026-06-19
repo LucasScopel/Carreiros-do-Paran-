@@ -1,21 +1,35 @@
 import { prisma } from "database";
+import { nanoid } from "nanoid";
 
- export async function newTrail(
-  name: string, 
-  point: string, 
-  description: string, 
-  address: string, 
-  distance: number, 
-  duration: number
+export async function newTrail(
+  name: string,
+  point: { lat: number; lon: number },
+  description: string,
+  address: string,
+  length: number,
+  duration: number,
 ) {
-    const trail = await prisma.create({
-    data: {
+  const publicId = nanoid();
+
+  await prisma.$executeRaw`
+    INSERT INTO "Trail" (
+      "publicId",
       name,
       point,
       description,
       address,
-      distance,
-      duration,
-    },
-  });
+      length,
+      duration
+    ) VALUES (
+      ${publicId},
+      ${name},
+      ST_SetSRID(ST_MakePoint(${point.lon}, ${point.lat}), 4326),
+      ${description},
+      ${address},
+      ${length},
+      ${duration}
+    )
+  `;
+
+  return publicId;
 }

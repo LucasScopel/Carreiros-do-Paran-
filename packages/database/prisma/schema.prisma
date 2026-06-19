@@ -78,6 +78,8 @@ model PasswordReset {
 model Trail {
   id BigInt @id @default(autoincrement())
 
+  publicId String @unique
+
   name String
 
   point Unsupported("geometry(Point,4326)")
@@ -86,7 +88,9 @@ model Trail {
 
   address String
 
-  distance Float
+  length Float
 
   duration Int
+
+  @@index([publicId])
 }
