@@ -45,9 +45,6 @@ function CreateAccount() {
       return;
     }
 
-    console.log(formData.birthDate);
-    console.log(new Date(formData.birthDate));
-
     const result = await api.auth.register(
       formData.name,
       formData.email,
