@@ -2,10 +2,12 @@
 import { useState } from "react";
 import Banner from "./banner";
 import { InfoCard } from "./info-card";
-import Rating from "./rating";
+import StarRating from "./star-rating";
+import FlameRating from "./flame-rating";
 
 export default function PageScript() {
-  const [rating, setRating] = useState(0);
+  const [starRating, setStarRating] = useState(0);
+  const [flameRating, setFlameRating] = useState(0);
 
   return (
     <main className="w-full">
@@ -43,7 +45,12 @@ export default function PageScript() {
                   >
                     <div className="flex flex-col gap-4 mt-3">
                       <p className="text-xl text-black">Sua Avaliação</p>
-                      <Rating value={rating} onChange={setRating} />
+                      <StarRating value={starRating} onChange={setStarRating} />
+                      <p className="text-xl text-black">O quão difícil achou</p>
+                      <FlameRating
+                        value={flameRating}
+                        onChange={setFlameRating}
+                      />
                       <p className="text-xl text-black">Seu relato</p>
                       <input
                         className="w-full px-4 py-2 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 

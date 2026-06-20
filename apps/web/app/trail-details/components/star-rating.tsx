@@ -1,11 +1,11 @@
 import { Star } from "lucide-react";
 
-interface RatingProps {
+interface StarRatingProps {
   value: number;
   onChange: (value: number) => void;
 }
 
-export default function Rating({ value, onChange }: RatingProps) {
+export default function StarRating({ value, onChange }: StarRatingProps) {
   //Verifica se clicou na direita ou na esquerda da estrela
   const handleClick = (
     e: React.MouseEvent<SVGSVGElement>, //Clique do mouse
