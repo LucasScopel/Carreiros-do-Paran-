@@ -73,3 +73,11 @@ export async function getTrail(req: Request, res: Response) {
 
   res.send(trail);
 }
+
+export async function removeTrail(req: Request, res: Response) {
+  const trailId = getTrailIdParam(req.params);
+
+  await trailsService.removeTrail(trailId);
+
+  res.sendStatus(204);
+}

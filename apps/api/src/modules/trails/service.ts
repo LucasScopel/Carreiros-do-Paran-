@@ -363,3 +363,42 @@ export async function getTrail(publicId: string): Promise<TrailResponse> {
     point: point[0],
   };
 }
+
+export async function removeTrail(publicId: string) {
+  const trail = await prisma.trail.findUnique({
+    where: {
+      publicId: publicId,
+    },
+    include: {
+      images: {
+        select: {
+          id: true,
+          format: true,
+        },
+      },
+    },
+  });
+
+  if (!trail) {
+    throw new NotFoundError();
+  }
+
+  // Remover a trilha vai automaticamente remover as
+  // imagens e reviews dela, por conta do onCascade
+  await prisma.trail.delete({
+    where: {
+      id: trail.id,
+    },
+  });
+
+  await Promise.allSettled(
+    trail.images.map(async (image) => {
+      const filePath = path.join(
+        CONFIG.TRAILS_IMG_DIR,
+        createTrailImageFileName(publicId, image.id, image.format),
+      );
+
+      await fs.unlink(filePath);
+    }),
+  );
+}

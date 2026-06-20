@@ -6,8 +6,10 @@ import CONFIG from "@/config";
 
 const router = Router();
 
+router.get("/:trailId", controller.getTrail);
 router.post("/", requireAdmin, controller.newTrail);
 router.patch("/:trailId", requireAdmin, controller.updateTrail);
+router.delete("/:trailId", requireAdmin, controller.removeTrail);
 
 router.post(
   "/:trailId/images",
@@ -15,9 +17,6 @@ router.post(
   trailImageUpload.array("images", CONFIG.MAX_TRAIL_IMAGE_COUNT),
   controller.uploadTrailImages,
 );
-
 router.patch("/:trailId/images", requireAdmin, controller.updateTrailImages);
-
-router.get("/:trailId", controller.getTrail);
 
 export default router;
