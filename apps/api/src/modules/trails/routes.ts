@@ -1,10 +1,20 @@
 import { Router } from "express";
 import * as controller from "./controller";
-import requireAuth from "@/middleware/requireAuth";
+import requireAdmin from "@/middleware/requireAdmin";
+import { trailImageUpload } from "./upload";
 
 const router = Router();
 
-router.post("/", requireAuth, controller.newTrail);
-router.patch("/:trailId", requireAuth, controller.updateTrail);
+router.post("/", requireAdmin, controller.newTrail);
+router.patch("/:trailId", requireAdmin, controller.updateTrail);
+
+router.post(
+  "/:trailId/images",
+  requireAdmin,
+  trailImageUpload.array("images", 10),
+  controller.uploadTrailImages,
+);
+
+router.patch("/:trailId/images", requireAdmin, controller.updateTrailImages);
 
 export default router;

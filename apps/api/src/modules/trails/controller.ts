@@ -1,12 +1,28 @@
 import { Request, Response } from "express";
-import { newTrailSchema, updateTrailSchema } from "./schemas";
-import * as trailService from "./service";
+import {
+  newTrailSchema,
+  updateTrailImagesSchema,
+  updateTrailSchema,
+} from "./schemas";
+import * as trailsService from "./service";
 import { BadRequestError } from "@/utils/errors";
+
+interface ParamsDictionary {
+  [key: string]: string | string[];
+  [key: number]: string;
+}
+
+function getTrailIdParam(params: ParamsDictionary) {
+  if (!params.trailId) {
+    throw new BadRequestError("Missing trail id");
+  }
+  return params.trailId as string;
+}
 
 export async function newTrail(req: Request, res: Response) {
   const data = newTrailSchema.parse(req.body);
 
-  const publicId = await trailService.newTrail(
+  const publicId = await trailsService.newTrail(
     data.name,
     data.point,
     data.description,
@@ -19,13 +35,33 @@ export async function newTrail(req: Request, res: Response) {
 }
 
 export async function updateTrail(req: Request, res: Response) {
+  const trailId = getTrailIdParam(req.params);
+
   const data = updateTrailSchema.parse(req.body);
 
-  if (!req.params.trailId) {
-    throw new BadRequestError("Missing trail id");
+  await trailsService.updateTrail(trailId, data);
+
+  res.sendStatus(204);
+}
+
+export async function uploadTrailImages(req: Request, res: Response) {
+  const trailId = getTrailIdParam(req.params);
+
+  if (!req.files || !Array.isArray(req.files) || !(req.files.length > 0)) {
+    throw new BadRequestError("Invalid image file(s)");
   }
 
-  await trailService.updateTrail(req.params.trailId as string, data);
+  const imageIds = await trailsService.uploadTrailImages(trailId, req.files);
+
+  res.send(imageIds);
+}
+
+export async function updateTrailImages(req: Request, res: Response) {
+  const trailId = getTrailIdParam(req.params);
+
+  const data = updateTrailImagesSchema.parse(req.body);
+
+  await trailsService.updateTrailImages(trailId, data);
 
   res.sendStatus(204);
 }

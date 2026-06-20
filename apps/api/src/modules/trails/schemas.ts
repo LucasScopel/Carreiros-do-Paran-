@@ -14,7 +14,16 @@ export const newTrailSchema = zod.object({
   description: zod.string(),
   address: zod.string(),
   length: zod.number(),
-  duration: zod.number(),
+  duration: zod.int(),
 });
 
-export const updateTrailSchema = newTrailSchema.partial();
+export const updateTrailSchema = newTrailSchema
+  .extend({
+    deletedImages: zod.array(zod.int()),
+  })
+  .partial();
+
+export const updateTrailImagesSchema = zod.object({
+  deletedImages: zod.array(zod.int()),
+  orderedImages: zod.array(zod.int()),
+});
