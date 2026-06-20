@@ -8,6 +8,7 @@ import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 import Image from "next/image";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -101,12 +102,12 @@ export default function LoginForm() {
             Manter-me conectado
           </label>
 
-          <a
+          <Link
             href="/forgot-password"
             className="ml-auto mr-1.5 text-[#D99C6A] hover:underline hover:text-[#c46518] hover:brightness-120 transition-all duration-300"
           >
             Esqueceu a senha?
-          </a>
+          </Link>
         </div>
 
         <SubmitFilledOrangeButton type="button" onClick={handleLogin}>
@@ -115,12 +116,12 @@ export default function LoginForm() {
 
         <label className="text-center text-[#263327]">
           Não tem uma conta?{" "}
-          <a
+          <Link
             href="/create-account"
             className="text-[#D99C6A] hover:underline hover:text-[#c46518] hover:brightness-120 transition-all duration-300"
           >
             Cadastre-se aqui!
-          </a>
+          </Link>
         </label>
       </div>
     </MenuWhiteboard>
