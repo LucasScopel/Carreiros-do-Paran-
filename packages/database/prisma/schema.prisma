@@ -76,16 +76,19 @@ model PasswordReset {
 }
 
 model Trail {
-  id BigInt @id @default(autoincrement())
+  id       BigInt @id @default(autoincrement())
   publicId String @unique
 
-  name String
+  name        String
   description String
 
-  point Unsupported("geometry(Point,4326)")
-  address String
-  length Float
+  point    Unsupported("geometry(Point,4326)")
+  address  String
+  length   Float
   duration Int
+
+  reviewCount Int @default(0)
+  ratingSum   Int @default(0)
 
   images TrailImage[]
 
@@ -96,10 +99,10 @@ model TrailImage {
   id Int @id @default(autoincrement())
 
   trailId BigInt
-  trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade)
+  trail   Trail  @relation(fields: [trailId], references: [id], onDelete: Cascade)
 
   position Int
-  format String
+  format   String
 
   @@index([id, trailId])
 }

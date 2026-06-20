@@ -65,3 +65,11 @@ export async function updateTrailImages(req: Request, res: Response) {
 
   res.sendStatus(204);
 }
+
+export async function getTrail(req: Request, res: Response) {
+  const trailId = getTrailIdParam(req.params);
+
+  const trail = await trailsService.getTrail(trailId);
+
+  res.send(trail);
+}

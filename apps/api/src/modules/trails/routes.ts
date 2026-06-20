@@ -18,4 +18,6 @@ router.post(
 
 router.patch("/:trailId/images", requireAdmin, controller.updateTrailImages);
 
+router.get("/:trailId", controller.getTrail);
+
 export default router;

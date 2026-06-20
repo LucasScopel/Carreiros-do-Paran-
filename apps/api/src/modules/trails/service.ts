@@ -6,6 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { createTrailImageFileName } from "./utils";
+import { TrailResponse } from "shared/types";
 
 export async function newTrail(
   name: string,
@@ -310,4 +311,55 @@ export async function updateTrailImages(
       await fs.unlink(filePath);
     }),
   );
+}
+
+export async function getTrail(publicId: string): Promise<TrailResponse> {
+  const [maybeTrail, point] = await Promise.all([
+    prisma.trail.findUnique({
+      where: {
+        publicId: publicId,
+      },
+      include: {
+        images: {
+          select: {
+            id: true,
+            format: true,
+          },
+          orderBy: {
+            position: "asc",
+          },
+        },
+      },
+    }),
+
+    prisma.$queryRaw<
+      {
+        lon: number;
+        lat: number;
+      }[]
+    >`
+      SELECT
+        ST_X(point::geometry) AS lon,
+        ST_Y(point::geometry) AS lat
+      FROM "Trail"
+      WHERE "publicId" = ${publicId}
+    `,
+  ]);
+
+  if (!maybeTrail) {
+    throw new NotFoundError();
+  }
+
+  const { id, images, ratingSum, ...trail } = maybeTrail;
+
+  return {
+    ...trail,
+    averageRating:
+      trail.reviewCount === 0 ? 0 : ratingSum / 2 / trail.reviewCount,
+    images: images.map((image) => ({
+      id: image.id,
+      url: `/uploads/trails/${createTrailImageFileName(publicId, image.id, image.format)}`,
+    })),
+    point: point[0],
+  };
 }
