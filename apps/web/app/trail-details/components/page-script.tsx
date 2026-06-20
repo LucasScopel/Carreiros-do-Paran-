@@ -8,9 +8,22 @@ import FlameRating from "./flame-rating";
 export default function PageScript() {
   const [starRating, setStarRating] = useState(0);
   const [flameRating, setFlameRating] = useState(0);
+  const [review, setReview] = useState("");
+
+  /* FUNÇÃO PARA ENVIAR OS DADOS PRA API
+  const handleSubmit = async () => {
+    const result = await api.algumaCoisa(
+      starRating, 
+      flameRating, 
+      review,
+    );
+  };
+  */
 
   return (
     <main className="w-full">
+      {/* Imagem da trilha */}
+      {/* -RECEBER DA API- */}
       <Banner />
 
       <div className="max-w-7xl mx-auto p-6">
@@ -20,14 +33,14 @@ export default function PageScript() {
           {/* --------------- */}
 
           <div className="col-span-8">
-            {/* Cards */}
+            {/* Cards mais quadrados */}
             <div className="grid grid-cols-3 gap-4">
               <InfoCard title="Dificuldade" description="Hardcore"></InfoCard>
               <InfoCard title="Distância" description="1.5 Km"></InfoCard>
               <InfoCard title="Duração" description="30 Minutos"></InfoCard>
             </div>
 
-            {/* Descrição */}
+            {/* Descrição da trilha */}
             <div className="mt-6 mb">
               <InfoCard
                 title="Detalhes da Trilha"
@@ -35,9 +48,12 @@ export default function PageScript() {
               ></InfoCard>
             </div>
 
+            {/* Container das avaliações */}
             <div className="mt-6 mb">
               <InfoCard title="Avaliações da Comunidade">
                 <div className="flex flex-col gap-4 mt-3">
+                  {/* Container de realizar avaliação */}
+
                   <InfoCard
                     variant="container"
                     title="Conte a sua Experiência"
@@ -46,23 +62,28 @@ export default function PageScript() {
                     <div className="flex flex-col gap-4 mt-3">
                       <p className="text-xl text-black">Sua Avaliação</p>
                       <StarRating value={starRating} onChange={setStarRating} />
+
                       <p className="text-xl text-black">O quão difícil achou</p>
                       <FlameRating
                         value={flameRating}
                         onChange={setFlameRating}
                       />
-                      <p className="text-xl text-black">Seu relato</p>
-                      <input
-                        className="w-full px-4 py-2 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
-                  transition-colors duration-300"
-                      ></input>
 
-                      <button className="w-full px-4 py-2 rounded-md text-center bg-green-800 font-bold text-white cursor-pointer hover:bg-green-700 hover:brightness-120  transition-all duration-300">
+                      <p className="text-xl text-black">Seu relato</p>
+                      <textarea
+                        value={review}
+                        onChange={(e) => setReview(e.target.value)}
+                        className="w-full h-36 px-4 py-4 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
+                  transition-colors duration-300"
+                      ></textarea>
+
+                      <button className="w-full px-4 py-4 rounded-md text-center bg-green-800 font-bold text-white cursor-pointer hover:bg-green-700 hover:brightness-120  transition-all duration-300">
                         Avaliar
                       </button>
                     </div>
                   </InfoCard>
 
+                  {/* Parte das avaliações de outros usuários */}
                   <p className="text-2xl font-bold text-gray-800">
                     Outras Avaliações
                   </p>
