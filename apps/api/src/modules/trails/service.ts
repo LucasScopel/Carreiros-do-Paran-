@@ -6,7 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { createTrailImageFileName } from "./utils";
-import { TrailResponse } from "shared/types";
+import { TrailItemResponse, TrailResponse } from "shared/types";
 
 export async function newTrail(
   name: string,
@@ -401,4 +401,15 @@ export async function removeTrail(publicId: string) {
       await fs.unlink(filePath);
     }),
   );
+}
+
+export async function getAllTrails(): Promise<TrailItemResponse[]> {
+  const trails = await prisma.trail.findMany({
+    select: {
+      publicId: true,
+      name: true,
+    },
+  });
+
+  return trails;
 }

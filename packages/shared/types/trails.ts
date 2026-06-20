@@ -16,3 +16,8 @@ export interface TrailResponse {
   reviewCount: number;
   averageRating: number;
 }
+
+export interface TrailItemResponse {
+  publicId: string;
+  name: string;
+}

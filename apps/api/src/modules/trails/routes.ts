@@ -6,6 +6,7 @@ import CONFIG from "@/config";
 
 const router = Router();
 
+router.get("/", requireAdmin, controller.getAllTrails);
 router.get("/:trailId", controller.getTrail);
 router.post("/", requireAdmin, controller.newTrail);
 router.patch("/:trailId", requireAdmin, controller.updateTrail);

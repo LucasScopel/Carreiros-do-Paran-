@@ -81,3 +81,9 @@ export async function removeTrail(req: Request, res: Response) {
 
   res.sendStatus(204);
 }
+
+export async function getAllTrails(_req: Request, res: Response) {
+  const trails = await trailsService.getAllTrails();
+
+  res.send(trails);
+}
