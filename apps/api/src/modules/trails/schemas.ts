@@ -13,8 +13,8 @@ export const newTrailSchema = zod.object({
     }),
   description: zod.string(),
   address: zod.string(),
-  length: zod.number(),
-  duration: zod.int(),
+  length: zod.number().gt(0),
+  duration: zod.int().gt(0),
 });
 
 export const updateTrailSchema = newTrailSchema
