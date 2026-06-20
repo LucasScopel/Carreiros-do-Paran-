@@ -1,9 +1,9 @@
+import VerifyEmail from "./components/context-box";
 import Image from "next/image";
-import LoginForm from "./components/login-form";
 
-export default function LoginPage() {
+export default function Home() {
   return (
-    <div className="relative flex w-full min-h-full items-center justify-center bg-cover bg-center">
+    <div className="relative flex w-full min-h-full bg-cover bg-center flex justify-center items-center">
       <Image
         src="/login-background.png"
         alt="Background"
@@ -12,7 +12,7 @@ export default function LoginPage() {
         className="object-cover -z-10"
       />
 
-      <LoginForm />
+      <VerifyEmail />
     </div>
   );
 }

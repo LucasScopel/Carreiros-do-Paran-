@@ -13,7 +13,7 @@ export const registerSchema = zod.object({
   name: zod.string().trim().min(2).max(100),
   birthDate: zod.iso
     .date()
-    .pipe(zod.coerce.date())
+    .transform((date) => new Date(`${date}T12:00:00`))
     .refine(
       (date) => date >= MIN_BIRTH_DATE && date <= new Date(),
       "Invalid birth date",

@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
 import { api } from "@/lib/api/server";
+import { cache } from "react";
 
 /**
  * Retorna o usuário autenticado, ou `null` se não estiver logado.
  *
  * Erros diferentes de `UNAUTHORIZED` são considerados falhas da API.
  */
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const result = await api.users.me();
 
   if (!result.ok) {
@@ -18,7 +19,7 @@ export async function getCurrentUser() {
   }
 
   return result.data;
-}
+});
 
 /**
  * Garante que exista um usuário autenticado.

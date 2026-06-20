@@ -1,6 +1,6 @@
 import React from "react";
 
-interface RoundedGreenInputProps {
+interface RoundedOrangeInputProps {
   type: "text" | "password" | "date" | "email" | "number";
   name: string;
   placeholder?: string;
@@ -9,14 +9,14 @@ interface RoundedGreenInputProps {
   required?: boolean;
 }
 
-export default function RoundedGreenInput({
+export default function RoundedOrangeInput({
   type,
   name,
   placeholder,
   value,
   onChange,
   required = false,
-}: RoundedGreenInputProps) {
+}: RoundedOrangeInputProps) {
   const isDateEmpty = type === "date" && !value;
 
   return (

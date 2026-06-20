@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
-import RoundedGreenInput from "@/app/components/rounded-orange-input";
-import SubmitFilledGreenButton from "@/app/components/submit-filled-orange-button";
+import RoundedOrangeInput from "@/app/components/rounded-orange-input";
+import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 
 function CreateTrailForm() {
   const [formData, setFormData] = useState({
@@ -162,7 +162,7 @@ function CreateTrailForm() {
           para a comunidade
         </p>
 
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="text"
           name="name"
           placeholder="Nome da Trilha"
@@ -171,7 +171,7 @@ function CreateTrailForm() {
           required
         />
 
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="text"
           name="description"
           placeholder="Descrição"
@@ -180,7 +180,7 @@ function CreateTrailForm() {
           required
         />
 
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="text"
           name="location"
           placeholder="Localização"
@@ -189,7 +189,7 @@ function CreateTrailForm() {
           required
         />
 
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="text"
           name="coordinates"
           placeholder="Coordenadas (ex: -23.5505, -46.6333)"
@@ -216,7 +216,7 @@ function CreateTrailForm() {
           <option value="hard">Difícil</option>
         </select>
 
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="text"
           name="distance"
           placeholder="Distância em Quilômetros (ex:1.4)"
@@ -225,7 +225,7 @@ function CreateTrailForm() {
           required
         />
 
-        <RoundedGreenInput
+        <RoundedOrangeInput
           type="text"
           name="estimatedDuration"
           placeholder="Duração Estimada em Minutos"
@@ -235,7 +235,7 @@ function CreateTrailForm() {
         />
       </div>
 
-      <SubmitFilledGreenButton>Cadastrar Trilha</SubmitFilledGreenButton>
+      <SubmitFilledOrangeButton>Cadastrar Trilha</SubmitFilledOrangeButton>
     </MenuWhiteboard>
   );
 }

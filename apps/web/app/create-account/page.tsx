@@ -1,9 +1,9 @@
 import Image from "next/image";
-import CreateAccount from "./components/create-account-form";
+import CreateAccountForm from "./components/create-account-form";
 
-export default function Home() {
+export default function CreateAccountPage() {
   return (
-    <div className="relative w-screen h-screen bg-cover bg-center flex justify-center items-center">
+    <div className="relative flex w-full min-h-full items-center justify-center bg-cover bg-center">
       <Image
         src="/login-background.png"
         alt="Background"
@@ -11,7 +11,8 @@ export default function Home() {
         priority
         className="object-cover -z-10"
       />
-      <CreateAccount />
+
+      <CreateAccountForm />
     </div>
   );
 }
