@@ -15,6 +15,7 @@ export async function newTrail(
   address: string,
   length: number,
   duration: number,
+  difficulty: string,
 ) {
   const publicId = nanoid();
 
@@ -26,7 +27,8 @@ export async function newTrail(
       description,
       address,
       length,
-      duration
+      duration,
+      difficulty
     ) VALUES (
       ${publicId},
       ${name},
@@ -34,7 +36,8 @@ export async function newTrail(
       ${description},
       ${address},
       ${length},
-      ${duration}
+      ${duration},
+      ${difficulty}
     )
   `;
 
@@ -50,6 +53,7 @@ export async function updateTrail(
     address: string;
     length: number;
     duration: number;
+    difficulty: string;
   }>,
 ) {
   if (!(Object.keys(data).length > 0)) return;

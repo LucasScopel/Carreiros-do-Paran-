@@ -203,6 +203,7 @@ export function createApi(fetcher: ApiFetcher) {
         address: string;
         length: number;
         duration: number;
+        difficulty: string;
       }) {
         return fetcher<{ publicId: string }>(`/trails`, {
           method: "POST",
@@ -219,6 +220,7 @@ export function createApi(fetcher: ApiFetcher) {
           address: string;
           length: number;
           duration: number;
+          difficulty: string;
         }>,
       ) {
         return fetcher<void>(`/trails/${trailId}`, {

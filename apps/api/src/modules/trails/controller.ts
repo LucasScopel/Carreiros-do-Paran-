@@ -29,6 +29,7 @@ export async function newTrail(req: Request, res: Response) {
     data.address,
     data.length,
     data.duration,
+    data.difficulty,
   );
 
   res.send({ publicId: publicId });
