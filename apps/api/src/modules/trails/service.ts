@@ -104,6 +104,18 @@ export async function uploadTrailImages(
     throw new NotFoundError();
   }
 
+  if (trail._count.images >= CONFIG.MAX_TRAIL_IMAGE_COUNT) {
+    throw new BadRequestError(
+      `Reached limit of ${CONFIG.MAX_TRAIL_IMAGE_COUNT} images`,
+    );
+  }
+
+  if (trail._count.images + files.length > CONFIG.MAX_TRAIL_IMAGE_COUNT) {
+    throw new BadRequestError(
+      `This amount of images will reach the limit of ${CONFIG.MAX_TRAIL_IMAGE_COUNT} images`,
+    );
+  }
+
   const oldImageCount = trail._count.images;
 
   const images: {
@@ -194,7 +206,7 @@ export async function updateTrailImages(
   const uniqueDeleted = [...new Set(data.deletedImages)];
   const uniqueOrdered = [...new Set(data.orderedImages)]; // preserva ordem
 
-  if (uniqueDeleted.length > 10) {
+  if (uniqueDeleted.length > CONFIG.MAX_TRAIL_IMAGE_COUNT) {
     throw new BadRequestError("Too many images to delete");
   }
 
