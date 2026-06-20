@@ -1,84 +1,86 @@
+import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import Banner from "./banner";
-import InfoCard from "./info-card";
+import { InfoCard } from "./info-card";
 
 export default function Layout() {
   return (
     <main className="w-full">
-        <Banner />
+      <Banner />
 
       <div className="max-w-7xl mx-auto p-6">
-  <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-12 gap-8">
+          {/* --------------- */}
+          {/* Coluna esquerda */}
+          {/* --------------- */}
 
-    {/* Coluna esquerda */}
-    <div className="col-span-8">
-      {/* Cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <InfoCard
-        title="Dificuldade"
-        value="Muito Difícil"
-        />
+          <div className="col-span-8">
+            {/* Cards */}
+            <div className="grid grid-cols-3 gap-4">
+              <InfoCard title="Dificuldade" description="Hardcore"></InfoCard>
+              <InfoCard title="Distância" description="1.5 Km"></InfoCard>
+              <InfoCard title="Duração" description="30 Minutos"></InfoCard>
+            </div>
 
-        <InfoCard
-        title="Distância"
-        value="Logo ali"
-        />
+            {/* Descrição */}
+            <div className="mt-6 mb">
+              <InfoCard
+                title="Detalhes da Trilha"
+                description="Um monte de texto aqui sgfgafd sas a a saf ssfdsfsdf a safsdfsd fsdfsdfsdf  asfsad fsffsd fs sas  sdfsfsfsdfsa safdsfsafds  fsa fs s"
+              ></InfoCard>
+            </div>
 
-        <InfoCard
-        title="Tempo médio"
-        value="Meia hora"
-        />
-      </div>
+            <div className="mt-6 mb">
+              <InfoCard title="Avaliações da Comunidade">
+                <div className="flex flex-col gap-4 mt-3">
+                  <InfoCard
+                    variant="container"
+                    title="Conte a sua Experiência"
+                    className="bg-green-100"
+                  >
+                    <div className="flex flex-col gap-4 mt-3">
+                      <p className="text-xl text-black">Sua Avaliação</p>
+                      <p className="text-xl text-black">Seu relato</p>
+                      <input
+                        className="w-full px-4 py-2 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
+                  transition-colors duration-300"
+                      ></input>
 
-      {/* Descrição */}
-      <div className="mt-6">
-        <InfoCard
-        title="Detalhes"
-        value="mt daora"
-        />
-        
-      </div>
+                      <button className="w-full px-4 py-2 rounded-md text-center bg-green-800 font-bold text-white cursor-pointer hover:bg-green-700 hover:brightness-120  transition-all duration-300">
+                        Avaliar
+                      </button>
+                    </div>
+                  </InfoCard>
 
-      {/* Adicionar Comentário */}
-      <div className="mt-15">
-        <InfoCard
-        title="Adicionar Comentário"
-        value="Minha review"
-        />
-        
-      </div>
+                  <p className="text-2xl font-bold text-gray-800">
+                    Outras Avaliações
+                  </p>
 
-      {/* Relatos */}
-      <div className="mt-4">
-        <div className="space-y-2">
-          <InfoCard
-            title="fulano"
-            value="tava fechado"
-          />
+                  <InfoCard title="João">
+                    <div className="flex flex-col gap-4">
+                      <p className="text-sm">5 de maio</p>
+                      <p className="text-lg">Boa</p>
+                    </div>
+                  </InfoCard>
+                  <InfoCard title="Cleide">
+                    <div className="flex flex-col gap-4">
+                      <p className="text-sm">6 de agosto</p>
+                      <p className="text-lg">Tava fechado</p>
+                    </div>
+                  </InfoCard>
+                </div>
+              </InfoCard>
+            </div>
+          </div>
 
-          <InfoCard
-            title="fulano"
-            value="tava fechado"
-          />
+          {/* -------------- */}
+          {/* Coluna direita */}
+          {/* -------------- */}
 
-          <InfoCard
-            title="fulano"
-            value="tava fechado"
-          />
+          <div className="col-span-4">
+            <InfoCard title="Mapa" description="Coordenada x e y"></InfoCard>
+          </div>
         </div>
       </div>
-      
-    </div>
-
-    {/* Coluna direita */}
-    <div className="col-span-4">
-      <InfoCard
-        title="no mapa"
-        value="coordenada x e y"
-        />
-    </div>
-
-  </div>
-</div>
     </main>
   );
 }
