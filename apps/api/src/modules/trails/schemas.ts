@@ -2,15 +2,10 @@ import * as zod from "zod";
 
 export const newTrailSchema = zod.object({
   name: zod.string(),
-  point: zod
-    .string()
-    .regex(/^(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)$/)
-    .transform((val) => {
-      const parts = val.split(",");
-      const lat = Number(parts[0]);
-      const lon = Number(parts[1].trim());
-      return { lat, lon };
-    }),
+  point: zod.object({
+    lat: zod.number().min(-90).max(90),
+    lon: zod.number().min(-180).max(180),
+  }),
   description: zod.string(),
   address: zod.string(),
   length: zod.number().gt(0),

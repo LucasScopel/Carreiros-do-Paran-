@@ -6,11 +6,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { createTrailImageFileName } from "./utils";
-import { TrailItemResponse, TrailResponse } from "shared/types";
+import { GeoPoint, TrailItemResponse, TrailResponse } from "shared/types";
 
 export async function newTrail(
   name: string,
-  point: { lat: number; lon: number },
+  point: GeoPoint,
   description: string,
   address: string,
   length: number,
@@ -45,7 +45,7 @@ export async function updateTrail(
   publicId: string,
   data: Partial<{
     name: string;
-    point: { lat: number; lon: number };
+    point: GeoPoint;
     description: string;
     address: string;
     length: number;
@@ -332,12 +332,7 @@ export async function getTrail(publicId: string): Promise<TrailResponse> {
       },
     }),
 
-    prisma.$queryRaw<
-      {
-        lon: number;
-        lat: number;
-      }[]
-    >`
+    prisma.$queryRaw<GeoPoint[]>`
       SELECT
         ST_X(point::geometry) AS lon,
         ST_Y(point::geometry) AS lat

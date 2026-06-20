@@ -1,12 +1,14 @@
+export interface GeoPoint {
+  lon: number;
+  lat: number;
+}
+
 export interface TrailResponse {
   images: {
     id: number;
     url: string;
   }[];
-  point: {
-    lon: number;
-    lat: number;
-  };
+  point: GeoPoint;
   length: number;
   publicId: string;
   name: string;

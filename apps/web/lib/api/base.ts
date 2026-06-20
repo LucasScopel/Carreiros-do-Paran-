@@ -1,4 +1,11 @@
-import { ApiErrorResponse, ApiResult, MeResponse } from "shared/types";
+import {
+  ApiErrorResponse,
+  ApiResult,
+  GeoPoint,
+  MeResponse,
+  TrailItemResponse,
+  TrailResponse,
+} from "shared/types";
 
 /**
  * Função utilitária base responsável por realizar chamadas HTTP para a API.
@@ -172,6 +179,83 @@ export function createApi(fetcher: ApiFetcher) {
       removeAvatar() {
         return fetcher<void>("/users/me/avatar", {
           method: "DELETE",
+        });
+      },
+    },
+
+    trails: {
+      getAll() {
+        return fetcher<TrailItemResponse[]>("/trails", {
+          method: "GET",
+        });
+      },
+
+      get(trailId: string) {
+        return fetcher<TrailResponse>(`/trails/${trailId}`, {
+          method: "GET",
+        });
+      },
+
+      create(data: {
+        name: string;
+        point: GeoPoint;
+        description: string;
+        address: string;
+        length: number;
+        duration: number;
+      }) {
+        return fetcher<{ publicId: string }>(`/trails`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+
+      update(
+        trailId: string,
+        data: Partial<{
+          name: string;
+          point: GeoPoint;
+          description: string;
+          address: string;
+          length: number;
+          duration: number;
+        }>,
+      ) {
+        return fetcher<void>(`/trails/${trailId}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+      },
+
+      remove(trailId: string) {
+        return fetcher<void>(`/trails/${trailId}`, {
+          method: "DELETE",
+        });
+      },
+
+      uploadImages(trailId: string, files: (File | Blob)[]) {
+        const formData = new FormData();
+        files.forEach((file) => formData.append("images", file));
+
+        return fetcher<void>(`/trails/${trailId}/images`, {
+          method: "POST",
+          body: formData,
+        });
+      },
+
+      manageImages(
+        trailId: string,
+        data: {
+          deleted?: number[];
+          ordered?: number[];
+        },
+      ) {
+        return fetcher<void>(`/trails/${trailId}/images`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            deletedImages: data.deleted ?? [],
+            orderedImages: data.ordered ?? [],
+          }),
         });
       },
     },
