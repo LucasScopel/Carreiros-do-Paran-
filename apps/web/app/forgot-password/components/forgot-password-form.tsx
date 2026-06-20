@@ -6,6 +6,7 @@ import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import Image from "next/image";
 import { useEffect, useState, Suspense } from "react";
 import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
+import { toast } from "sonner";
 
 function ForgotPasswordContent() {
   const searchParams = useSearchParams();
@@ -45,7 +46,13 @@ function ForgotPasswordContent() {
 
   //Passa o email para enviar a solicitação
   const handleSendSolicitation = async () => {
-    const response = await api.auth.forgotPassword(data.email);
+    const promise = api.auth.forgotPassword(data.email);
+
+    toast.promise(promise, {
+      loading: "Carregando...",
+    });
+
+    const response = await promise;
 
     if (response.ok) {
       setStatus("waiting");
@@ -59,7 +66,7 @@ function ForgotPasswordContent() {
     }
 
     if (data.password != data.passwordConfirmation) {
-      alert("As senhas digitadas não são iguais!");
+      toast.warning("As senhas digitadas não são iguais!");
       return;
     }
 
@@ -68,6 +75,11 @@ function ForgotPasswordContent() {
     if (response.ok) {
       setStatus("success");
     } else {
+      if (response.error.code === "VALIDATION_ERROR") {
+        toast.error("Senha muito curta, é necessário pelo menos 6 caracteres.");
+        return;
+      }
+
       setStatus("error");
     }
   };
@@ -75,7 +87,7 @@ function ForgotPasswordContent() {
   useEffect(() => {
     if (status === "success") {
       const timer = setTimeout(() => {
-        router.push("/profile"); //vai para a tela de login
+        router.push("/login"); //vai para a tela de login
       }, 5000); //após 5 segundos
 
       return () => clearTimeout(timer); //zera o timer
@@ -95,7 +107,7 @@ function ForgotPasswordContent() {
 
           {status === "informing" && (
             <>
-              <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-2">
+              <h1 className="text-[#263327] text-5xl tracking-wider font-bold text-center m-0 mb-10">
                 Informe o E-mail
               </h1>
 
@@ -129,12 +141,12 @@ function ForgotPasswordContent() {
                 <a className="text-[#c46518] font-bold">{data.email}</a>
               </p>
 
-              <p className="text-2xl text-center leading-tight mb-10">
+              <p className="text-2xl text-center leading-tight mb-5">
                 Confira sua caixa de entrada
                 <br />e redefina sua senha
               </p>
 
-              <p className="mt-11 mb-0.5 text-center leading-tight">
+              <p className="mt-5 mb-0.5 text-center leading-tight">
                 Não recebeu o e-mail?
               </p>
 
@@ -150,7 +162,7 @@ function ForgotPasswordContent() {
 
           {status === "updating" && (
             <>
-              <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-2">
+              <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-10">
                 Redefinir Senha
               </h1>
 
@@ -184,23 +196,24 @@ function ForgotPasswordContent() {
 
           {status === "success" && (
             <>
-              <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-2">
+              <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-10">
                 Senha Redefinida com Sucesso
               </h1>
 
               <p className="mt-15 text-2xl text-center leading-tight mb-10">
-                Você será redirecionado <br /> para o seu perfil em breve
+                Você terá que entrar novamente <br />
+                em sua conta.
               </p>
             </>
           )}
 
           {status === "error" && (
             <>
-              <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-2">
+              <h1 className="text-[#263327] text-5xl tracking-wider  font-bold text-center m-0 mb-10">
                 Algo deu Errado
               </h1>
 
-              <p className="mt-15 text-2xl text-center leading-tight mb-10">
+              <p className="mt-12 text-2xl text-center leading-tight mb-8">
                 Este link é inválido ou expirou
               </p>
 

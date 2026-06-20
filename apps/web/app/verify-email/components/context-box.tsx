@@ -24,9 +24,7 @@ function VerifyEmailContent() {
   const currentSate = EMAIL_STATES[status];
 
   //Faz uma chamada para a API enviar um novo email de verificação
-  const handleResendVerification = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-
+  const handleResendVerification = async () => {
     await api.auth.resendVerificationEmail();
 
     const params = new URLSearchParams(searchParams.toString());
@@ -59,7 +57,8 @@ function VerifyEmailContent() {
   useEffect(() => {
     if (status === "success") {
       const timer = setTimeout(() => {
-        router.push("/login"); //vai para a tela de login
+        router.push("/profile"); //vai para a tela de perfil
+        router.refresh();
       }, 5000); //após 5 segundos
 
       return () => clearTimeout(timer); //zera o timer

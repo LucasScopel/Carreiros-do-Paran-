@@ -52,6 +52,8 @@ export async function updateUser(
   userId: bigint,
   data: Partial<{ name: string; description: string }>,
 ) {
+  if (Object.keys(data).length === 0) return;
+
   await prisma.user.update({
     where: {
       id: userId,

@@ -3,10 +3,7 @@ import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-butt
 
 interface EmailVisualState {
   renderTitle(): React.ReactNode;
-  renderBody(
-    onResend?: (e?: React.FormEvent) => void,
-    email?: string | null,
-  ): React.ReactNode;
+  renderBody(onResend?: () => void, email?: string | null): React.ReactNode;
 }
 
 // 2. Implementação do Estado: Waiting
@@ -67,7 +64,7 @@ const SuccessState: EmailVisualState = {
   ),
   renderBody: () => (
     <p className="mt-15 text-2xl text-center mb-10">
-      Você será redirecionado para a tela de login em breve
+      Você será redirecionado para seu perfil em breve
     </p>
   ),
 };

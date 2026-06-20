@@ -276,7 +276,7 @@ export async function sendPasswordReset(email: string) {
     },
   });
 
-  const url = `${CONFIG.APP_URL}/reset-password?token=${token}`;
+  const url = `${CONFIG.APP_URL}/forgot-password?token=${token}`;
 
   await sendEmail(email, passwordResetTemplate(url));
 

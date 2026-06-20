@@ -1,4 +1,5 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/api/client";
@@ -6,6 +7,7 @@ import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -33,11 +35,12 @@ export default function LoginForm() {
     );
 
     if (!result.ok) {
-      alert(result.error.message);
+      toast.error(result.error.message);
       return;
     }
 
-    router.push("/create-trail");
+    router.push("/");
+    router.refresh();
   };
 
   return (
@@ -83,11 +86,17 @@ export default function LoginForm() {
             id="rememberMe"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
-            className="w-4 h-4 ml-1.5 appearance-none border-2 rounded border-[#424242] hover:border-[#D99C6A] checked:bg-[#D99C6A] checked:border-[#424242] transition-colors duration-300 cursor-pointer"
+            className="
+              w-4 h-4 ml-1.5
+              border-2 rounded border-[#424242] hover:border-[#D99C6A]
+              appearance-none
+              checked:bg-[#D99C6A] checked:border-[#424242]
+              transition-colors duration-300 cursor-pointer
+            "
           />
           <label
             htmlFor="rememberMe"
-            className="pl-1.5 text-[#D99C6A] cursor-pointer"
+            className="pl-1.5 text-[#263327] cursor-pointer"
           >
             Manter-me conectado
           </label>
@@ -100,7 +109,9 @@ export default function LoginForm() {
           </a>
         </div>
 
-        <SubmitFilledOrangeButton>Login</SubmitFilledOrangeButton>
+        <SubmitFilledOrangeButton type="button" onClick={handleLogin}>
+          Login
+        </SubmitFilledOrangeButton>
 
         <label className="text-center text-[#263327]">
           Não tem uma conta?{" "}
