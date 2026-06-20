@@ -57,7 +57,7 @@ export default function PageScript() {
                   <InfoCard
                     variant="container"
                     title="Conte a sua Experiência"
-                    className="bg-green-100"
+                    className="bg-green-100 border-green-900"
                   >
                     <div className="flex flex-col gap-4 mt-3">
                       <p className="text-xl text-black">Sua Avaliação</p>
@@ -110,7 +110,25 @@ export default function PageScript() {
           {/* -------------- */}
 
           <div className="col-span-4">
-            <InfoCard title="Mapa" description="Coordenada x e y"></InfoCard>
+            <InfoCard title="Mapa">
+              <div className="flex-1 w-full">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=..."
+                  className="w-full h-100 border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+
+                <p className="text-lg font-bold text-[#263327] mt-3">
+                  Campina Grande do Sul
+                </p>
+                <p className="text-sm mb-3">Paraná, Brasil</p>
+
+                <p className="text-lg font-bold text-[#263327]">Coordenadas</p>
+                <p className="text-sm">Lat: -25.2486°</p>
+                <p className="text-sm">Lng: -48.8820°</p>
+              </div>
+            </InfoCard>
           </div>
         </div>
       </div>
