@@ -24,7 +24,7 @@ export async function newTrail(req: Request, res: Response) {
 
   const publicId = await trailsService.newTrail(
     data.name,
-    data.point,
+    data.coordinates,
     data.description,
     data.address,
     data.length,

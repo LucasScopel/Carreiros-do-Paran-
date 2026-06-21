@@ -6,11 +6,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { createTrailImageFileName } from "./utils";
-import { GeoPoint, TrailItemResponse, TrailResponse } from "shared/types";
+import { GeoCoords, TrailItemResponse, TrailResponse } from "shared/types";
 
 export async function newTrail(
   name: string,
-  point: GeoPoint,
+  coordinates: GeoCoords,
   description: string,
   address: string,
   length: number,
@@ -22,7 +22,7 @@ export async function newTrail(
     INSERT INTO "Trail" (
       "publicId",
       name,
-      point,
+      coordinates,
       description,
       address,
       length,
@@ -30,7 +30,7 @@ export async function newTrail(
     ) VALUES (
       ${publicId},
       ${name},
-      ST_SetSRID(ST_MakePoint(${point.lon}, ${point.lat}), 4326),
+      ST_SetSRID(ST_MakePoint(${coordinates.lon}, ${coordinates.lat}), 4326),
       ${description},
       ${address},
       ${length},
@@ -45,7 +45,7 @@ export async function updateTrail(
   publicId: string,
   data: Partial<{
     name: string;
-    point: GeoPoint;
+    coordinates: GeoCoords;
     description: string;
     address: string;
     length: number;
@@ -66,7 +66,7 @@ export async function updateTrail(
   }
 
   await prisma.$transaction(async (tx) => {
-    const { point, ...rest } = data;
+    const { coordinates, ...rest } = data;
 
     if (Object.keys(rest).length > 0) {
       await tx.trail.update({
@@ -77,10 +77,10 @@ export async function updateTrail(
       });
     }
 
-    if (data.point !== undefined) {
+    if (data.coordinates !== undefined) {
       await tx.$executeRaw`
         UPDATE "Trail"
-        SET point = ST_SetSRID(ST_MakePoint(${data.point.lon}, ${data.point.lat}), 4326)
+        SET coordinates = ST_SetSRID(ST_MakePoint(${data.coordinates.lon}, ${data.coordinates.lat}), 4326)
         WHERE id = ${trail.id}
       `;
     }
@@ -315,7 +315,7 @@ export async function updateTrailImages(
 }
 
 export async function getTrail(publicId: string): Promise<TrailResponse> {
-  const [maybeTrail, point] = await Promise.all([
+  const [maybeTrail, coordinates] = await Promise.all([
     prisma.trail.findUnique({
       where: {
         publicId: publicId,
@@ -333,10 +333,10 @@ export async function getTrail(publicId: string): Promise<TrailResponse> {
       },
     }),
 
-    prisma.$queryRaw<GeoPoint[]>`
+    prisma.$queryRaw<GeoCoords[]>`
       SELECT
-        ST_X(point::geometry) AS lon,
-        ST_Y(point::geometry) AS lat
+        ST_X(coordinates::geometry) AS lon,
+        ST_Y(coordinates::geometry) AS lat
       FROM "Trail"
       WHERE "publicId" = ${publicId}
     `,
@@ -358,7 +358,7 @@ export async function getTrail(publicId: string): Promise<TrailResponse> {
       id: image.id,
       url: `/uploads/trails/${createTrailImageFileName(publicId, image.id, image.format)}`,
     })),
-    point: point[0],
+    coordinates: coordinates[0],
   };
 }
 

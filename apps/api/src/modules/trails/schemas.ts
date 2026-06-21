@@ -2,7 +2,7 @@ import * as zod from "zod";
 
 export const newTrailSchema = zod.object({
   name: zod.string(),
-  point: zod.object({
+  coordinates: zod.object({
     lat: zod.number().min(-90).max(90),
     lon: zod.number().min(-180).max(180),
   }),

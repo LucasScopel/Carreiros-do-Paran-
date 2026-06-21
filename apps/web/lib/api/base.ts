@@ -1,7 +1,7 @@
 import {
   ApiErrorResponse,
   ApiResult,
-  GeoPoint,
+  GeoCoords,
   MeResponse,
   TrailItemResponse,
   TrailResponse,
@@ -198,7 +198,7 @@ export function createApi(fetcher: ApiFetcher) {
 
       create(data: {
         name: string;
-        point: GeoPoint;
+        coordinates: GeoCoords;
         description: string;
         address: string;
         length: number;
@@ -214,7 +214,7 @@ export function createApi(fetcher: ApiFetcher) {
         trailId: string,
         data: Partial<{
           name: string;
-          point: GeoPoint;
+          coordinates: GeoCoords;
           description: string;
           address: string;
           length: number;

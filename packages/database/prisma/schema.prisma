@@ -82,10 +82,10 @@ model Trail {
   name        String
   description String
 
-  point    Unsupported("geometry(Point,4326)")
-  address  String
-  length   Float
-  duration Int
+  coordinates Unsupported("geometry(Point,4326)")
+  address     String
+  length      Float
+  duration    Int
 
   reviewCount   Int @default(0)
   ratingSum     Int @default(0)

@@ -1,4 +1,4 @@
-export interface GeoPoint {
+export interface GeoCoords {
   lon: number;
   lat: number;
 }
@@ -8,7 +8,7 @@ export interface TrailResponse {
     id: number;
     url: string;
   }[];
-  point: GeoPoint;
+  coordinates: GeoCoords;
   length: number;
   publicId: string;
   name: string;
