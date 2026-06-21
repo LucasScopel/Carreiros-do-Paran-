@@ -10,7 +10,6 @@ export const newTrailSchema = zod.object({
   address: zod.string(),
   length: zod.number().gt(0),
   duration: zod.int().gt(0),
-  difficulty: zod.string(),
 });
 
 export const updateTrailSchema = newTrailSchema

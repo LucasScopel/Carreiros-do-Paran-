@@ -15,7 +15,6 @@ export async function newTrail(
   address: string,
   length: number,
   duration: number,
-  difficulty: string,
 ) {
   const publicId = nanoid();
 
@@ -27,8 +26,7 @@ export async function newTrail(
       description,
       address,
       length,
-      duration,
-      difficulty
+      duration
     ) VALUES (
       ${publicId},
       ${name},
@@ -36,8 +34,7 @@ export async function newTrail(
       ${description},
       ${address},
       ${length},
-      ${duration},
-      ${difficulty}
+      ${duration}
     )
   `;
 
@@ -349,12 +346,14 @@ export async function getTrail(publicId: string): Promise<TrailResponse> {
     throw new NotFoundError();
   }
 
-  const { id, images, ratingSum, ...trail } = maybeTrail;
+  const { id, images, ratingSum, difficultySum, ...trail } = maybeTrail;
 
   return {
     ...trail,
     averageRating:
       trail.reviewCount === 0 ? 0 : ratingSum / 2 / trail.reviewCount,
+    difficulty:
+      trail.reviewCount === 0 ? 0 : difficultySum / 2 / trail.reviewCount,
     images: images.map((image) => ({
       id: image.id,
       url: `/uploads/trails/${createTrailImageFileName(publicId, image.id, image.format)}`,

@@ -82,14 +82,14 @@ model Trail {
   name        String
   description String
 
-  point      Unsupported("geometry(Point,4326)")
-  address    String
-  length     Float
-  duration   Int
-  difficulty String
+  point    Unsupported("geometry(Point,4326)")
+  address  String
+  length   Float
+  duration Int
 
-  reviewCount Int @default(0)
-  ratingSum   Int @default(0)
+  reviewCount   Int @default(0)
+  ratingSum     Int @default(0)
+  difficultySum Int @default(0)
 
   images TrailImage[]
 
