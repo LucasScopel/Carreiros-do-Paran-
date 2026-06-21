@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export default async function AuthenticatedLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -10,6 +10,10 @@ export default async function AuthenticatedLayout({
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!user.admin) {
+    redirect("/");
   }
 
   return children;

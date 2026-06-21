@@ -4,7 +4,7 @@ import LogoutAll from "./_components/logout-all";
 
 export default async function ProfilePage() {
   const user = (await getCurrentUser())!;
-  console.log(user.birthDate);
+
   return (
     <div className="flex w-full min-h-full justify-center px-6 py-15 bg-slate-50">
       <div className="flex flex-col w-full max-w-4xl">

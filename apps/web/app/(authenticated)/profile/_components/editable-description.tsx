@@ -11,7 +11,7 @@ export default function EditableDescription({
     <textarea
       value={description}
       onChange={(e) => onChange(e.target.value)}
-      placeholder="Descrição do perfil"
+      placeholder="Descrição do perfil (máx. 300 caracteres)"
       className="
         resize-none
         w-full h-full

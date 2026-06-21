@@ -7,6 +7,7 @@ import EditableAvatar from "./editable-avatar";
 import EditableDescription from "./editable-description";
 import { api } from "@/lib/api/client";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface EditableProfileProps {
   user: MeResponse;
@@ -75,7 +76,14 @@ export default function EditableProfile({ user }: EditableProfileProps) {
       const result = await api.users.updateMe(data);
 
       if (!result.ok) {
-        alert(result.error.message);
+        if (result.error.code === "VALIDATION_ERROR") {
+          if (result.error.fields!.name) {
+            toast.error("Nome muito curto ou muito grande.");
+          }
+          if (result.error.fields!.description) {
+            toast.error("Descrição não pode passar de 300 caracteres.");
+          }
+        }
         return;
       }
     }
@@ -89,7 +97,7 @@ export default function EditableProfile({ user }: EditableProfileProps) {
         : await api.users.removeAvatar();
 
       if (!result.ok) {
-        alert(result.error.message);
+        toast.error(result.error.message);
         return;
       }
 
