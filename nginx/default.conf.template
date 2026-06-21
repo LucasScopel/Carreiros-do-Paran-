@@ -23,12 +23,16 @@ server {
         proxy_set_header Host $host;
     }
 
-    location ~ ^/uploads/(?:avatars/)?([^/]+)\.(jpg|jpeg|png|webp)$ {
+    location ~* ^/uploads/.+\.(jpg|jpeg|png|webp)$ {
         root /var/www;
-
+        
         expires 30d;
         add_header Cache-Control "public, max-age=2592000, immutable";
 
         access_log off;
+    }
+
+    location /uploads/ {
+        return 404;
     }
 }

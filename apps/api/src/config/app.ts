@@ -18,6 +18,8 @@ export const APP_CONFIG = {
 
   EMAIL_VERIFICATION_TOKEN_EXPIRY_MS: 1 * 24 * 60 * 60 * 1000, // 1 day
   PASSWORD_RESET_TOKEN_EXPIRY_MS: 1 * 24 * 60 * 60 * 1000, // 1 day
+
+  MAX_TRAIL_IMAGE_COUNT: 10,
 };
 
 export default APP_CONFIG;

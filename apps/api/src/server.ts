@@ -11,6 +11,7 @@ function startJobs() {
 
 async function makeUploadFolders() {
   await fs.mkdir(CONFIG.AVATARS_DIR, { recursive: true });
+  await fs.mkdir(CONFIG.TRAILS_IMG_DIR, { recursive: true });
 }
 
 app.listen(CONFIG.API_PORT, async () => {
