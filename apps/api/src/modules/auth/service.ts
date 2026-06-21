@@ -84,7 +84,7 @@ export async function login(
   password: string,
   rememberMe: boolean,
 ) {
-  const errorMessage = "Invalid email or password";
+  const errorMessage = "Incorrect e-mail or password";
 
   const user = await getUserByEmail(email);
   if (!user) throw new UnauthorizedError(errorMessage);

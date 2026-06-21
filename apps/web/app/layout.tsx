@@ -3,23 +3,36 @@ import "./globals.css";
 import { QueryProvider } from "@/lib/query";
 import Navbar from "./components/navbar";
 import { Toaster } from "sonner";
+import { getCurrentUser } from "@/lib/auth";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 
 export const metadata: Metadata = {
   title: "Carreiros do Paraná",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser();
+
+  const queryClient = new QueryClient();
+  queryClient.setQueryData(["me"], user);
+
   return (
     <html lang="pt">
       <body className="flex min-h-screen flex-col">
-        <Navbar />
-        <main className="flex flex-1">
-          <QueryProvider>{children}</QueryProvider>
-        </main>
+        <QueryProvider>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <Navbar />
+            <main className="flex flex-1">{children}</main>
+          </HydrationBoundary>
+        </QueryProvider>
         <Toaster
           richColors
           position="top-center"

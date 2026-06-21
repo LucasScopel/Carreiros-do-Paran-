@@ -1,9 +1,4 @@
 import { getCurrentUser } from "@/lib/auth";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import { redirect } from "next/navigation";
 
 export default async function AdminLayout({
@@ -21,12 +16,5 @@ export default async function AdminLayout({
     redirect("/");
   }
 
-  const queryClient = new QueryClient();
-  queryClient.setQueryData(["me"], user);
-
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      {children}
-    </HydrationBoundary>
-  );
+  return children;
 }
