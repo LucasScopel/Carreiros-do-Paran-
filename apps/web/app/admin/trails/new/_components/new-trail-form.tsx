@@ -76,7 +76,7 @@ function SubmitFilledOrangeButton({
   );
 }
 
-function CreateTrailForm() {
+export default function NewTrailForm() {
   // Estado local para armazenar valores de todos os campos do formulário.
   const [formData, setFormData] = useState({
     name: "",
@@ -394,5 +394,3 @@ function CreateTrailForm() {
     </MenuWhiteboard>
   );
 }
-
-export default CreateTrailForm;
