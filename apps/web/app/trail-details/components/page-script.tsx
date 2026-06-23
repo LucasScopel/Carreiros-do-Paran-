@@ -60,22 +60,38 @@ export default function PageScript() {
                     className="bg-green-100 border-green-900"
                   >
                     <div className="flex flex-col gap-4 mt-3">
-                      <p className="text-xl text-black">Sua Avaliação</p>
-                      <StarRating value={starRating} onChange={setStarRating} />
+                      <div className="flex justify-between">
+                        <div>
+                          <p className="text-xl text-black">Sua Avaliação</p>
+                          <StarRating value={starRating} onChange={setStarRating} />
+                        </div>
 
-                      <p className="text-xl text-black">O quão difícil achou</p>
-                      <FlameRating
-                        value={flameRating}
-                        onChange={setFlameRating}
-                      />
+                        <div>
+                          <p className="text-xl text-black">O quão difícil achou</p>
+                          <FlameRating
+                            value={flameRating}
+                            onChange={setFlameRating}
+                          />
+                        </div>
+                      </div>
 
-                      <p className="text-xl text-black">Seu relato</p>
-                      <textarea
-                        value={review}
-                        onChange={(e) => setReview(e.target.value)}
-                        className="w-full h-36 px-4 py-4 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
-                  transition-colors duration-300"
-                      ></textarea>
+                      <div>
+                        <p className="text-xl text-black">Quando você fez a trilha</p>
+                        <input type="date" className="w-55 px-4 py-3 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
+                        transition-colors duration-300"></input>
+                      </div>
+                      
+
+                      <div>
+                        <p className="text-xl text-black">Seu relato</p>
+                        <textarea
+                          value={review}
+                          onChange={(e) => setReview(e.target.value)}
+                          className="w-full h-36 px-4 py-4 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
+                                     transition-colors duration-300"
+                        ></textarea>
+                      </div>
+                      
 
                       <button className="w-full px-4 py-4 rounded-md text-center bg-green-800 font-bold text-white cursor-pointer hover:bg-green-700 hover:brightness-120  transition-all duration-300">
                         Avaliar
