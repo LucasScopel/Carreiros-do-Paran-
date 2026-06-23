@@ -8,6 +8,7 @@ import EditableDescription from "./editable-description";
 import { api } from "@/lib/api/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { getUserAvatarURL } from "shared/utils";
 
 interface EditableProfileProps {
   user: MeResponse;
@@ -39,7 +40,10 @@ export default function EditableProfile({ user }: EditableProfileProps) {
     if (avatar.hasCustom) {
       return user.avatarUrl;
     }
-    return `https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(user.name)}`;
+    return getUserAvatarURL({
+      hasAvatar: false,
+      name: user.name,
+    });
   }, [avatar, user]);
 
   function handleReset() {

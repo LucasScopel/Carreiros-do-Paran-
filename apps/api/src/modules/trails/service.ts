@@ -6,7 +6,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { createTrailImageFileName } from "./utils";
-import { GeoCoords, TrailItemResponse, TrailResponse } from "shared/types";
+import {
+  GeoCoords,
+  TrailItemResponse,
+  TrailResponse,
+  TrailReviewsResponse,
+} from "shared/types";
+import { getUserAvatarURL } from "shared/utils";
 
 export async function newTrail(
   name: string,
@@ -410,4 +416,92 @@ export async function getAllTrails(): Promise<TrailItemResponse[]> {
   });
 
   return trails;
+}
+
+interface GetTrailReviewsParams {
+  trailPublicId: string;
+  limit: number;
+  cursor: number | null;
+}
+
+export async function getTrailReviews({
+  trailPublicId,
+  limit,
+  cursor,
+}: GetTrailReviewsParams): Promise<TrailReviewsResponse> {
+  const trail = await prisma.trail.findUnique({
+    where: {
+      publicId: trailPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!trail) {
+    throw new NotFoundError();
+  }
+
+  const reviews = await prisma.review.findMany({
+    where: {
+      trailId: trail.id,
+    },
+
+    orderBy: {
+      id: "desc",
+    },
+
+    take: limit + 1,
+
+    ...(cursor && {
+      cursor: {
+        id: cursor,
+      },
+      skip: 1,
+    }),
+
+    select: {
+      id: true,
+      rating: true,
+      difficultyRating: true,
+      comment: true,
+      createdAt: true,
+      updatedAt: true,
+
+      user: {
+        select: {
+          publicId: true,
+          name: true,
+          hasAvatar: true,
+          avatarVersion: true,
+        },
+      },
+    },
+  });
+
+  const hasMore = reviews.length > limit;
+
+  if (hasMore) {
+    reviews.pop();
+  }
+
+  const nextCursor =
+    hasMore && reviews.length > 0 ? reviews[reviews.length - 1].id : null;
+
+  return {
+    reviews: reviews.map((review) => {
+      const { user, ...rest } = review;
+      const avatarUrl = getUserAvatarURL(user);
+      return {
+        user: {
+          publicId: user.publicId,
+          name: user.name,
+          avatarUrl: avatarUrl,
+        },
+        ...rest,
+      };
+    }),
+    nextCursor,
+    hasMore,
+  };
 }

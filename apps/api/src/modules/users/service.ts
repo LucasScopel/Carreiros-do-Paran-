@@ -4,6 +4,7 @@ import { prisma } from "database";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { MeResponse } from "shared/types";
+import { getUserAvatarURL } from "shared/utils";
 import sharp from "sharp";
 
 /**
@@ -32,9 +33,7 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
 
   const { hasAvatar, avatarVersion, birthDate, createdAt, ...rest } = user;
 
-  const avatarUrl = hasAvatar
-    ? `/uploads/avatars/${user.publicId}.webp?v=${avatarVersion}`
-    : `https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(user.name)}`;
+  const avatarUrl = getUserAvatarURL(user);
 
   return {
     avatarUrl,
