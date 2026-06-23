@@ -17,5 +17,5 @@ export default async function EditTrailPage({ params }: EditTrailPageProps) {
     notFound();
   }
 
-  return <EditTrailForm initial={trail.data.name} />;
+  return <EditTrailForm initial={trail.data} />;
 }
