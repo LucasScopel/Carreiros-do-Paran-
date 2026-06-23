@@ -1,9 +1,8 @@
 "use client";
 
 import { api } from "@/lib/api/client";
-import Image from "next/image";
-import { ChangeEvent, SubmitEvent, useEffect, useRef, useState } from "react";
-import { ApiResult, GeoCoords, TrailResponse } from "shared/types";
+import { ChangeEvent, SubmitEvent, useRef, useState } from "react";
+import { ApiResult, GeoCoords } from "shared/types";
 import TextInput from "./text-input";
 import { ExistingImage, FormImage, NewImage } from "./types";
 import { closestCenter, DndContext, DragEndEvent } from "@dnd-kit/core";
@@ -58,7 +57,6 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
     if (result.ok) return;
 
     if (result.error.code === "VALIDATION_ERROR") {
-      console.log(result.error.fields);
       if (result.error.fields!.name) {
         toast.error("Nome muito curto.");
       }
@@ -180,6 +178,8 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
 
       toast.success("Trilha criada com sucesso!");
 
+      setSaving(false);
+
       return;
     }
 
@@ -198,7 +198,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
       length: length === initial.length ? undefined : length,
       duration: duration === initial.duration ? undefined : duration,
     };
-    console.log(trailPayload);
+
     const updated = await api.trails.update(trailId, trailPayload);
 
     if (!updated.ok) {
@@ -263,14 +263,13 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
         const uploaded = uploadedImages[uploadedIndex++];
 
         if (!uploaded) {
-          throw new Error("Failed to resolve uploaded image");
+          setSaving(false);
+          toast.error("Falha ao resolver imagem carregada.");
         }
 
         ordered.push(uploaded);
       }
     }
-
-    console.log(deleted, ordered);
 
     const result = await api.trails.manageImages(trailId, {
       deleted,
@@ -285,6 +284,8 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
     toast.success("Trilha salva com sucesso!");
 
     router.push(`/admin/trails/${trailId}`);
+
+    setSaving(false);
   }
 
   return (
@@ -453,9 +454,17 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           <div className="flex flex-row justify-end gap-5">
             <button
               type="submit"
-              className="py-2 rounded-md bg-[#D99C6A] text-white font-bold w-48 cursor-pointer hover:bg-[#c46518] hover:brightness-120 transition-all duration-300"
+              disabled={saving}
+              className="
+                 w-48 py-2 rounded-md
+                bg-[#D99C6A]
+                text-white fon-bold
+                hover:bg-[#c46518] hover:brightness-120
+                cursor-pointer
+                transition-all duration-300
+              "
             >
-              Salvar
+              {saving ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </form>
