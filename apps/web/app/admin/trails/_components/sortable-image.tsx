@@ -4,10 +4,11 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
 import { FormImage } from "./types";
-import { GripVertical, Trash } from "lucide-react";
+import { GripVertical, Star, Trash } from "lucide-react";
 import { memo } from "react";
 
 type Props = {
+  index: number;
   image: FormImage;
   onRemove: () => void;
 };
@@ -21,6 +22,7 @@ export function getImageKey(image: FormImage) {
 }
 
 export const SortableImage = memo(function SortableImage({
+  index,
   image,
   onRemove,
 }: Props) {
@@ -47,7 +49,7 @@ export const SortableImage = memo(function SortableImage({
       ref={setNodeRef}
       style={style}
       className="
-        flex flex-col gap-2 p-2
+        flex flex-col gap-2 p-2 relative
         bg-white rounded border border-zinc-500
       "
     >
@@ -68,6 +70,44 @@ export const SortableImage = memo(function SortableImage({
           className="object-contain"
         />
       </div>
+
+      {index === 0 && (
+        <div className="group absolute top-2 left-2">
+          <div
+            className="
+              flex items-center justify-center
+              p-2 rounded-full
+              text-white cursor-pointer
+            "
+          >
+            <Star className="stroke-yellow-500 fill-yellow-500" />
+          </div>
+
+          <div
+            className="
+            absolute left-10 top-1/2
+            -translate-y-1/2
+
+            whitespace-nowrap
+            rounded-md
+            bg-black/70
+            px-2 py-1
+
+            text-sm text-white
+
+            opacity-0
+            pointer-events-none
+            transition-all
+            translate-x-[-4px]
+
+            group-hover:opacity-100
+            group-hover:translate-x-0
+          "
+          >
+            Capa da trilha
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-row justify-between gap-2">
         <button
