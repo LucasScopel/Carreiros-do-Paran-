@@ -24,3 +24,21 @@ export interface TrailItemResponse {
   publicId: string;
   name: string;
 }
+
+export interface TrailReviewsResponse {
+  reviews: {
+    id: number;
+    rating: number;
+    difficultyRating: number;
+    comment: string;
+    createdAt: Date;
+    updatedAt: Date;
+    user: {
+      publicId: string;
+      name: string;
+      avatarUrl: string;
+    };
+  }[];
+  nextCursor: number | null;
+  hasMore: boolean;
+}
