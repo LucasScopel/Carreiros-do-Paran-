@@ -356,8 +356,7 @@ export async function getTrail(publicId: string): Promise<TrailResponse> {
 
   return {
     ...trail,
-    averageRating:
-      trail.reviewCount === 0 ? 0 : ratingSum / 2 / trail.reviewCount,
+    rating: trail.reviewCount === 0 ? 0 : ratingSum / 2 / trail.reviewCount,
     difficulty:
       trail.reviewCount === 0 ? 0 : difficultySum / 2 / trail.reviewCount,
     images: images.map((image) => ({
@@ -490,7 +489,7 @@ export async function getTrailReviews({
 
   return {
     reviews: reviews.map((review) => {
-      const { user, ...rest } = review;
+      const { id, user, rating, difficultyRating, ...rest } = review;
       const avatarUrl = getUserAvatarURL(user);
       return {
         user: {
@@ -498,10 +497,160 @@ export async function getTrailReviews({
           name: user.name,
           avatarUrl: avatarUrl,
         },
+        rating: rating / 2,
+        difficultyRating: difficultyRating / 2,
         ...rest,
       };
     }),
     nextCursor,
     hasMore,
   };
+}
+
+interface CreateTrailReviewParams {
+  comment: string;
+  rating: number;
+  difficultyRating: number;
+  visitDate: Date;
+}
+
+export async function createTrailReview(
+  trailPublicId: string,
+  userId: bigint,
+  { comment, rating, difficultyRating, visitDate }: CreateTrailReviewParams,
+) {
+  const trail = await prisma.trail.findUnique({
+    where: {
+      publicId: trailPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!trail) {
+    throw new NotFoundError();
+  }
+
+  const intRating = Math.floor(rating * 2);
+  const intDifficultyRating = Math.floor(difficultyRating * 2);
+
+  await prisma.$transaction(async (tx) => {
+    const oldReview = await tx.review.findUnique({
+      select: {
+        rating: true,
+        difficultyRating: true,
+      },
+      where: {
+        trailId_userId: {
+          trailId: trail.id,
+          userId: userId,
+        },
+      },
+    });
+
+    await tx.review.upsert({
+      create: {
+        comment,
+        rating: intRating,
+        difficultyRating: intDifficultyRating,
+        visitDate,
+        trailId: trail.id,
+        userId,
+      },
+      update: {
+        comment,
+        rating: intRating,
+        difficultyRating: intDifficultyRating,
+        visitDate,
+      },
+      where: {
+        trailId_userId: {
+          trailId: trail.id,
+          userId: userId,
+        },
+      },
+    });
+
+    const addRating = intRating - (oldReview?.rating ?? 0);
+    const addDifficultyRating =
+      intDifficultyRating - (oldReview?.difficultyRating ?? 0);
+
+    await tx.trail.update({
+      data: {
+        reviewCount: oldReview
+          ? undefined
+          : {
+              increment: 1,
+            },
+        ratingSum: {
+          increment: addRating,
+        },
+        difficultySum: {
+          increment: addDifficultyRating,
+        },
+      },
+      where: {
+        id: trail.id,
+      },
+    });
+  });
+}
+
+export async function deleteTrailReview(trailPublicId: string, userId: bigint) {
+  const trail = await prisma.trail.findUnique({
+    where: {
+      publicId: trailPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!trail) {
+    throw new NotFoundError();
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const review = await tx.review.delete({
+        select: {
+          rating: true,
+          difficultyRating: true,
+        },
+        where: {
+          trailId_userId: {
+            trailId: trail.id,
+            userId: userId,
+          },
+        },
+      });
+
+      await tx.trail.update({
+        data: {
+          reviewCount: {
+            decrement: 1,
+          },
+          ratingSum: {
+            decrement: review.rating,
+          },
+          difficultySum: {
+            decrement: review.difficultyRating,
+          },
+        },
+        where: {
+          id: trail.id,
+        },
+      });
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025" // Não encontrou a review da trilha
+    ) {
+      // Ignore
+    } else {
+      throw error;
+    }
+  }
 }

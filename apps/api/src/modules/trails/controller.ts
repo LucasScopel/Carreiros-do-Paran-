@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  createReviewSchema,
   newTrailSchema,
   updateTrailImagesSchema,
   updateTrailSchema,
@@ -152,4 +153,22 @@ export async function getTrailReviews(req: Request, res: Response) {
   });
 
   res.send(reviews);
+}
+
+export async function createTrailReview(req: Request, res: Response) {
+  const trailId = getTrailIdParam(req.params);
+
+  const data = createReviewSchema.parse(req.body);
+
+  await trailsService.createTrailReview(trailId, req.user!.id, data);
+
+  res.sendStatus(204);
+}
+
+export async function deleteTrailReview(req: Request, res: Response) {
+  const trailId = getTrailIdParam(req.params);
+
+  await trailsService.deleteTrailReview(trailId, req.user!.id);
+
+  res.sendStatus(204);
 }
