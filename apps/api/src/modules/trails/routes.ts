@@ -21,6 +21,8 @@ router.post(
 );
 router.patch("/:trailId/images", requireAdmin, controller.updateTrailImages);
 
-router.get("/:trailId/reviews", requireAuth, controller.getTrailReviews);
+router.get("/:trailId/reviews", controller.getTrailReviews);
+router.put("/:trailId/reviews", requireAuth, controller.createTrailReview);
+router.delete("/:trailId/reviews", requireAuth, controller.deleteTrailReview);
 
 export default router;

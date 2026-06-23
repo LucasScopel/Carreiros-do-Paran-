@@ -16,7 +16,7 @@ export interface TrailResponse {
   address: string;
   duration: number;
   reviewCount: number;
-  averageRating: number;
+  rating: number;
   difficulty: number;
 }
 
@@ -27,7 +27,6 @@ export interface TrailItemResponse {
 
 export interface TrailReviewsResponse {
   reviews: {
-    id: number;
     rating: number;
     difficultyRating: number;
     comment: string;
