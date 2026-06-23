@@ -435,13 +435,14 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
             >
               {images.length === 0 ? (
                 <div className="flex justify-center items-center h-32">
-                  <p>Nenhuma imagem adicionada.</p>
+                  Nenhuma imagem adicionada.
                 </div>
               ) : (
                 <div className="grid grid-cols-4 gap-5">
                   {images.map((image, index) => (
                     <SortableImage
                       key={getImageKey(image)}
+                      index={index}
                       image={image}
                       onRemove={() => handleRemoveImage(index)}
                     />
