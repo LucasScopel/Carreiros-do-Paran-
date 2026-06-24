@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api/client";
-import { ChangeEvent, SubmitEvent, useRef, useState } from "react";
+import { ChangeEvent, SubmitEvent, useEffect, useRef, useState } from "react";
 import { ApiResult, GeoCoords } from "shared/types";
 import TextInput from "./text-input";
 import { ExistingImage, FormImage, NewImage } from "./types";
@@ -34,6 +34,7 @@ interface EditTrailProps {
 export default function EditTrailForm({ initial }: EditTrailProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
   const [saving, setSaving] = useState(false);
 
   const [name, setName] = useState(initial?.name ?? "");
@@ -52,6 +53,14 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
         image,
       })) ?? [],
   );
+
+  useEffect(() => {
+    const el = descriptionInputRef.current;
+    if (!el) return;
+
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [description]);
 
   function showErrorToasts(result: ApiResult<unknown>) {
     if (result.ok) return;
@@ -314,6 +323,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
         >
           <TextInput
             label="Nome"
+            placeholder="Nome da trilha"
             name="name"
             value={name}
             required
@@ -323,12 +333,14 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           <label className="inline-flex flex-1 flex-col">
             Descrição
             <textarea
+              ref={descriptionInputRef}
               name="description"
+              placeholder="Descrição da trilha"
               value={description}
               required
               onChange={(e) => setDescription(e.target.value)}
               className="
-                px-4 py-2
+                min-h-16 h-16 px-4 py-2 resize-none overflow-hidden
                 border-2 rounded-md border-[#424242]
                 text-black bg-zinc-100
                 focus:border-[#D99C6A] focus:outline-none
@@ -340,6 +352,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
 
           <TextInput
             label="Endereço"
+            placeholder="Endereço da trilha"
             name="address"
             value={address}
             required
@@ -347,7 +360,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           />
 
           <TextInput
-            label="Tamanho do Trajeto (em Quilômetros)"
+            label="Tamanho do Trajeto (em quilômetros)"
             name="length"
             type="number"
             value={length}
@@ -356,7 +369,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           />
 
           <TextInput
-            label="Duração Estimada"
+            label="Duração Estimada (em minutos)"
             name="duration"
             type="number"
             value={duration}
