@@ -19,8 +19,8 @@ export const updateTrailImagesSchema = zod.object({
   orderedImages: zod.array(zod.int()),
 });
 
-export const createReviewSchema = zod.object({
-  comment: zod.string().trim().min(2).max(500),
+export const upsertReviewSchema = zod.object({
+  comment: zod.string().trim().max(500),
   rating: zod.number().min(0).max(5),
   difficultyRating: zod.number().min(0).max(5),
   visitDate: zod.iso
