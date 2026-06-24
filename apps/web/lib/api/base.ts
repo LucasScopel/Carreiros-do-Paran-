@@ -5,6 +5,7 @@ import {
   MeResponse,
   TrailItemResponse,
   TrailResponse,
+  TrailReviewsResponse,
 } from "shared/types";
 
 /**
@@ -258,6 +259,62 @@ export function createApi(fetcher: ApiFetcher) {
             orderedImages: data.ordered ?? [],
           }),
         });
+      },
+
+      reviews: {
+        get(
+          trailId: string,
+          { cursor, limit }: { cursor?: number; limit?: number } = {},
+        ) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<TrailReviewsResponse>(
+            `/trails/${trailId}/reviews${query ? `?${query}` : ""}`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        getMine(trailId: string) {
+          return fetcher<TrailReviewsResponse>(
+            `/trails/${trailId}/reviews/me`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        upsert(
+          trailId: string,
+          data: {
+            comment: string;
+            rating: number;
+            difficultyRating: number;
+            visitDate: string;
+          },
+        ) {
+          return fetcher<void>(`/trails/${trailId}/reviews`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+          });
+        },
+
+        delete(trailId: string) {
+          return fetcher<void>(`/trails/${trailId}/reviews`, {
+            method: "DELETE",
+          });
+        },
       },
     },
   };
