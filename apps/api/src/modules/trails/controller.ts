@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import {
-  createReviewSchema,
+  upsertReviewSchema,
   newTrailSchema,
   updateTrailImagesSchema,
   updateTrailSchema,
 } from "./schemas";
-import * as trailsService from "./service";
+import * as trailsService from "./trails.service";
+import * as reviewsService from "./reviews.service";
 import { BadRequestError } from "@/utils/errors";
 
 interface ParamsDictionary {
@@ -146,7 +147,7 @@ export async function getTrailReviews(req: Request, res: Response) {
     default: 5,
   });
 
-  const reviews = await trailsService.getTrailReviews({
+  const reviews = await reviewsService.getTrailReviews({
     trailPublicId: trailId,
     cursor,
     limit,
@@ -155,12 +156,20 @@ export async function getTrailReviews(req: Request, res: Response) {
   res.send(reviews);
 }
 
-export async function createTrailReview(req: Request, res: Response) {
+export async function getMyTrailReview(req: Request, res: Response) {
   const trailId = getTrailIdParam(req.params);
 
-  const data = createReviewSchema.parse(req.body);
+  const review = await reviewsService.getUserTrailReview(trailId, req.user!.id);
 
-  await trailsService.createTrailReview(trailId, req.user!.id, data);
+  res.send({ review });
+}
+
+export async function upsertTrailReview(req: Request, res: Response) {
+  const trailId = getTrailIdParam(req.params);
+
+  const data = upsertReviewSchema.parse(req.body);
+
+  await reviewsService.upsertTrailReview(trailId, req.user!.id, data);
 
   res.sendStatus(204);
 }
@@ -168,7 +177,7 @@ export async function createTrailReview(req: Request, res: Response) {
 export async function deleteTrailReview(req: Request, res: Response) {
   const trailId = getTrailIdParam(req.params);
 
-  await trailsService.deleteTrailReview(trailId, req.user!.id);
+  await reviewsService.deleteTrailReview(trailId, req.user!.id);
 
   res.sendStatus(204);
 }

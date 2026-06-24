@@ -25,19 +25,22 @@ export interface TrailItemResponse {
   name: string;
 }
 
+export interface TrailReviewResponse {
+  rating: number;
+  difficultyRating: number;
+  comment: string;
+  visitDate: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
+    publicId: string;
+    name: string;
+    avatarUrl: string;
+  };
+}
+
 export interface TrailReviewsResponse {
-  reviews: {
-    rating: number;
-    difficultyRating: number;
-    comment: string;
-    createdAt: Date;
-    updatedAt: Date;
-    user: {
-      publicId: string;
-      name: string;
-      avatarUrl: string;
-    };
-  }[];
+  reviews: TrailReviewResponse[];
   nextCursor: number | null;
   hasMore: boolean;
 }
