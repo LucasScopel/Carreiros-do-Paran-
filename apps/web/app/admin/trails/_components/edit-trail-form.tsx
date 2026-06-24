@@ -12,7 +12,7 @@ import {
   SortableContext,
 } from "@dnd-kit/sortable";
 import { getImageKey, SortableImage } from "./sortable-image";
-import { Plus } from "lucide-react";
+import { Plus, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -141,6 +141,10 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
 
       return arrayMove(current, oldIndex, newIndex);
     });
+  }
+
+  function handleCancel() {
+    router.replace("/admin/trails");
   }
 
   async function handleSave(e: SubmitEvent) {
@@ -465,19 +469,38 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
             </SortableContext>
           </DndContext>
 
-          <div className="flex flex-row justify-end gap-5">
+          <div className="flex flex-row justify-end gap-5 mt-10">
+            <button
+              type="button"
+              disabled={saving}
+              onClick={handleCancel}
+              className="
+                inline-flex justify-center items-center
+                w-48 gap-3 px-3 py-2 rounded-md
+                bg-zinc-200 text-slate-800
+                text-slate-800
+                hover:bg-zinc-300
+                cursor-pointer
+                transition-all duration-300
+              "
+            >
+              Cancelar
+            </button>
+
             <button
               type="submit"
               disabled={saving}
               className="
-                 w-48 py-2 rounded-md
+                inline-flex justify-center items-center
+                w-48 gap-3 px-3 py-2 rounded-md
                 bg-[#D99C6A]
-                text-white fon-bold
+                text-white font-semibold
                 hover:bg-[#c46518] hover:brightness-120
                 cursor-pointer
                 transition-all duration-300
               "
             >
+              <Save />
               {saving ? "Salvando..." : "Salvar"}
             </button>
           </div>
