@@ -8,10 +8,10 @@ import { VisibilityLevel } from "shared/types";
 import { toast } from "sonner";
 
 export default function AccountForm() {
-  const user = useMe().data!;
+  const user = useMe();
 
   const [reviewsVisibility, setReviewsVisibility] = useState(
-    user.reviewsVisibility,
+    user.data?.reviewsVisibility ?? "PUBLIC",
   );
   const hasConfigChanges = useRef(false);
 
@@ -49,6 +49,22 @@ export default function AccountForm() {
 
     return () => clearTimeout(timer);
   }, [reviewsVisibility]);
+
+  if (user.isLoading) {
+    return (
+      <div className="flex flex-col gap-1 text-md text-zinc-900">
+        Carregando...
+      </div>
+    );
+  }
+
+  if (user.error) {
+    return (
+      <div className="flex flex-col gap-1 text-md text-zinc-900">
+        Algo deu errado...
+      </div>
+    );
+  }
 
   return (
     <fieldset className="flex flex-col gap-1 text-md text-zinc-900">

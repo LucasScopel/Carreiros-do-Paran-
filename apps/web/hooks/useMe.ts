@@ -35,6 +35,6 @@ export function useMe() {
   return useQuery({
     queryKey: ["me"],
     queryFn: getMe,
-    staleTime: 60 * 1000, // 1 minuto
+    staleTime: 5 * 60 * 1000, // 5 minuto
   });
 }
