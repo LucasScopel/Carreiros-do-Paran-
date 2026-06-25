@@ -2,6 +2,8 @@ import {
   ApiErrorResponse,
   ApiResult,
   GeoCoords,
+  GetUserResponse,
+  GetUserReviewsResponse,
   GetCollectionsContainingTrail,
   GetFriends,
   GetMyCollections,
@@ -197,6 +199,21 @@ export function createApi(fetcher: ApiFetcher) {
         return fetcher<void>("/users/me/avatar", {
           method: "DELETE",
         });
+      },
+
+      get(userId: string) {
+        return fetcher<GetUserResponse>(`/users/${userId}`, {
+          method: "GET",
+        });
+      },
+
+      getReviews(userId: string) {
+        return fetcher<GetUserReviewsResponse[] | null>(
+          `/users/${userId}/reviews`,
+          {
+            method: "GET",
+          },
+        );
       },
 
       collections: {

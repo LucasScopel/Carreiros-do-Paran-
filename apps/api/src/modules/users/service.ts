@@ -9,7 +9,12 @@ import { Prisma, prisma } from "database";
 import { nanoid } from "nanoid";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { MeResponse, VisibilityLevel } from "shared/types";
+import {
+  MeResponse,
+  VisibilityLevel,
+  GetUserResponse,
+  GetUserReviewsResponse,
+} from "shared/types";
 import { getUserAvatarURL } from "shared/utils";
 import sharp from "sharp";
 
@@ -148,6 +153,93 @@ export async function removeAvatar(userId: bigint, publicUserId: string) {
     data: {
       hasAvatar: false,
     },
+  });
+}
+
+export async function get(publicUserId: string): Promise<GetUserResponse> {
+  const user = await prisma.user.findUnique({
+    where: {
+      publicId: publicUserId,
+    },
+    select: {
+      publicId: true,
+      name: true,
+      description: true,
+      hasAvatar: true,
+      avatarVersion: true,
+      reviewCount: true,
+      reviewsVisibility: true,
+    },
+  });
+
+  if (!user) {
+    throw new NotFoundError();
+  }
+
+  const avatarUrl = user.hasAvatar
+    ? `/uploads/avatars/${user.publicId}.webp?v=${user.avatarVersion}`
+    : `https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(user.name)}`;
+
+  return {
+    publicId: user.publicId,
+    name: user.name,
+    description: user.description,
+    avatarUrl,
+    reviewCount: user.reviewCount,
+    reviewsVisibility: user.reviewsVisibility,
+  };
+}
+
+export async function getReviews(
+  publicUserId: string,
+  callerUserId?: bigint,
+): Promise<GetUserReviewsResponse[]> {
+  const user = await prisma.user.findUnique({
+    where: {
+      publicId: publicUserId,
+    },
+    select: {
+      id: true,
+      reviewsVisibility: true,
+    },
+  });
+
+  if (!user) {
+    throw new NotFoundError();
+  }
+
+  if (user.id !== callerUserId) {
+    if (user.reviewsVisibility !== "PUBLIC") {
+      throw new ForbiddenError();
+    }
+  }
+
+  const reviews = await prisma.review.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      comment: true,
+      visitDate: true,
+      rating: true,
+      difficultyRating: true,
+      trail: {
+        select: {
+          publicId: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return reviews.map((review) => {
+    const { rating, difficultyRating, visitDate, ...rest } = review;
+    return {
+      rating: rating / 2,
+      difficultyRating: difficultyRating / 2,
+      visitDate: visitDate.toISOString(),
+      ...rest,
+    };
   });
 }
 

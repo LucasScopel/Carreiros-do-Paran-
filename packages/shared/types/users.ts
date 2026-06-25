@@ -14,6 +14,26 @@ export interface MeResponse {
   friendsVisibility: VisibilityLevel;
 }
 
+export interface GetUserResponse {
+  publicId: string;
+  name: string;
+  description: string;
+  avatarUrl: string;
+  reviewCount: number;
+  reviewsVisibility: VisibilityLevel;
+}
+
+export interface GetUserReviewsResponse {
+  comment: string;
+  rating: number;
+  difficultyRating: number;
+  visitDate: string;
+  trail: {
+    publicId: string;
+    name: string;
+  };
+}
+
 export const VisibilityLevel = {
   PUBLIC: "PUBLIC",
   FRIENDS: "FRIENDS",
