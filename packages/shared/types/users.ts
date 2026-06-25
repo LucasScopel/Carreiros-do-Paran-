@@ -8,4 +8,15 @@ export interface MeResponse {
   hasCustomAvatar: boolean;
   createdAt: string;
   admin: boolean;
+  reviewCount: number;
+  reviewsVisibility: VisibilityLevel;
 }
+
+export const VisibilityLevel = {
+  PUBLIC: "PUBLIC",
+  FRIENDS: "FRIENDS",
+  PRIVATE: "PRIVATE",
+} as const;
+
+export type VisibilityLevel =
+  (typeof VisibilityLevel)[keyof typeof VisibilityLevel];
