@@ -6,6 +6,7 @@ import {
   TrailItemResponse,
   TrailResponse,
   TrailReviewsResponse,
+  VisibilityLevel,
 } from "shared/types";
 
 /**
@@ -160,7 +161,13 @@ export function createApi(fetcher: ApiFetcher) {
         });
       },
 
-      updateMe(data: Partial<{ name: string; description: string }>) {
+      updateMe(
+        data: Partial<{
+          name: string;
+          description: string;
+          reviewsVisibility: VisibilityLevel;
+        }>,
+      ) {
         return fetcher<void>("/users/me", {
           method: "PATCH",
           body: JSON.stringify(data),

@@ -244,6 +244,19 @@ export async function upsertTrailReview(
         id: trail.id,
       },
     });
+
+    if (!oldReview) {
+      await tx.user.update({
+        data: {
+          reviewCount: {
+            increment: 1,
+          },
+        },
+        where: {
+          id: userId,
+        },
+      });
+    }
   });
 }
 
@@ -273,6 +286,17 @@ export async function deleteTrailReview(trailPublicId: string, userId: bigint) {
             trailId: trail.id,
             userId: userId,
           },
+        },
+      });
+
+      await tx.user.update({
+        data: {
+          reviewCount: {
+            decrement: 1,
+          },
+        },
+        where: {
+          id: userId,
         },
       });
 
