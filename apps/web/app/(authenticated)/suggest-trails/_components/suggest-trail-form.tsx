@@ -1,82 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  SuggestionStatus,
-  TrailSuggestion,
-  SUGGESTED_TRAILS_STORAGE_KEY,
-} from "@/app/suggest-trails/types";
-
-function RoundedOrangeInput({
-  type = "text",
-  name,
-  placeholder,
-  value,
-  onChange,
-  required = false,
-}: {
-  type?: "text" | "password" | "date" | "email" | "number";
-  name: string;
-  placeholder?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  required?: boolean;
-}) {
-  const isDateEmpty = type === "date" && !value;
-
-  return (
-    <input
-      type={type}
-      name={name}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      required={required}
-      className={`px-4 py-2 border-2 rounded-md text-black border-[#424242] bg-gray-100 focus:border-[#D99C6A] focus:outline-none hover:border-[#D99C6A] transition-colors duration-300 ${
-        isDateEmpty ? "text-gray-400" : "text-black"
-      }`}
-    />
-  );
-}
-
-function SubmitFilledOrangeButton({
-  type = "submit",
-  onClick,
-  children,
-  className = "",
-}: {
-  type?: "button" | "submit" | "reset";
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      className={`py-2 rounded-md mx-auto mt-auto bg-[#D99C6A] text-white font-bold w-48 cursor-pointer hover:bg-[#c46518] hover:brightness-120 transition-all duration-300 ${className}`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function MenuWhiteboard({
-  children,
-  onSubmit,
-}: {
-  children?: React.ReactNode;
-  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
-}) {
-  return (
-    <form
-      onSubmit={onSubmit}
-      className="w-full h-full px-6 py-6 bg-white rounded-md flex flex-col"
-    >
-      {children}
-    </form>
-  );
-}
+import { useState } from "react";
+import SuggestTrailInput from "./suggest-trail-input";
+import SuggestTrailButton from "./suggest-trail-button";
+import SuggestTrailWhiteboard from "./suggest-trail-whiteboard";
+import { TrailSuggestion, SUGGESTED_TRAILS_STORAGE_KEY } from "../types";
 
 function saveSuggestion(suggestion: TrailSuggestion) {
   if (typeof window === "undefined") return;
@@ -210,7 +138,7 @@ export default function SuggestTrailForm() {
   };
 
   return (
-    <MenuWhiteboard onSubmit={handleSubmit}>
+    <SuggestTrailWhiteboard onSubmit={handleSubmit}>
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-3xl font-bold text-[#263327]">Sugerir Trilha</h1>
@@ -221,21 +149,21 @@ export default function SuggestTrailForm() {
         </div>
 
         <div className="grid gap-4">
-          <RoundedOrangeInput
+          <SuggestTrailInput
             name="name"
             placeholder="Nome da trilha"
             value={formData.name}
             onChange={handleChange}
             required
           />
-          <RoundedOrangeInput
+          <SuggestTrailInput
             name="location"
             placeholder="Localização"
             value={formData.location}
             onChange={handleChange}
             required
           />
-          <RoundedOrangeInput
+          <SuggestTrailInput
             type="number"
             name="lengthKm"
             placeholder="Tamanho aproximado (km)"
@@ -259,10 +187,10 @@ export default function SuggestTrailForm() {
           </div>
         ) : null}
 
-        <SubmitFilledOrangeButton type="submit" className="w-full">
+        <SuggestTrailButton type="submit" className="w-full">
           {isSubmitting ? "Enviando..." : "Enviar Sugestão"}
-        </SubmitFilledOrangeButton>
+        </SuggestTrailButton>
       </div>
-    </MenuWhiteboard>
+    </SuggestTrailWhiteboard>
   );
 }

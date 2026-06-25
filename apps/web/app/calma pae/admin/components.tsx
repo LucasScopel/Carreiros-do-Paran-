@@ -5,7 +5,7 @@ import {
   SuggestionStatus,
   TrailSuggestion,
   SUGGESTED_TRAILS_STORAGE_KEY,
-} from "@/app/suggest-trails/types";
+} from "@/app/(authenticated)/suggest-trails/types";
 
 function getStatusLabel(status: SuggestionStatus) {
   if (status === "a fazer") return "A Fazer";
@@ -14,14 +14,18 @@ function getStatusLabel(status: SuggestionStatus) {
 }
 
 function getStatusClass(status: SuggestionStatus) {
-  if (status === "a fazer") return "bg-amber-100 text-amber-900 border-amber-200";
-  if (status === "em andamento") return "bg-emerald-100 text-emerald-900 border-emerald-200";
+  if (status === "a fazer")
+    return "bg-amber-100 text-amber-900 border-amber-200";
+  if (status === "em andamento")
+    return "bg-emerald-100 text-emerald-900 border-emerald-200";
   return "bg-slate-100 text-slate-700 border-slate-200";
 }
 
 export default function SuggestTrailsAdmin() {
   const [suggestions, setSuggestions] = useState<TrailSuggestion[]>([]);
-  const [selectedSuggestionId, setSelectedSuggestionId] = useState<string | null>(null);
+  const [selectedSuggestionId, setSelectedSuggestionId] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -40,10 +44,16 @@ export default function SuggestTrailsAdmin() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(SUGGESTED_TRAILS_STORAGE_KEY, JSON.stringify(suggestions));
+    window.localStorage.setItem(
+      SUGGESTED_TRAILS_STORAGE_KEY,
+      JSON.stringify(suggestions),
+    );
   }, [suggestions]);
 
-  const selectedSuggestion = suggestions.find((suggestion) => suggestion.id === selectedSuggestionId) ?? suggestions[0] ?? null;
+  const selectedSuggestion =
+    suggestions.find((suggestion) => suggestion.id === selectedSuggestionId) ??
+    suggestions[0] ??
+    null;
 
   const setStatus = (suggestionId: string, status: SuggestionStatus) => {
     setSuggestions((previous) =>
@@ -55,7 +65,9 @@ export default function SuggestTrailsAdmin() {
 
   const deleteSuggestion = (suggestionId: string) => {
     setSuggestions((previous) => {
-      const filtered = previous.filter((suggestion) => suggestion.id !== suggestionId);
+      const filtered = previous.filter(
+        (suggestion) => suggestion.id !== suggestionId,
+      );
       if (selectedSuggestionId === suggestionId) {
         setSelectedSuggestionId(filtered.length > 0 ? filtered[0].id : null);
       }
@@ -67,9 +79,12 @@ export default function SuggestTrailsAdmin() {
     <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
       <div className="space-y-4">
         <div className="rounded-md bg-white p-6 shadow-sm">
-          <h1 className="text-3xl font-bold text-[#263327]">Sugestões de Trilhas</h1>
+          <h1 className="text-3xl font-bold text-[#263327]">
+            Sugestões de Trilhas
+          </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Visualize todas as sugestões enviadas pelos usuários e marque o status de cada uma.
+            Visualize todas as sugestões enviadas pelos usuários e marque o
+            status de cada uma.
           </p>
         </div>
 
@@ -86,20 +101,29 @@ export default function SuggestTrailsAdmin() {
                 type="button"
                 onClick={() => setSelectedSuggestionId(suggestion.id)}
                 className={`w-full rounded-xl border px-4 py-4 text-left transition ${
-                  selected ? "border-[#D99C6A] bg-[#fff7ed]" : "border-slate-200 bg-white hover:border-[#D99C6A]"
+                  selected
+                    ? "border-[#D99C6A] bg-[#fff7ed]"
+                    : "border-slate-200 bg-white hover:border-[#D99C6A]"
                 }`}
               >
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-lg font-semibold text-slate-900">{suggestion.name}</h2>
-                    <p className="text-sm text-slate-600">{suggestion.location}</p>
+                    <h2 className="text-lg font-semibold text-slate-900">
+                      {suggestion.name}
+                    </h2>
+                    <p className="text-sm text-slate-600">
+                      {suggestion.location}
+                    </p>
                   </div>
-                  <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClass(suggestion.status)}`}>
+                  <span
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClass(suggestion.status)}`}
+                  >
                     {getStatusLabel(suggestion.status)}
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-slate-500">
-                  {suggestion.description.slice(0, 100)}{suggestion.description.length > 100 ? "…" : ""}
+                  {suggestion.description.slice(0, 100)}
+                  {suggestion.description.length > 100 ? "…" : ""}
                 </p>
               </button>
             );
@@ -111,16 +135,24 @@ export default function SuggestTrailsAdmin() {
         {selectedSuggestion ? (
           <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">{selectedSuggestion.name}</h2>
-              <p className="text-sm text-slate-700 mt-2">{selectedSuggestion.location}</p>
+              <h2 className="text-2xl font-bold text-slate-900">
+                {selectedSuggestion.name}
+              </h2>
+              <p className="text-sm text-slate-700 mt-2">
+                {selectedSuggestion.location}
+              </p>
               <div className="mt-3 inline-flex rounded-full border px-3 py-1 text-xs font-semibold text-slate-700 bg-slate-100">
                 {getStatusLabel(selectedSuggestion.status)}
               </div>
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <h3 className="text-sm font-semibold text-slate-900">Descrição</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-700">{selectedSuggestion.description}</p>
+              <h3 className="text-sm font-semibold text-slate-900">
+                Descrição
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-700">
+                {selectedSuggestion.description}
+              </p>
             </div>
 
             <div className="grid gap-3">
@@ -134,7 +166,9 @@ export default function SuggestTrailsAdmin() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setStatus(selectedSuggestion.id, "em andamento")}
+                  onClick={() =>
+                    setStatus(selectedSuggestion.id, "em andamento")
+                  }
                   className="rounded-md border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
                 >
                   Marcar como em andamento
