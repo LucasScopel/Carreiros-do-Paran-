@@ -258,7 +258,7 @@ export async function updateTrailImages(
       });
     }
 
-    if (!(uniqueOrdered.length > 0)) return;
+    if (uniqueOrdered.length === 0) return;
 
     // Essa é a quantidade de imagens que a trilha deve ter depois das exclusões acima
     const remainingCount = trail._count.images - deletedCount;

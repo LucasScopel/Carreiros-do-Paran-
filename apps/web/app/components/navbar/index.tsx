@@ -1,8 +1,29 @@
 import { getCurrentUser } from "@/lib/auth";
 import Image from "next/image";
 import Link from "next/link";
-import UserMenu from "./user";
+import UserMenu, { UserMenuItem } from "./user";
 import GuestMenu from "./guest";
+import { MeResponse } from "shared/types";
+
+function getMenuItems(user: MeResponse) {
+  const menuItems: UserMenuItem[] = [
+    {
+      label: "Perfil",
+      icon: "user_round",
+      href: "/profile",
+    },
+  ];
+
+  if (user?.admin) {
+    menuItems.push({
+      label: "Trilhas",
+      icon: "footprints",
+      href: "/admin/trails",
+    });
+  }
+
+  return menuItems;
+}
 
 export default async function Navbar() {
   const user = await getCurrentUser();
@@ -36,7 +57,11 @@ export default async function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        {user ? <UserMenu user={user} /> : <GuestMenu />}
+        {user ? (
+          <UserMenu user={user} items={getMenuItems(user)} />
+        ) : (
+          <GuestMenu />
+        )}
       </div>
     </nav>
   );

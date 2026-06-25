@@ -42,13 +42,13 @@ export default function EditableAvatar({
         <button
           onClick={handleAvatarClick}
           className="
-          group
-          relative
-          w-64 h-64
-          overflow-hidden
-          rounded-full
-          cursor-pointer
-          self-start
+            group
+            relative
+            w-64 h-64
+            overflow-hidden
+            rounded-full
+            cursor-pointer
+            self-start
           "
         >
           <Image
@@ -57,27 +57,27 @@ export default function EditableAvatar({
             fill
             unoptimized
             className="
-          rounded-full
-          object-cover
-          border-4
-          border-white
-          shadow-sm
-        "
+              rounded-full
+              object-cover
+              border-4
+              border-white
+              shadow-sm
+            "
           />
 
           <div
             className="
-          absolute
-          inset-0
-          flex
-          items-center
-          justify-center
-          rounded-full
-          bg-black/40
-          opacity-0
-          transition-opacity
-          group-hover:opacity-100
-        "
+              absolute
+              inset-0
+              flex
+              items-center
+              justify-center
+              rounded-full
+              bg-black/40
+              opacity-0
+              transition-opacity
+              group-hover:opacity-100
+            "
           >
             <Pencil className="h-10 w-10 text-white" />
           </div>
@@ -87,14 +87,14 @@ export default function EditableAvatar({
           <button
             onClick={handleRemove}
             className="
-            inline-flex flex-row justify-center gap-3
-            w-48
-            py-2
-            rounded-md
-            text-slate-800
-            bg-zinc-200 hover:bg-zinc-300
-            transition-all duration-300
-            cursor-pointer
+              inline-flex flex-row justify-center gap-3
+              w-48
+              py-2
+              rounded-md
+              text-slate-800
+              bg-zinc-200 hover:bg-zinc-300
+              transition-all duration-300
+              cursor-pointer
             "
           >
             <Trash />
