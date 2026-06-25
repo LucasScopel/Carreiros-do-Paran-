@@ -238,7 +238,7 @@ export function createApi(fetcher: ApiFetcher) {
         const formData = new FormData();
         files.forEach((file) => formData.append("images", file));
 
-        return fetcher<void>(`/trails/${trailId}/images`, {
+        return fetcher<number[]>(`/trails/${trailId}/images`, {
           method: "POST",
           body: formData,
         });
