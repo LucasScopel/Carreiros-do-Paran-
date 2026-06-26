@@ -6,13 +6,25 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MeResponse } from "shared/types";
-import { LogOut, UserRound } from "lucide-react";
+import { Footprints, LogOut, UserRound } from "lucide-react";
+
+const MENU_ICONS = {
+  footprints: () => <Footprints />,
+  user_round: () => <UserRound />,
+} as const;
+
+export interface UserMenuItem {
+  icon: keyof typeof MENU_ICONS;
+  label: string;
+  href: string;
+}
 
 interface UserMenuProps {
   user: MeResponse;
+  items: UserMenuItem[];
 }
 
-export default function UserMenu({ user }: UserMenuProps) {
+export default function UserMenu({ user, items }: UserMenuProps) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -36,9 +48,8 @@ export default function UserMenu({ user }: UserMenuProps) {
     setOpen((curr) => !curr);
   }
 
-  function handleGoToProfile() {
+  function handleClickItem() {
     setOpen(false);
-    router.push("/profile");
   }
 
   async function handleLogout() {
@@ -77,7 +88,7 @@ export default function UserMenu({ user }: UserMenuProps) {
             absolute right-0 top-12
             z-50 w-80
             overflow-hidden
-            rounded-lg border
+            rounded-lg border border-zinc-900
             bg-white
             shadow-lg
           "
@@ -99,37 +110,37 @@ export default function UserMenu({ user }: UserMenuProps) {
             </div>
           </div>
 
-          <div className="border-t">
+          {items.map((item) => (
             <Link
-              href="/profile"
+              key={item.href}
+              href={item.href}
               className="
                 inline-flex items-center gap-3
-                w-full px-4 py-3
-                text-sm text-black font-semibold
+                w-full px-4 py-3 border-t border-zinc-900
+                text-sm text-zinc-900 font-semibold
                 hover:bg-gray-200 transition-all duration-300
               "
-              onClick={handleGoToProfile}
+              onClick={handleClickItem}
             >
-              <UserRound />
-              Perfil
+              {MENU_ICONS[item.icon]()}
+              {item.label}
             </Link>
-          </div>
+          ))}
 
-          <div className="border-t">
-            <button
-              onClick={handleLogout}
-              className="
-                inline-flex items-center gap-3
-                w-full px-4 py-3
-                text-sm text-red-600 font-semibold
-                hover:bg-red-200 transition-all duration-300
-                cursor-pointer
-              "
-            >
-              <LogOut />
-              Sair
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="
+              inline-flex items-center gap-3
+              w-full px-4 py-3 border-t border-zinc-900
+              text-sm text-red-600 font-semibold
+              hover:bg-red-200 transition-all duration-300
+              cursor-pointer
+            "
+          >
+            <LogOut />
+            Sair
+          </button>
         </div>
       )}
     </div>

@@ -1,23 +1,16 @@
 "use client";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { api } from "@/lib/api/client";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
-import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
 import Image from "next/image";
+import { EMAIL_STATES } from "./states";
 
 function VerifyEmailContent() {
   //Utilizados para navegação e manipulação de URL
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  //Isso é para debug, para que possamos navegar entre as telas e editá-las
-  const mockStatus = searchParams.get("mockStatus") as
-    | "waiting"
-    | "loading"
-    | "success"
-    | "error"
-    | null;
+  const pathName = usePathname();
 
   //Captura o email e o token da URL
   const email = searchParams.get("email");
@@ -26,18 +19,23 @@ function VerifyEmailContent() {
   //Possíveis estados que podemos nos deparar com
   const [status, setStatus] = useState<
     "waiting" | "loading" | "success" | "error"
-  >(mockStatus || (token ? "loading" : "waiting"));
+  >(token ? "loading" : "waiting");
+
+  const currentSate = EMAIL_STATES[status];
 
   //Faz uma chamada para a API enviar um novo email de verificação
   const handleResendVerification = async () => {
     await api.auth.resendVerificationEmail();
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("token");
+    router.replace(`${pathName}?${params.toString()}`);
   };
 
   //Verificação do token
   useEffect(() => {
     async function verify() {
       if (!token) {
-        setStatus("error");
         return;
       }
 
@@ -59,7 +57,8 @@ function VerifyEmailContent() {
   useEffect(() => {
     if (status === "success") {
       const timer = setTimeout(() => {
-        router.push("/login"); //vai para a tela de login
+        router.push("/profile"); //vai para a tela de perfil
+        router.refresh();
       }, 5000); //após 5 segundos
 
       return () => clearTimeout(timer); //zera o timer
@@ -77,91 +76,8 @@ function VerifyEmailContent() {
             </p>
           </div>
 
-          {status === "waiting" && (
-            <>
-              <h1 className="text-[#263327] text-4xl tracking-wider  font-bold text-center m-0 mb-2">
-                Verifique seu E-mail
-              </h1>
-
-              <p className="mt-11 text-2xl text-center leading-tight mb-10">
-                Enviamos um e-mail para
-                <br />
-                <a className="text-[#c46518] font-bold">
-                  {email || "o endereço cadastrado"}
-                </a>
-              </p>
-
-              <p className="text-2xl text-center leading-tight mb-10">
-                Confira sua caixa de entrada
-                <br />e valide sua conta
-              </p>
-
-              <p className="mt-11 mb-0.5 text-center leading-tight">
-                Não recebeu o e-mail?
-              </p>
-
-              <SubmitFilledOrangeButton
-                type="button"
-                onClick={handleResendVerification}
-                className="w-64 h-12"
-              >
-                Reenviar
-              </SubmitFilledOrangeButton>
-            </>
-          )}
-
-          {status === "loading" && (
-            <>
-              <h1 className="text-[#263327] text-4xl tracking-wider  font-bold text-center m-0 mb-2">
-                Validando Conta
-              </h1>
-
-              <p className="mt-11 text-2xl text-center leading-tight mb-10">
-                Aguarde...
-              </p>
-
-              <p className="mt-11 text-2xl text-center leading-tight mb-10">
-                Estamos verificando seu e-mail
-              </p>
-            </>
-          )}
-
-          {status === "success" && (
-            <>
-              <h1 className="text-[#263327] text-2xl tracking-wider  font-bold text-center m-0 mb-2">
-                Conta Validada com Sucesso
-              </h1>
-
-              <p className="mt-15 text-2xl text-center leading-tight mb-10">
-                Você será redirecionado <br /> para a tela de login em breve
-              </p>
-            </>
-          )}
-
-          {status === "error" && (
-            <>
-              <h1 className="text-[#263327] text-4xl tracking-wider  font-bold text-center m-0 mb-2">
-                Algo deu Errado
-              </h1>
-
-              <p className="mt-15 text-2xl text-center leading-tight mb-10">
-                Este link é inválido ou expirou
-              </p>
-
-              <p className="mt-15 text-2xl text-center leading-tight mb-10">
-                Clique no botão abaixo para gerar <br /> um novo link de
-                verficação
-              </p>
-
-              <SubmitFilledOrangeButton
-                type="button"
-                onClick={handleResendVerification}
-                className="w-64 h-12"
-              >
-                Reenviar
-              </SubmitFilledOrangeButton>
-            </>
-          )}
+          {currentSate.renderTitle()}
+          {currentSate.renderBody(handleResendVerification, email)}
         </div>
       </MenuWhiteboard>
     </div>

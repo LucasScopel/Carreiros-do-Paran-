@@ -1,4 +1,13 @@
-import { ApiErrorResponse, ApiResult, MeResponse } from "shared/types";
+import {
+  ApiErrorResponse,
+  ApiResult,
+  GeoCoords,
+  MeResponse,
+  TrailItemResponse,
+  TrailResponse,
+  TrailReviewsResponse,
+  VisibilityLevel,
+} from "shared/types";
 
 /**
  * Função utilitária base responsável por realizar chamadas HTTP para a API.
@@ -152,7 +161,13 @@ export function createApi(fetcher: ApiFetcher) {
         });
       },
 
-      updateMe(data: Partial<{ name: string; description: string }>) {
+      updateMe(
+        data: Partial<{
+          name: string;
+          description: string;
+          reviewsVisibility: VisibilityLevel;
+        }>,
+      ) {
         return fetcher<void>("/users/me", {
           method: "PATCH",
           body: JSON.stringify(data),
@@ -173,6 +188,140 @@ export function createApi(fetcher: ApiFetcher) {
         return fetcher<void>("/users/me/avatar", {
           method: "DELETE",
         });
+      },
+    },
+
+    trails: {
+      getAll() {
+        return fetcher<TrailItemResponse[]>("/trails", {
+          method: "GET",
+        });
+      },
+
+      get(trailId: string) {
+        return fetcher<TrailResponse>(`/trails/${trailId}`, {
+          method: "GET",
+        });
+      },
+
+      create(data: {
+        name: string;
+        coordinates: GeoCoords;
+        description: string;
+        address: string;
+        length: number;
+        duration: number;
+      }) {
+        return fetcher<{ publicId: string }>(`/trails`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      },
+
+      update(
+        trailId: string,
+        data: Partial<{
+          name: string;
+          coordinates: GeoCoords;
+          description: string;
+          address: string;
+          length: number;
+          duration: number;
+          difficulty: string;
+        }>,
+      ) {
+        return fetcher<void>(`/trails/${trailId}`, {
+          method: "PATCH",
+          body: JSON.stringify(data),
+        });
+      },
+
+      remove(trailId: string) {
+        return fetcher<void>(`/trails/${trailId}`, {
+          method: "DELETE",
+        });
+      },
+
+      uploadImages(trailId: string, files: (File | Blob)[]) {
+        const formData = new FormData();
+        files.forEach((file) => formData.append("images", file));
+
+        return fetcher<number[]>(`/trails/${trailId}/images`, {
+          method: "POST",
+          body: formData,
+        });
+      },
+
+      manageImages(
+        trailId: string,
+        data: {
+          deleted?: number[];
+          ordered?: number[];
+        },
+      ) {
+        return fetcher<void>(`/trails/${trailId}/images`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            deletedImages: data.deleted ?? [],
+            orderedImages: data.ordered ?? [],
+          }),
+        });
+      },
+
+      reviews: {
+        get(
+          trailId: string,
+          { cursor, limit }: { cursor?: number; limit?: number } = {},
+        ) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<TrailReviewsResponse>(
+            `/trails/${trailId}/reviews${query ? `?${query}` : ""}`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        getMine(trailId: string) {
+          return fetcher<TrailReviewsResponse>(
+            `/trails/${trailId}/reviews/me`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        upsert(
+          trailId: string,
+          data: {
+            comment: string;
+            rating: number;
+            difficultyRating: number;
+            visitDate: string;
+          },
+        ) {
+          return fetcher<void>(`/trails/${trailId}/reviews`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+          });
+        },
+
+        delete(trailId: string) {
+          return fetcher<void>(`/trails/${trailId}/reviews`, {
+            method: "DELETE",
+          });
+        },
       },
     },
   };

@@ -3,7 +3,8 @@ import { BadRequestError } from "@/utils/errors";
 import { prisma } from "database";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { MeResponse } from "shared/types";
+import { MeResponse, VisibilityLevel } from "shared/types";
+import { getUserAvatarURL } from "shared/utils";
 import sharp from "sharp";
 
 /**
@@ -25,19 +26,22 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
       hasAvatar: true,
       avatarVersion: true,
       birthDate: true,
+      reviewCount: true,
+      reviewsVisibility: true,
     },
   });
 
   if (!user) return null;
 
-  const { hasAvatar, avatarVersion, ...rest } = user;
+  const { hasAvatar, avatarVersion, birthDate, createdAt, ...rest } = user;
 
-  const avatarUrl = hasAvatar
-    ? `/uploads/avatars/${user.publicId}.webp?v=${avatarVersion}`
-    : `https://api.dicebear.com/10.x/initials/svg?seed=${encodeURIComponent(user.name)}`;
+  const avatarUrl = getUserAvatarURL(user);
 
   return {
     avatarUrl,
+    hasCustomAvatar: hasAvatar,
+    birthDate: birthDate.toISOString(),
+    createdAt: createdAt.toISOString(),
     ...rest,
   };
 }
@@ -47,8 +51,14 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
  */
 export async function updateUser(
   userId: bigint,
-  data: Partial<{ name: string; description: string }>,
+  data: Partial<{
+    name: string;
+    description: string;
+    reviewsVisibility: VisibilityLevel;
+  }>,
 ) {
+  if (Object.keys(data).length === 0) return;
+
   await prisma.user.update({
     where: {
       id: userId,

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
 import RoundedOrangeInput from "@/app/components/rounded-orange-input";
 import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
+import { toast } from "sonner";
+import Link from "next/link";
 
 function CreateAccount() {
   const router = useRouter();
@@ -36,29 +38,52 @@ function CreateAccount() {
     e.preventDefault(); //Não usa o comportamento padrão do html, que é recarregar a página e perder os dados quando envia
 
     if (formData.password != formData.passwordConfirmation) {
-      alert("As senhas digitadas não são iguais!");
+      toast.warning("As senhas digitadas não são iguais!");
       return;
     }
 
     if (!acceptTerms) {
-      alert("Você precisa aceitar os termos para criar sua conta!");
+      toast.warning("Você precisa aceitar os termos para criar sua conta!");
       return;
     }
 
-    console.log(formData.birthDate);
-    console.log(new Date(formData.birthDate));
-
-    const result = await api.auth.register(
+    const promise = api.auth.register(
       formData.name,
       formData.email,
       formData.password,
       formData.birthDate,
     );
 
+    toast.promise(promise, {
+      loading: "Carregando...",
+    });
+
+    const result = await promise;
+
     //Se der tudo certo, vai redirecionar o usuário para a tela de confirmar email
     //e envia o email digitado para ele ser mostrado na tela
     if (result.ok) {
+      toast.success("Conta criada com sucesso.");
       router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+    } else {
+      if (result.error.code === "EMAIL_TAKEN") {
+        toast.error("Já existe uma conta com esse e-mail.");
+      } else if (result.error.code === "VALIDATION_ERROR") {
+        if (result.error.fields!.email) {
+          toast.error("E-mail inválido.");
+        }
+        if (result.error.fields!.name) {
+          toast.error("Nome muito curto ou muito grande.");
+        }
+        if (result.error.fields!.password) {
+          toast.error(
+            "Senha muito curta, é necessário pelo menos 6 caracteres.",
+          );
+        }
+        if (result.error.fields!.birthDate) {
+          toast.error("Data de nascimento inválida.");
+        }
+      }
     }
   };
 
@@ -119,17 +144,29 @@ function CreateAccount() {
             type="checkbox"
             id="usageTerms"
             onChange={(e) => setAcceptTerms(e.target.checked)}
-            className="w-4 h-4 ml-1.5 appearance-none border-2 rounded border-[#424242] hover:border-[#D99C6A] checked:bg-[#D99C6A] checked:border-[#424242] transition-colors duration-300 cursor-pointer"
+            className="
+              w-4 h-4 ml-1.5
+              appearance-none
+              border-2 rounded border-[#424242] hover:border-[#D99C6A]
+              checked:bg-[#D99C6A] checked:border-[#424242]
+              transition-colors duration-300
+              cursor-pointer
+            "
           />
 
-          <label className="pl-3">
+          <label htmlFor="usageTerms" className="pl-3 cursor-pointer">
             Li e concordo com os{" "}
-            <a
+            <Link
+              target="_blank"
               href="/usage-terms"
-              className="text-[#D99C6A] font-bold hover:underline hover:text-[#c46518] hover:brightness-120  transition-all duration-300"
+              className="
+                text-[#D99C6A] font-bold
+                hover:underline hover:text-[#c46518] hover:brightness-120
+                transition-all duration-300
+              "
             >
               termos de uso
-            </a>
+            </Link>
           </label>
         </div>
       </div>

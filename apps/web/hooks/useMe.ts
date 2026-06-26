@@ -6,14 +6,17 @@ import { api } from "@/lib/api/client";
 /**
  * Busca o usuário autenticado.
  *
- * Retorna `null` quando não há autenticação (UNAUTHORIZED),
+ * Retorna `null` quando não há autenticação (UNAUTHORIZED ou EMAIL_NOT_VERIFIED),
  * e lança erro para outras falhas da API.
  */
 async function getMe() {
   const result = await api.users.me();
 
   if (!result.ok) {
-    if (result.error.code === "UNAUTHORIZED") {
+    if (
+      result.error.code === "UNAUTHORIZED" ||
+      result.error.code === "EMAIL_NOT_VERIFIED"
+    ) {
       return null;
     }
 
