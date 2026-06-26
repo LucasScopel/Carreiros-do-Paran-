@@ -1,14 +1,22 @@
 "use client";
+import { Bookmark } from "lucide-react";
 import { useState } from "react";
 import Banner from "./banner";
 import { InfoCard } from "./info-card";
 import StarRating from "./star-rating";
 import FlameRating from "./flame-rating";
+import SaveIcon from "@/app/components/save-icon";
 
 export default function PageScript() {
   const [starRating, setStarRating] = useState(0);
   const [flameRating, setFlameRating] = useState(0);
+  const [savedTrail, setSavedTrail] = useState(false);
   const [review, setReview] = useState("");
+
+  //Função para alterar o estado de ter ou não uma trilha salva
+  const handleSaveTrail = () => {
+    setSavedTrail((prev) => !prev);
+  };
 
   /* FUNÇÃO PARA ENVIAR OS DADOS PRA API
   const handleSubmit = async () => {
@@ -63,11 +71,16 @@ export default function PageScript() {
                       <div className="flex justify-between">
                         <div>
                           <p className="text-xl text-black">Sua Avaliação</p>
-                          <StarRating value={starRating} onChange={setStarRating} />
+                          <StarRating
+                            value={starRating}
+                            onChange={setStarRating}
+                          />
                         </div>
 
                         <div>
-                          <p className="text-xl text-black">O quão difícil achou</p>
+                          <p className="text-xl text-black">
+                            O quão difícil achou
+                          </p>
                           <FlameRating
                             value={flameRating}
                             onChange={setFlameRating}
@@ -76,11 +89,15 @@ export default function PageScript() {
                       </div>
 
                       <div>
-                        <p className="text-xl text-black">Quando você fez a trilha</p>
-                        <input type="date" className="w-55 px-4 py-3 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
-                        transition-colors duration-300"></input>
+                        <p className="text-xl text-black">
+                          Quando você fez a trilha
+                        </p>
+                        <input
+                          type="date"
+                          className="w-55 px-4 py-3 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
+                        transition-colors duration-300"
+                        ></input>
                       </div>
-                      
 
                       <div>
                         <p className="text-xl text-black">Seu relato</p>
@@ -91,7 +108,6 @@ export default function PageScript() {
                                      transition-colors duration-300"
                         ></textarea>
                       </div>
-                      
 
                       <button className="w-full px-4 py-4 rounded-md text-center bg-green-800 font-bold text-white cursor-pointer hover:bg-green-700 hover:brightness-120  transition-all duration-300">
                         Avaliar
@@ -125,7 +141,8 @@ export default function PageScript() {
           {/* Coluna direita */}
           {/* -------------- */}
 
-          <div className="col-span-4">
+          <div className="col-span-4 flex flex-col gap-4">
+            {/*Mapa e coordenadas*/}
             <InfoCard title="Mapa">
               <div className="flex-1 w-full">
                 <iframe
@@ -145,6 +162,18 @@ export default function PageScript() {
                 <p className="text-sm">Lng: -48.8820°</p>
               </div>
             </InfoCard>
+
+            {/*Botão de salvar trilha*/}
+            <div
+              onClick={handleSaveTrail}
+              className="px-6 py-4 bg-gray-50 rounded-xl shadow-md border border-[#D99C6A] text-left text-lg text-gray-800 flex gap-2 items-center cursor-pointer
+                         focus:border-[#ee8937] focus:outline-none hover:border-[#ee8937] transition-colors duration-300"
+            >
+              <div className="pointer-events-none">
+                <SaveIcon saved={savedTrail} />
+              </div>
+              Salvar Trilha
+            </div>
           </div>
         </div>
       </div>
