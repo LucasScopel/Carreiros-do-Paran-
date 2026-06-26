@@ -7,6 +7,12 @@ datasource db {
   provider = "postgresql"
 }
 
+enum VisibilityLevel {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
 model User {
   id            BigInt   @id @default(autoincrement())
   publicId      String   @unique
@@ -21,7 +27,11 @@ model User {
   emailVerified Boolean  @default(false)
   admin         Boolean  @default(false)
 
+  reviewCount       Int             @default(0)
+  reviewsVisibility VisibilityLevel @default(PUBLIC)
+
   sessions      Session[]
+  reviews       Review[]
   verification  EmailVerification?
   passwordReset PasswordReset?
 
@@ -91,7 +101,8 @@ model Trail {
   ratingSum     Int @default(0)
   difficultySum Int @default(0)
 
-  images TrailImage[]
+  images  TrailImage[]
+  reviews Review[]
 
   @@index([publicId])
 }
@@ -106,4 +117,27 @@ model TrailImage {
   format   String
 
   @@index([id, trailId])
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+
+  comment          String
+  rating           Int
+  difficultyRating Int
+  visitDate        DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trailId BigInt
+  userId  BigInt
+
+  trail Trail @relation(fields: [trailId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([trailId, userId])
+  @@index([trailId])
+  @@index([userId])
+  @@index([trailId, id(sort: Desc)])
 }
