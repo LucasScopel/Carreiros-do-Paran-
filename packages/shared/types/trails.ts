@@ -53,7 +53,7 @@ export type GetMyCollections = {
   isDefault: boolean;
   visibility: VisibilityLevel;
   trailCount: number;
-};
+}[];
 
 export type GetMyCollectionTrails = {
   trails: {
