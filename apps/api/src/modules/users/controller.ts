@@ -2,7 +2,34 @@ import { BadRequestError, NotFoundError } from "@/utils/errors";
 import { Request, Response } from "express";
 import { MeResponse } from "shared/types";
 import * as usersService from "./service";
-import { updateUserSchema } from "./schemas";
+import {
+  createTrailCollectionSchema,
+  updateTrailCollectionSchema,
+  updateUserSchema,
+} from "./schemas";
+import { getIntegerQueryParam, ParamsDictionary } from "@/utils/params";
+import CONFIG from "@/config";
+
+function getCollectionIdParam(params: ParamsDictionary) {
+  if (!params.collectionId) {
+    throw new BadRequestError("Missing collection id");
+  }
+  return params.collectionId as string;
+}
+
+function getTrailIdParam(params: ParamsDictionary) {
+  if (!params.trailId) {
+    throw new BadRequestError("Missing trail id");
+  }
+  return params.trailId as string;
+}
+
+function getUserIdParam(params: ParamsDictionary) {
+  if (!params.userId) {
+    throw new BadRequestError("Missing user id");
+  }
+  return params.userId as string;
+}
 
 /**
  * `GET /users/me`
@@ -60,4 +87,128 @@ export async function deleteAvatar(req: Request, res: Response) {
   await usersService.removeAvatar(req.user!.id, req.user!.publicId);
 
   res.sendStatus(204);
+}
+
+export async function getMyCollections(req: Request, res: Response) {
+  const collections = await usersService.getMyCollections(req.user!.id);
+
+  res.json(collections);
+}
+
+export async function createCollection(req: Request, res: Response) {
+  const data = createTrailCollectionSchema.parse(req.body);
+
+  const collectionId = await usersService.createCollection(req.user!.id, data);
+
+  res.status(201).json({ publicId: collectionId });
+}
+
+export async function updateCollection(req: Request, res: Response) {
+  const collectionId = getCollectionIdParam(req.params);
+  const data = updateTrailCollectionSchema.parse(req.body);
+
+  await usersService.updateCollection(req.user!.id, collectionId, data);
+
+  res.sendStatus(204);
+}
+
+export async function deleteCollection(req: Request, res: Response) {
+  const collectionId = getCollectionIdParam(req.params);
+
+  await usersService.deleteCollection(req.user!.id, collectionId);
+
+  res.sendStatus(204);
+}
+
+export async function getMyCollectionTrails(req: Request, res: Response) {
+  const collectionId = getCollectionIdParam(req.params);
+  const cursor = getIntegerQueryParam(req.query, "cursor", {
+    default: null,
+  });
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    max: CONFIG.MAX_COLLECTION_TRAIL_COUNT,
+    default: 5,
+  });
+
+  const data = await usersService.getMyCollectionTrails(
+    req.user!.id,
+    collectionId,
+    {
+      cursor: cursor,
+      limit: limit,
+    },
+  );
+
+  res.json(data);
+}
+
+export async function upsertCollectionTrail(req: Request, res: Response) {
+  const collectionId = getCollectionIdParam(req.params);
+  const trailId = getTrailIdParam(req.params);
+
+  await usersService.upsertCollectionTrail(req.user!.id, collectionId, trailId);
+
+  res.sendStatus(204);
+}
+
+export async function deleteCollectionTrail(req: Request, res: Response) {
+  const collectionId = getCollectionIdParam(req.params);
+  const trailId = getTrailIdParam(req.params);
+
+  await usersService.removeTrailFromCollection(
+    req.user!.id,
+    collectionId,
+    trailId,
+  );
+
+  res.sendStatus(204);
+}
+
+export async function getCollectionsContainingTrail(
+  req: Request,
+  res: Response,
+) {
+  const trailId = getTrailIdParam(req.params);
+
+  const collections = await usersService.getCollectionsContainingTrail(
+    req.user!.id,
+    trailId,
+  );
+
+  res.json(collections);
+}
+
+export async function getUserCollections(req: Request, res: Response) {
+  const userId = getUserIdParam(req.params);
+
+  const collections = await usersService.getUserCollections(
+    req.user?.id ?? null,
+    userId,
+  );
+
+  res.json(collections);
+}
+
+export async function getUserCollectionTrails(req: Request, res: Response) {
+  const userId = getUserIdParam(req.params);
+  const collectionId = getCollectionIdParam(req.params);
+  const cursor = getIntegerQueryParam(req.query, "cursor", {
+    default: null,
+  });
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    max: CONFIG.MAX_COLLECTION_TRAIL_COUNT,
+    default: 5,
+  });
+
+  const data = await usersService.getUserCollectionTrails(
+    req.user?.id ?? null,
+    userId,
+    collectionId,
+    {
+      cursor: cursor,
+      limit: limit,
+    },
+  );
+
+  res.json(data);
 }

@@ -8,64 +8,13 @@ import {
 import * as trailsService from "./trails.service";
 import * as reviewsService from "./reviews.service";
 import { BadRequestError } from "@/utils/errors";
-
-interface ParamsDictionary {
-  [key: string]: string | string[];
-  [key: number]: string;
-}
+import { getIntegerQueryParam, ParamsDictionary } from "@/utils/params";
 
 function getTrailIdParam(params: ParamsDictionary) {
   if (!params.trailId) {
     throw new BadRequestError("Missing trail id");
   }
   return params.trailId as string;
-}
-
-function getIntegerQueryParam(
-  query: qs.ParsedQs,
-  property: string,
-  options: { max?: number },
-): number;
-
-function getIntegerQueryParam<T>(
-  query: qs.ParsedQs,
-  property: string,
-  options: { max?: number; default: T },
-): number | T;
-
-function getIntegerQueryParam<T>(
-  query: qs.ParsedQs,
-  property: string,
-  options: {
-    max?: number;
-    default?: T;
-  } = {},
-): number | T {
-  if (
-    typeof query[property] === "undefined" &&
-    typeof options.default !== "undefined"
-  ) {
-    return options.default;
-  }
-
-  let value = 0;
-
-  if (
-    typeof query[property] !== "string" ||
-    isNaN((value = parseInt(query[property], 10)))
-  ) {
-    throw new BadRequestError(
-      `Query parameter '${property}' needs to be an integer`,
-    );
-  }
-
-  if (typeof options.max === "number" && value > options.max) {
-    throw new BadRequestError(
-      `Query parameter '${property}' can't be bigger than ${options.max}`,
-    );
-  }
-
-  return value;
 }
 
 export async function newTrail(req: Request, res: Response) {
