@@ -6,16 +6,22 @@ import { InfoCard } from "./info-card";
 import StarRating from "./star-rating";
 import FlameRating from "./flame-rating";
 import SaveIcon from "@/app/components/save-icon";
+import SaveModal from "./save-modal";
 
 export default function PageScript() {
   const [starRating, setStarRating] = useState(0);
   const [flameRating, setFlameRating] = useState(0);
   const [savedTrail, setSavedTrail] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [review, setReview] = useState("");
 
   //Função para alterar o estado de ter ou não uma trilha salva
   const handleSaveTrail = () => {
+    //Altera o estado da trilha para salva ou não
     setSavedTrail((prev) => !prev);
+
+    //Só apresenta o modal se for na hora de salvar a trilha
+    if (!savedTrail) setIsModalOpen(true);
   };
 
   /* FUNÇÃO PARA ENVIAR OS DADOS PRA API
@@ -166,14 +172,20 @@ export default function PageScript() {
             {/*Botão de salvar trilha*/}
             <div
               onClick={handleSaveTrail}
-              className="px-6 py-4 bg-gray-50 rounded-xl shadow-md border border-[#D99C6A] text-left text-lg text-gray-800 flex gap-2 items-center cursor-pointer
+              className="px-6 py-4 p bg-gray-50 rounded-xl shadow-md border border-[#D99C6A] text-left text-lg text-gray-800 flex gap-2 items-center cursor-pointer
                          focus:border-[#ee8937] focus:outline-none hover:border-[#ee8937] transition-colors duration-300"
             >
-              <div className="pointer-events-none">
+              Salvar Trilha
+              <div className="ml-auto right-0 pointer-events-none">
                 <SaveIcon saved={savedTrail} />
               </div>
-              Salvar Trilha
             </div>
+
+            {/*Modal para quando salvar a trilha*/}
+            <SaveModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
           </div>
         </div>
       </div>

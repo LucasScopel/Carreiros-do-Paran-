@@ -7,6 +7,7 @@ interface InfoCardProps {
   variant?: "default" | "container";
   className?: string;
   children?: React.ReactNode;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export const InfoCard: React.FC<InfoCardProps> = ({
@@ -16,9 +17,11 @@ export const InfoCard: React.FC<InfoCardProps> = ({
   variant = "default",
   className = "",
   children,
+  onClick,
 }) => {
   return (
     <div
+      onClick={onClick}
       className={`p-6 bg-gray-50 rounded-xl shadow-md border border-[#D99C6A] flex flex-col ${
         variant === "container" ? "gap-4" : ""
       } ${className}`}
