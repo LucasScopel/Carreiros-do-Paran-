@@ -653,10 +653,8 @@ export async function getUserCollectionTrails(
         select: {
           publicId: true,
           name: true,
-          address: true,
-          length: true,
-          duration: true,
           ratingSum: true,
+          difficultySum: true,
           reviewCount: true,
         },
       },
@@ -670,7 +668,17 @@ export async function getUserCollectionTrails(
   }
 
   return {
-    trails: trails.map((trail) => trail.trail),
+    trails: trails.map((t) => {
+      const {
+        trail: { ratingSum, difficultySum, ...rest },
+      } = t;
+      return {
+        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount,
+        difficulty:
+          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount,
+        ...rest,
+      };
+    }),
     nextCursor: hasMore ? trails[trails.length - 1].trailId : null,
   };
 }

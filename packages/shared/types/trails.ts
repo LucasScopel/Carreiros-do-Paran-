@@ -1,3 +1,5 @@
+import { VisibilityLevel } from "./users";
+
 export interface GeoCoords {
   lon: number;
   lat: number;
@@ -44,3 +46,39 @@ export interface TrailReviewsResponse {
   nextCursor: number | null;
   hasMore: boolean;
 }
+
+export type GetMyCollections = {
+  publicId: string;
+  name: string;
+  isDefault: boolean;
+  visibility: VisibilityLevel;
+  trailCount: number;
+};
+
+export type GetMyCollectionTrails = {
+  trails: {
+    publicId: string;
+    name: string;
+    reviewCount: number;
+    rating: number;
+    difficulty: number;
+  }[];
+  nextCursor: number | null;
+};
+
+export type GetUserCollections = {
+  publicId: string;
+  name: string;
+  trailCount: number;
+}[];
+
+export type getUserCollectionTrails = {
+  trails: {
+    publicId: string;
+    name: string;
+    reviewCount: number;
+    rating: number;
+    difficulty: number;
+  }[];
+  nextCursor: number | null;
+};
