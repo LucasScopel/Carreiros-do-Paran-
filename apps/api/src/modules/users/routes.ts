@@ -46,6 +46,11 @@ router.delete(
   requireAuth,
   controller.deleteCollectionTrail,
 );
+router.get(
+  "/me/trails/:trailId/collections",
+  requireAuth,
+  controller.getCollectionsContainingTrail,
+);
 
 // Recuperar coleções de trilhas de outros usuários
 router.get("/:userId/collections", controller.getUserCollections);

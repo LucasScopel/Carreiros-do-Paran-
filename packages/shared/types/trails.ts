@@ -72,7 +72,7 @@ export type GetUserCollections = {
   trailCount: number;
 }[];
 
-export type getUserCollectionTrails = {
+export type GetUserCollectionTrails = {
   trails: {
     publicId: string;
     name: string;
@@ -82,3 +82,10 @@ export type getUserCollectionTrails = {
   }[];
   nextCursor: number | null;
 };
+
+export type GetCollectionsContainingTrail = {
+  publicId: string;
+  name: string;
+  isDefault: boolean;
+  containsTrail: boolean;
+}[];

@@ -2,10 +2,11 @@ import {
   ApiErrorResponse,
   ApiResult,
   GeoCoords,
+  GetCollectionsContainingTrail,
   GetMyCollections,
   GetMyCollectionTrails,
   GetUserCollections,
-  getUserCollectionTrails,
+  GetUserCollectionTrails,
   MeResponse,
   TrailItemResponse,
   TrailResponse,
@@ -423,8 +424,17 @@ export function createApi(fetcher: ApiFetcher) {
 
           const query = searchParams.toString();
 
-          return fetcher<getUserCollectionTrails>(
+          return fetcher<GetUserCollectionTrails>(
             `/users/${userId}/collections/${collectionId}/trails${query ? `?${query}` : ""}`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        getContainingTrail(trailId: string) {
+          return fetcher<GetCollectionsContainingTrail>(
+            `/users/me/trails/${trailId}/collections`,
             {
               method: "GET",
             },
