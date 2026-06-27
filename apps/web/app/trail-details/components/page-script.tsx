@@ -1,5 +1,5 @@
 "use client";
-import { Bookmark } from "lucide-react";
+import { Bookmark, Star, Flame } from "lucide-react";
 import { useState } from "react";
 import Banner from "./banner";
 import { InfoCard } from "./info-card";
@@ -126,15 +126,68 @@ export default function PageScript() {
                     Outras Avaliações
                   </p>
 
-                  <InfoCard title="João">
+                  <InfoCard>
                     <div className="flex flex-col gap-4">
-                      <p className="text-sm">5 de maio</p>
+                      <div className="relative flex flex-col gap-0.5">
+                        <div>
+                          <h3 className="text-2xl font-bold text-[#263327] leading-tight">
+                            João da Silva
+                          </h3>
+                        </div>
+
+                        <p className="text-sm">5 de maio</p>
+
+                        <div className="absolute top-0 right-0 flex flex-col gap-1">
+                          <div className="flex gap-0.5">
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                          </div>
+                          <div className="flex gap-0.5">
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                          </div>
+                        </div>
+                      </div>
+
                       <p className="text-lg">Boa</p>
                     </div>
                   </InfoCard>
-                  <InfoCard title="Cleide">
+
+                  <InfoCard>
                     <div className="flex flex-col gap-4">
-                      <p className="text-sm">6 de agosto</p>
+                      <div className="relative flex flex-col gap-0.5">
+                        <div>
+                          <h3 className="text-2xl font-bold text-[#263327] leading-tight">
+                            Cleide
+                          </h3>
+                        </div>
+
+                        <p className="text-sm">6 de agosto</p>
+
+                        <div className="absolute top-0 right-0 flex flex-col gap-1">
+                          <div className="flex gap-0.5">
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                          </div>
+                          <div className="flex gap-0.5">
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
+                          </div>
+                        </div>
+                      </div>
+
                       <p className="text-lg">Tava fechado</p>
                     </div>
                   </InfoCard>
