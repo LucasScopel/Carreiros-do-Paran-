@@ -25,4 +25,5 @@ export type ApiErrorCode =
   | "EMAIL_NOT_VERIFIED"
   | "VALIDATION_ERROR"
   | "EMAIL_TAKEN"
-  | "INTERNAL_ERROR";
+  | "INTERNAL_ERROR"
+  | "PAYLOAD_TOO_LARGE";

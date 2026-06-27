@@ -95,7 +95,7 @@ model Trail {
   id       Int    @id @default(autoincrement())
   publicId String @unique
 
-  name        String
+  name        String @unique
   description String
 
   coordinates Unsupported("geometry(Point,4326)")
