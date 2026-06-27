@@ -2,6 +2,10 @@ import {
   ApiErrorResponse,
   ApiResult,
   GeoCoords,
+  GetMyCollections,
+  GetMyCollectionTrails,
+  GetUserCollections,
+  getUserCollectionTrails,
   MeResponse,
   TrailItemResponse,
   TrailResponse,
@@ -321,6 +325,110 @@ export function createApi(fetcher: ApiFetcher) {
           return fetcher<void>(`/trails/${trailId}/reviews`, {
             method: "DELETE",
           });
+        },
+      },
+
+      collections: {
+        getMine() {
+          return fetcher<GetMyCollections>("/users/me/collections", {
+            method: "GET",
+          });
+        },
+
+        create(data: { name: string; visibility: VisibilityLevel }) {
+          return fetcher<{ publicId: string }>("/users/me/collections", {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
+        },
+
+        update(
+          collectionId: string,
+          data: Partial<{ name: string; visibility: VisibilityLevel }>,
+        ) {
+          return fetcher<void>(`/users/me/collections/${collectionId}`, {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
+        },
+
+        delete(collectionId: string) {
+          return fetcher<void>(`/users/me/collections/${collectionId}`, {
+            method: "DELETE",
+          });
+        },
+
+        getTrails(
+          collectionId: string,
+          { cursor, limit }: { cursor?: number; limit?: number } = {},
+        ) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<GetMyCollectionTrails>(
+            `/users/me/collections/${collectionId}/trails${query ? `?${query}` : ""}`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        addTrail(collectionId: string, trailId: string) {
+          return fetcher<void>(
+            `/users/me/collections/${collectionId}/${trailId}`,
+            {
+              method: "PUT",
+            },
+          );
+        },
+
+        removeTrail(collectionId: string, trailId: string) {
+          return fetcher<void>(
+            `/users/me/collections/${collectionId}/${trailId}`,
+            {
+              method: "DELETE",
+            },
+          );
+        },
+
+        getUser(userId: string) {
+          return fetcher<GetUserCollections>(`/users/${userId}/collections`, {
+            method: "GET",
+          });
+        },
+
+        getUserTrails(
+          userId: string,
+          collectionId: string,
+          { cursor, limit }: { cursor?: number; limit?: number } = {},
+        ) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<getUserCollectionTrails>(
+            `/users/${userId}/collections/${collectionId}/trails${query ? `?${query}` : ""}`,
+            {
+              method: "GET",
+            },
+          );
         },
       },
     },
