@@ -1,6 +1,7 @@
 import CONFIG from "@/config";
-import { BadRequestError } from "@/utils/errors";
-import { prisma } from "database";
+import { BadRequestError, ConflictError, NotFoundError } from "@/utils/errors";
+import { Prisma, prisma } from "database";
+import { nanoid } from "nanoid";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { MeResponse, VisibilityLevel } from "shared/types";
@@ -140,4 +141,536 @@ export async function removeAvatar(userId: bigint, publicUserId: string) {
       hasAvatar: false,
     },
   });
+}
+
+export async function getMyCollections(userId: bigint) {
+  const collections = await prisma.trailCollection.findMany({
+    where: {
+      userId,
+    },
+    orderBy: [
+      {
+        isDefault: "desc",
+      },
+      {
+        name: "asc",
+      },
+    ],
+    select: {
+      publicId: true,
+      name: true,
+      isDefault: true,
+      visibility: true,
+
+      _count: {
+        select: {
+          trails: true,
+        },
+      },
+    },
+  });
+
+  return collections.map((collection) => ({
+    publicId: collection.publicId,
+    name: collection.name,
+    isDefault: collection.isDefault,
+    visibility: collection.visibility,
+    trailCount: collection._count.trails,
+  }));
+}
+
+export async function createCollection(
+  userId: bigint,
+  data: {
+    name: string;
+    visibility: VisibilityLevel;
+  },
+) {
+  const collectionsCount = await prisma.trailCollection.count({
+    where: {
+      userId,
+    },
+  });
+
+  if (collectionsCount >= CONFIG.MAX_COLLECTION_COUNT) {
+    throw new BadRequestError("Collection limit reached");
+  }
+
+  try {
+    const publicId = nanoid();
+
+    await prisma.trailCollection.create({
+      data: {
+        publicId,
+        userId,
+        ...data,
+      },
+      select: {
+        publicId: true,
+        name: true,
+        isDefault: true,
+      },
+    });
+
+    return publicId;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new ConflictError("A collection with this name already exists");
+    }
+
+    throw error;
+  }
+}
+
+export async function updateCollection(
+  userId: bigint,
+  collectionPublicId: string,
+  data: Partial<{
+    name: string;
+    visibility: VisibilityLevel;
+  }>,
+) {
+  const collection = await prisma.trailCollection.findFirst({
+    where: {
+      publicId: collectionPublicId,
+      userId,
+    },
+    select: {
+      id: true,
+      isDefault: true,
+    },
+  });
+
+  if (!collection) {
+    throw new NotFoundError();
+  }
+
+  if (collection.isDefault && typeof data.name !== "undefined") {
+    throw new BadRequestError("The default collection cannot be renamed");
+  }
+
+  try {
+    await prisma.trailCollection.update({
+      data,
+      where: {
+        id: collection.id,
+      },
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new ConflictError("A collection with this name already exists");
+    }
+
+    throw error;
+  }
+}
+
+export async function deleteCollection(
+  userId: bigint,
+  collectionPublicId: string,
+) {
+  const collection = await prisma.trailCollection.findFirst({
+    where: {
+      publicId: collectionPublicId,
+      userId,
+    },
+    select: {
+      id: true,
+      isDefault: true,
+    },
+  });
+
+  if (!collection) {
+    throw new NotFoundError();
+  }
+
+  if (collection.isDefault) {
+    throw new BadRequestError("The default collection cannot be deleted");
+  }
+
+  await prisma.trailCollection.delete({
+    where: {
+      id: collection.id,
+    },
+  });
+}
+
+export async function getMyCollectionTrails(
+  userId: bigint,
+  collectionPublicId: string,
+  {
+    cursor = null,
+    limit = CONFIG.MAX_COLLECTION_TRAIL_COUNT,
+  }: {
+    cursor?: number | null;
+    limit?: number;
+  } = {},
+) {
+  const collection = await prisma.trailCollection.findFirst({
+    where: {
+      publicId: collectionPublicId,
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!collection) {
+    throw new NotFoundError();
+  }
+
+  const trails = await prisma.trailCollectionTrail.findMany({
+    where: {
+      collectionId: collection.id,
+    },
+    orderBy: {
+      addedAt: "desc",
+    },
+    take: limit + 1,
+    ...(cursor && {
+      cursor: {
+        collectionId_trailId: {
+          collectionId: collection.id,
+          trailId: cursor,
+        },
+      },
+      skip: 1,
+    }),
+    include: {
+      trail: {
+        select: {
+          publicId: true,
+          name: true,
+          ratingSum: true,
+          difficultySum: true,
+          reviewCount: true,
+        },
+      },
+    },
+  });
+
+  const hasMore = trails.length > limit;
+
+  if (hasMore) {
+    trails.pop();
+  }
+
+  return {
+    trails: trails.map((t) => {
+      const {
+        trail: { ratingSum, difficultySum, ...rest },
+      } = t;
+      return {
+        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount,
+        difficulty:
+          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount,
+        ...rest,
+      };
+    }),
+    nextCursor: hasMore ? trails[trails.length - 1].trailId : null,
+  };
+}
+
+// Retorna se houve adição da trilha ou não
+export async function upsertCollectionTrail(
+  userId: bigint,
+  collectionPublicId: string,
+  trailPublicId: string,
+) {
+  const collection = await prisma.trailCollection.findFirst({
+    where: {
+      publicId: collectionPublicId,
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!collection) {
+    throw new NotFoundError();
+  }
+
+  const trail = await prisma.trail.findUnique({
+    where: {
+      publicId: trailPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!trail) {
+    throw new NotFoundError();
+  }
+
+  const trailsCount = await prisma.trailCollectionTrail.count({
+    where: {
+      collectionId: collection.id,
+    },
+  });
+
+  if (trailsCount >= CONFIG.MAX_COLLECTION_TRAIL_COUNT) {
+    throw new BadRequestError("Collection limit reached");
+  }
+
+  try {
+    await prisma.trailCollectionTrail.create({
+      data: {
+        collectionId: collection.id,
+        trailId: trail.id,
+      },
+    });
+
+    return true;
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return false;
+    }
+
+    throw error;
+  }
+}
+
+export async function removeTrailFromCollection(
+  userId: bigint,
+  collectionPublicId: string,
+  trailPublicId: string,
+) {
+  const collection = await prisma.trailCollection.findFirst({
+    where: {
+      publicId: collectionPublicId,
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!collection) {
+    throw new NotFoundError();
+  }
+
+  const trail = await prisma.trail.findUnique({
+    where: {
+      publicId: trailPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!trail) {
+    throw new NotFoundError();
+  }
+
+  await prisma.trailCollectionTrail.deleteMany({
+    where: {
+      collectionId: collection.id,
+      trailId: trail.id,
+    },
+  });
+}
+
+export async function getCollectionsContainingTrail(
+  userId: bigint,
+  trailPublicId: string,
+) {
+  const trail = await prisma.trail.findUnique({
+    where: {
+      publicId: trailPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!trail) {
+    throw new NotFoundError();
+  }
+
+  const collections = await prisma.trailCollection.findMany({
+    where: {
+      userId,
+    },
+    orderBy: [
+      {
+        isDefault: "desc",
+      },
+      {
+        name: "asc",
+      },
+    ],
+    select: {
+      publicId: true,
+      name: true,
+      isDefault: true,
+      trails: {
+        where: {
+          trailId: trail.id,
+        },
+        select: {
+          trailId: true,
+        },
+      },
+    },
+  });
+
+  return collections.map((collection) => ({
+    publicId: collection.publicId,
+    name: collection.name,
+    isDefault: collection.isDefault,
+    containsTrail: collection.trails.length > 0,
+  }));
+}
+
+export async function getUserCollections(
+  viewerId: bigint | null,
+  ownerPublicId: string,
+) {
+  const owner = await prisma.user.findUnique({
+    where: {
+      publicId: ownerPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!owner) {
+    throw new NotFoundError();
+  }
+
+  const isOwner = viewerId === owner.id;
+
+  let query;
+  if (isOwner) query = undefined;
+  else query = [{ visibility: "PUBLIC" as VisibilityLevel }];
+
+  const collections = await prisma.trailCollection.findMany({
+    where: {
+      userId: owner.id,
+      OR: query,
+    },
+    orderBy: {
+      name: "asc",
+    },
+    select: {
+      publicId: true,
+      name: true,
+      _count: {
+        select: {
+          trails: true,
+        },
+      },
+    },
+  });
+
+  return collections.map((collection) => ({
+    publicId: collection.publicId,
+    name: collection.name,
+    trailCount: collection._count.trails,
+  }));
+}
+
+export async function getUserCollectionTrails(
+  viewerId: bigint | null,
+  ownerPublicId: string,
+  collectionPublicId: string,
+  {
+    cursor = null,
+    limit = CONFIG.MAX_COLLECTION_TRAIL_COUNT,
+  }: {
+    cursor?: number | null;
+    limit?: number;
+  } = {},
+) {
+  const owner = await prisma.user.findUnique({
+    where: {
+      publicId: ownerPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!owner) {
+    throw new NotFoundError();
+  }
+
+  const isOwner = viewerId === owner.id;
+
+  const collection = await prisma.trailCollection.findFirst({
+    where: {
+      publicId: collectionPublicId,
+      userId: owner.id,
+    },
+    select: {
+      id: true,
+      visibility: true,
+    },
+  });
+
+  if (!collection) {
+    throw new NotFoundError();
+  }
+
+  const canView = isOwner || collection.visibility === "PUBLIC";
+
+  if (!canView) {
+    throw new NotFoundError();
+  }
+
+  const trails = await prisma.trailCollectionTrail.findMany({
+    where: {
+      collectionId: collection.id,
+    },
+    orderBy: {
+      addedAt: "desc",
+    },
+    take: limit + 1,
+    ...(cursor && {
+      cursor: {
+        collectionId_trailId: {
+          collectionId: collection.id,
+          trailId: cursor,
+        },
+      },
+      skip: 1,
+    }),
+    include: {
+      trail: {
+        select: {
+          publicId: true,
+          name: true,
+          address: true,
+          length: true,
+          duration: true,
+          ratingSum: true,
+          reviewCount: true,
+        },
+      },
+    },
+  });
+
+  const hasMore = trails.length > limit;
+
+  if (hasMore) {
+    trails.pop();
+  }
+
+  return {
+    trails: trails.map((trail) => trail.trail),
+    nextCursor: hasMore ? trails[trails.length - 1].trailId : null,
+  };
 }
