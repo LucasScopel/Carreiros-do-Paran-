@@ -108,7 +108,16 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
       return;
     }
 
-    const newImages: FormImage[] = Array.from(e.target.files).map((file) => ({
+    const filesArray = Array.from(e.target.files);
+
+    e.target.value = "";
+
+    if (filesArray.some((file) => file.size > 10 * 1024 * 1024)) {
+      toast.error("Uma ou mais imagens ultrapassam o limite de 10 MB.");
+      return;
+    }
+
+    const newImages: FormImage[] = filesArray.map((file) => ({
       kind: "new",
       image: {
         key: crypto.randomUUID(),
@@ -116,8 +125,6 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
         previewUrl: URL.createObjectURL(file),
       },
     }));
-
-    e.target.value = "";
 
     setImages((old) => [...old, ...newImages]);
   }
@@ -453,7 +460,13 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           </div>
 
           <div className="flex flex-row items-center justify-between mt-8">
-            <p className="text-xl font-semibold">Imagens</p>
+            <div className="flex flex-row items-baseline gap-5">
+              <p className="text-xl font-semibold">Imagens</p>
+
+              <p className="text-sm font-semibold text-zinc-700">
+                Máx. 10 imagens (até 10 MB cada)
+              </p>
+            </div>
 
             <button
               type="button"
