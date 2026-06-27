@@ -398,7 +398,7 @@ export async function removeTrail(publicId: string) {
           id: review.userId,
         },
         data: {
-          reviewsCount: {
+          reviewCount: {
             decrement: 1,
           },
         },

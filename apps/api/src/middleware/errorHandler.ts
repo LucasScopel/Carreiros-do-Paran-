@@ -6,6 +6,7 @@ import type { ApiErrorResponse } from "shared/types";
 
 type UniqueConstraintMeta = {
   cause?: {
+    originalCode?: string;
     constraint?: {
       fields?: string[];
     };
@@ -58,6 +59,11 @@ export function errorHandler(
             code: "EMAIL_TAKEN",
           });
         }
+        if (fields.includes("name")) {
+          return res.status(409).json({
+            code: "CONFLICT",
+          });
+        }
 
         break;
       }
@@ -67,6 +73,20 @@ export function errorHandler(
         return res.status(404).json({
           code: "NOT_FOUND",
         });
+
+      case "P2010": {
+        const meta = err.meta?.driverAdapterError as UniqueConstraintMeta;
+
+        // Nome repetido de trilha
+        if (meta.cause?.originalCode === "23505") {
+          const fields = meta.cause?.constraint?.fields ?? [];
+          if (fields.includes("name")) {
+            return res.status(409).json({
+              code: "CONFLICT",
+            });
+          }
+        }
+      }
     }
   }
 

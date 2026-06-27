@@ -1,6 +1,14 @@
 server {
     listen 80;
 
+    error_page 413 = @request_too_large;
+
+    location @request_too_large {
+        internal;
+        default_type application/json;
+        return 413 '{"code":"PAYLOAD_TOO_LARGE","message":"The maximum request size has been exceeded."}';
+    }
+
     location / {
         proxy_pass http://${WEB_HOST}:${WEB_PORT};
 
@@ -15,7 +23,7 @@ server {
         proxy_pass http://${API_HOST}:${API_PORT}/;
 
         proxy_set_header Host $host;
-        client_max_body_size 5M;
+        client_max_body_size 150M;
     }
 
     location = /api {
