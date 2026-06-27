@@ -468,9 +468,9 @@ export async function getMyCollectionTrails(
         trail: { ratingSum, difficultySum, ...rest },
       } = t;
       return {
-        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount,
+        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount / 2,
         difficulty:
-          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount,
+          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount / 2,
         ...rest,
       };
     }),
@@ -781,9 +781,9 @@ export async function getUserCollectionTrails(
         trail: { ratingSum, difficultySum, ...rest },
       } = t;
       return {
-        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount,
+        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount / 2,
         difficulty:
-          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount,
+          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount / 2,
         ...rest,
       };
     }),

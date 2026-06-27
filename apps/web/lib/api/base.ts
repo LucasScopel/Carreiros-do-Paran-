@@ -235,7 +235,7 @@ export function createApi(fetcher: ApiFetcher) {
           data: Partial<{ name: string; visibility: VisibilityLevel }>,
         ) {
           return fetcher<void>(`/users/me/collections/${collectionId}`, {
-            method: "POST",
+            method: "PATCH",
             body: JSON.stringify(data),
           });
         },

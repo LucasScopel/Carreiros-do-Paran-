@@ -1,67 +1,8 @@
-import { ArrowRight, Flame, Star, StarHalf, UserRound } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { GetUserResponse, GetUserReviewsResponse } from "shared/types";
-
-function Rating({
-  label,
-  rating,
-  icon,
-}: {
-  label: string;
-  rating: number;
-  icon: "star" | "flame";
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <p className="text-sm font-medium">{label}</p>
-
-      <div className="relative">
-        <div className="flex gap-1 stroke-zinc-800">
-          {Array.from({ length: 5 }).map((_, i) =>
-            icon === "star" ? (
-              <Star key={i} stroke="current" strokeWidth={1} />
-            ) : (
-              <Flame key={i} stroke="current" strokeWidth={1} />
-            ),
-          )}
-        </div>
-        <div className="flex gap-1 absolute top-0 stroke-zinc-800 fill-yellow-300">
-          {Array.from({ length: Math.floor(rating) }).map((_, i) =>
-            icon === "star" ? (
-              <Star
-                key={i}
-                strokeWidth={1}
-                className="fill-yellow-300 stroke-zinc-800"
-              />
-            ) : (
-              <Flame
-                key={i}
-                strokeWidth={1}
-                className="fill-red-600 stroke-zinc-800"
-              />
-            ),
-          )}
-          {rating > Math.floor(rating) ? (
-            icon === "star" ? (
-              <StarHalf
-                strokeWidth={1}
-                className="fill-yellow-300 stroke-zinc-800"
-              />
-            ) : (
-              <span className="max-w-3 overflow-hidden">
-                <Flame
-                  strokeWidth={1}
-                  className="w-6 h-6 fill-red-600 stroke-zinc-800"
-                />
-              </span>
-            )
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
-}
+import Rating from "./rating";
 
 export default function UserReviewTile({
   user,
@@ -110,11 +51,17 @@ export default function UserReviewTile({
 
         <div className="flex flex-row gap-10">
           <div className="flex flex-col gap-4">
-            <Rating label="Nota geral" rating={review.rating} icon="star" />
+            <Rating
+              label="Nota geral"
+              rating={review.rating}
+              icon="star"
+              tooltip="right"
+            />
             <Rating
               label="Dificuldade"
               rating={review.difficultyRating}
               icon="flame"
+              tooltip="right"
             />
           </div>
 

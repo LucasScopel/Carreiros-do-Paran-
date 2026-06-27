@@ -20,7 +20,8 @@ export default async function ProfileLayout({
             </h1>
 
             <p className="mt-1 text-md text-zinc-500">
-              Gerencie seu perfil, avaliações e configurações da sua conta.
+              Gerencie seu perfil, avaliações, coleções e configurações da sua
+              conta.
             </p>
           </div>
           <Link
@@ -50,8 +51,12 @@ export default async function ProfileLayout({
               href: "/profile",
             },
             {
-              name: "Minhas avaliações",
+              name: "Avaliações",
               href: "/profile/reviews",
+            },
+            {
+              name: "Coleções",
+              href: "/profile/collections",
             },
             {
               name: "Configurações",

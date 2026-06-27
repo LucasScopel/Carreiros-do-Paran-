@@ -2,7 +2,7 @@ import { api } from "@/lib/api/server";
 import { getCurrentUser } from "@/lib/auth";
 import UserReviewTile from "@/app/components/user-review-tile";
 
-export default async function ProfilePage() {
+export default async function ProfileReviewsPage() {
   const user = (await getCurrentUser())!;
 
   const result = await api.users.getReviews(user.publicId);

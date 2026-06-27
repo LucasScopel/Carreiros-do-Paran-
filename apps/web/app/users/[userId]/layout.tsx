@@ -26,6 +26,10 @@ export default async function ProfileLayout({
               name: "Avaliações",
               href: `/users/${userId}/reviews`,
             },
+            {
+              name: "Coleções",
+              href: `/users/${userId}/collections`,
+            },
           ]}
         />
 
