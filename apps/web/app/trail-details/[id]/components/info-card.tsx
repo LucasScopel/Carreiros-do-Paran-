@@ -30,7 +30,9 @@ export const InfoCard: React.FC<InfoCardProps> = ({
         <h3 className="text-2xl font-bold text-[#263327] mb-2">{title}</h3>
       )}
       {description && (
-        <p className="text-lg text-gray-800 mb-4">{description}</p>
+        <p className="text-lg text-gray-800 mb-4 whitespace-pre-line">
+          {description}
+        </p>
       )}
 
       {children}

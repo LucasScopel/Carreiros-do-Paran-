@@ -1,19 +1,52 @@
 "use client";
+import React, { useState, useEffect, use } from "react";
+import { api } from "@/lib/api/client";
+import type { TrailResponse } from "shared/types";
 import { Bookmark, Star, Flame } from "lucide-react";
-import { useState } from "react";
-import Banner from "./banner";
 import { InfoCard } from "./info-card";
+import Banner from "./banner";
 import StarRating from "./star-rating";
 import FlameRating from "./flame-rating";
 import SaveIcon from "@/app/components/save-icon";
 import SaveModal from "./save-modal";
 
-export default function PageScript() {
+export default function PageScript({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = React.use(params);
+  const [trail, setTrail] = useState<TrailResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const [starRating, setStarRating] = useState(0);
   const [flameRating, setFlameRating] = useState(0);
   const [savedTrail, setSavedTrail] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [review, setReview] = useState("");
+
+  useEffect(() => {
+    //Função para pegar os dados da api
+    async function loadTrail() {
+      try {
+        //Coloca em estado de loading e pega os dados
+        setLoading(true);
+        const result = await api.trails.get(id);
+
+        //Como a api retorna os dados "encapsulado" por um "status",
+        //primeiro, checamos se, de fato, ela retornou tudo corretamente
+        if (result.ok)
+          setTrail(result.data); //Se estiver tudo certo, pegamos os dados
+        else console.error("API error status:", result.status); //Do contrário, erro da api
+      } catch (error) {
+        console.error("Network error:", error); //Se nem chegar na api, erro na comunicação
+      } finally {
+        setLoading(false); //Finaliza saindo do status de loading
+      }
+    }
+
+    //Se, por algum motivo, não tiver o id, não tem para que chamar a função
+    if (id) loadTrail();
+  }, [id]);
 
   //Função para alterar o estado de ter ou não uma trilha salva
   const handleSaveTrail = () => {
@@ -34,11 +67,21 @@ export default function PageScript() {
   };
   */
 
+  //Controle visual dos estados para renderização
+  if (loading)
+    return <div className="text-center p-10 text-white">Loading...</div>;
+  if (!trail)
+    return <div className="text-center p-10 text-white">Trail not found</div>;
+
   return (
     <main className="w-full">
       {/* Imagem da trilha */}
       {/* -RECEBER DA API- */}
-      <Banner />
+      <Banner
+        trailTitle={trail.name}
+        rating={trail.rating}
+        images={trail.images}
+      />
 
       <div className="max-w-7xl mx-auto p-6">
         <div className="grid grid-cols-12 gap-8">
@@ -50,15 +93,21 @@ export default function PageScript() {
             {/* Cards mais quadrados */}
             <div className="grid grid-cols-3 gap-4">
               <InfoCard title="Dificuldade" description="Hardcore"></InfoCard>
-              <InfoCard title="Distância" description="1.5 Km"></InfoCard>
-              <InfoCard title="Duração" description="30 Minutos"></InfoCard>
+              <InfoCard
+                title="Distância"
+                description={`${trail.length.toString()} Km`}
+              ></InfoCard>
+              <InfoCard
+                title="Duração"
+                description={`${trail.duration.toString()} Minutos`}
+              ></InfoCard>
             </div>
 
             {/* Descrição da trilha */}
             <div className="mt-6 mb">
               <InfoCard
                 title="Detalhes da Trilha"
-                description="Um monte de texto aqui sgfgafd sas a a saf ssfdsfsdf a safsdfsd fsdfsdfsdf  asfsad fsffsd fs sas  sdfsfsfsdfsa safdsfsafds  fsa fs s"
+                description={trail.description}
               ></InfoCard>
             </div>
 
@@ -205,20 +254,20 @@ export default function PageScript() {
             <InfoCard title="Mapa">
               <div className="flex-1 w-full">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=..."
+                  src={`https://maps.google.com/maps?q=${trail.coordinates.lat},${trail.coordinates.lon}&z=15&output=embed`}
                   className="w-full h-100 border-0"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                 />
 
                 <p className="text-lg font-bold text-[#263327] mt-3">
-                  Campina Grande do Sul
+                  {trail.name}
                 </p>
-                <p className="text-sm mb-3">Paraná, Brasil</p>
+                <p className="text-sm mb-3">{trail.address}</p>
 
                 <p className="text-lg font-bold text-[#263327]">Coordenadas</p>
-                <p className="text-sm">Lat: -25.2486°</p>
-                <p className="text-sm">Lng: -48.8820°</p>
+                <p className="text-sm">Lat: {trail.coordinates.lat}°</p>
+                <p className="text-sm">Lng: {trail.coordinates.lon}°</p>
               </div>
             </InfoCard>
 
