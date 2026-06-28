@@ -877,3 +877,89 @@ export async function getFriends(
     nextCursor,
   };
 }
+
+export async function getReceivedFriendRequests(
+  userId: bigint,
+  {
+    cursor = null,
+    limit = 5,
+  }: {
+    cursor?: number | null;
+    limit?: number;
+  } = {},
+) {
+  const requests = await prisma.friendship.findMany({
+    take: limit + 1,
+    ...(cursor && { skip: 1, cursor: { id: cursor } }),
+    where: {
+      accepted: false,
+      receiverId: userId,
+    },
+    include: {
+      requester: { select: { publicId: true, name: true } },
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
+  const hasMore = requests.length > limit;
+
+  if (hasMore) {
+    requests.pop();
+  }
+
+  const nextCursor =
+    hasMore && requests.length > 0 ? requests[requests.length - 1].id : null;
+
+  return {
+    requests: requests.map((r) => ({
+      createdAt: r.createdAt,
+      sender: r.requester,
+    })),
+    nextCursor,
+  };
+}
+
+export async function getSentFriendRequests(
+  userId: bigint,
+  {
+    cursor = null,
+    limit = 5,
+  }: {
+    cursor?: number | null;
+    limit?: number;
+  } = {},
+) {
+  const requests = await prisma.friendship.findMany({
+    take: limit + 1,
+    ...(cursor && { skip: 1, cursor: { id: cursor } }),
+    where: {
+      accepted: false,
+      requesterId: userId,
+    },
+    include: {
+      receiver: { select: { publicId: true, name: true } },
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
+  const hasMore = requests.length > limit;
+
+  if (hasMore) {
+    requests.pop();
+  }
+
+  const nextCursor =
+    hasMore && requests.length > 0 ? requests[requests.length - 1].id : null;
+
+  return {
+    requests: requests.map((r) => ({
+      createdAt: r.createdAt,
+      receiver: r.receiver,
+    })),
+    nextCursor,
+  };
+}

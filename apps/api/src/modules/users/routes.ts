@@ -63,5 +63,15 @@ router.get(
 router.post("/me/friends", requireAuth, controller.addFriend);
 router.delete("/me/friends/:userId", requireAuth, controller.removeFriend);
 router.get("/me/friends", requireAuth, controller.getFriends);
+router.get(
+  "/me/friends/requests/received",
+  requireAuth,
+  controller.getReceivedFriendRequests,
+);
+router.get(
+  "/me/friends/requests/sent",
+  requireAuth,
+  controller.getSentFriendRequests,
+);
 
 export default router;

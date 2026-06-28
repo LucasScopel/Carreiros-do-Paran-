@@ -246,3 +246,37 @@ export async function getFriends(req: Request, res: Response) {
 
   res.json(data);
 }
+
+export async function getReceivedFriendRequests(req: Request, res: Response) {
+  const cursor = getIntegerQueryParam(req.query, "cursor", {
+    default: null,
+  });
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    max: CONFIG.MAX_COLLECTION_TRAIL_COUNT,
+    default: 5,
+  });
+
+  const data = await usersService.getReceivedFriendRequests(req.user!.id, {
+    cursor: cursor,
+    limit: limit,
+  });
+
+  res.json(data);
+}
+
+export async function getSentFriendRequests(req: Request, res: Response) {
+  const cursor = getIntegerQueryParam(req.query, "cursor", {
+    default: null,
+  });
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    max: CONFIG.MAX_COLLECTION_TRAIL_COUNT,
+    default: 5,
+  });
+
+  const data = await usersService.getSentFriendRequests(req.user!.id, {
+    cursor: cursor,
+    limit: limit,
+  });
+
+  res.json(data);
+}
