@@ -3,7 +3,6 @@
 import { useState } from "react";
 import SuggestTrailInput from "./suggest-trail-input";
 import SuggestTrailButton from "./suggest-trail-button";
-import SuggestTrailWhiteboard from "./suggest-trail-whiteboard";
 import { TrailSuggestion, SUGGESTED_TRAILS_STORAGE_KEY } from "../types";
 
 function saveSuggestion(suggestion: TrailSuggestion) {
@@ -45,37 +44,25 @@ export default function SuggestTrailForm() {
   };
 
   const validateForm = () => {
+    // ... (A lógica de validação mantém-se igual)
     const name = formData.name.trim();
     const location = formData.location.trim();
     const description = formData.description.trim();
     const lengthKm = formData.lengthKm.trim();
 
-    if (!name || !location || !lengthKm || !description) {
-      return "Todos os campos são obrigatórios.";
-    }
-
-    if (!/[a-zA-ZÀ-ÿ]/.test(name)) {
-      return "O nome deve conter letras válidas.";
-    }
-
-    if (!/[a-zA-ZÀ-ÿ]/.test(location)) {
-      return "A localização deve conter letras válidas.";
-    }
-
+    if (!name || !location || !lengthKm || !description) return "Todos os campos são obrigatórios.";
+    if (!/[a-zA-ZÀ-ÿ]/.test(name)) return "O nome deve conter letras válidas.";
+    if (!/[a-zA-ZÀ-ÿ]/.test(location)) return "A localização deve conter letras válidas.";
+    
     const length = Number(lengthKm.replace(",", "."));
-
-    if (Number.isNaN(length) || length <= 0) {
-      return "O tamanho deve ser um número maior que zero.";
-    }
-
-    if (description.length < 10) {
-      return "A descrição deve conter pelo menos 10 caracteres.";
-    }
+    if (Number.isNaN(length) || length <= 0) return "O tamanho deve ser um número maior que zero.";
+    if (description.length < 10) return "A descrição deve conter pelo menos 10 caracteres.";
 
     return null;
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    // ... (A lógica de envio também se mantém igual)
     event.preventDefault();
 
     const error = validateForm();
@@ -90,10 +77,7 @@ export default function SuggestTrailForm() {
     const length = Number(formData.lengthKm.trim().replace(",", "."));
 
     const newSuggestion: TrailSuggestion = {
-      id:
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random()}`,
+      id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
       name,
       location,
       lengthKm: length.toString(),
@@ -108,15 +92,8 @@ export default function SuggestTrailForm() {
     try {
       const response = await fetch("/api/suggest-trails", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          location,
-          lengthKm: length,
-          description,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, location, lengthKm: length, description }),
       });
 
       if (!response.ok) {
@@ -127,9 +104,7 @@ export default function SuggestTrailForm() {
       setMessage("Sugestão enviada com sucesso.");
     } catch (error) {
       console.warn("API de sugestão indisponível:", error);
-      setMessage(
-        "Sugestão registrada localmente. A API ainda não está disponível.",
-      );
+      setMessage("Sugestão registada localmente. A API ainda não está disponível.");
     } finally {
       saveSuggestion(newSuggestion);
       setFormData({ name: "", location: "", lengthKm: "", description: "" });
@@ -138,13 +113,16 @@ export default function SuggestTrailForm() {
   };
 
   return (
-    <SuggestTrailWhiteboard onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      className="w-full h-full px-6 py-6 bg-white rounded-md flex flex-col"
+    >
       <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-3xl font-bold text-[#263327]">Sugerir Trilha</h1>
           <p className="text-sm text-slate-600 mt-2">
             Envie uma sugestão de trilha com nome, localização e tamanho
-            aproximado em quilômetros.
+            aproximado em quilómetros.
           </p>
         </div>
 
@@ -188,9 +166,9 @@ export default function SuggestTrailForm() {
         ) : null}
 
         <SuggestTrailButton type="submit" className="w-full">
-          {isSubmitting ? "Enviando..." : "Enviar Sugestão"}
+          {isSubmitting ? "A enviar..." : "Enviar Sugestão"}
         </SuggestTrailButton>
       </div>
-    </SuggestTrailWhiteboard>
+    </form>
   );
 }
