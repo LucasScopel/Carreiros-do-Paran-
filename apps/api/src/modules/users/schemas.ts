@@ -22,3 +22,7 @@ export const createTrailCollectionSchema = zod.object({
 
 export const updateTrailCollectionSchema =
   createTrailCollectionSchema.partial();
+
+export const addFriendSchema = zod.object({
+  friendId: zod.nanoid(),
+});

@@ -682,3 +682,170 @@ export async function getUserCollectionTrails(
     nextCursor: hasMore ? trails[trails.length - 1].trailId : null,
   };
 }
+
+export async function addFriend(requesterId: bigint, receiverPublicId: string) {
+  const receiver = await prisma.user.findUnique({
+    where: {
+      publicId: receiverPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!receiver) {
+    throw new NotFoundError();
+  }
+
+  const receiverId = receiver.id;
+
+  if (receiverId === requesterId) {
+    throw new BadRequestError(
+      "Você não pode enviar um pedido de amizade para si mesmo.",
+    );
+  }
+
+  const existingFriendship = await prisma.friendship.findFirst({
+    where: {
+      OR: [
+        { requesterId: requesterId, receiverId: receiverId },
+        { requesterId: receiverId, receiverId: requesterId },
+      ],
+    },
+  });
+
+  // Não existe nenhuma relação -> é um novo pedido de amizade
+  if (!existingFriendship) {
+    await prisma.friendship.create({
+      data: {
+        requesterId,
+        receiverId,
+      },
+    });
+
+    return "sent-request";
+  }
+
+  // A amizade já foi aceita anteriormente
+  if (existingFriendship.accepted) {
+    throw new BadRequestError("Vocês já são amigos.");
+  }
+
+  // O pedido está pendente, mas foi o usuário atual que enviou
+  if (existingFriendship.requesterId === requesterId) {
+    throw new BadRequestError(
+      "Você já enviou um pedido para este usuário. Aguarde a resposta.",
+    );
+  }
+
+  // O pedido está pendente e foi enviado pela outra pessoa -> aceite o pedido
+  if (existingFriendship.receiverId === requesterId) {
+    await prisma.friendship.update({
+      where: { id: existingFriendship.id },
+      data: { accepted: true },
+    });
+
+    return "accepted";
+  }
+
+  throw new BadRequestError("Operação inválida.");
+}
+
+export async function removeFriend(
+  requesterId: bigint,
+  receiverPublicId: string,
+) {
+  const receiver = await prisma.user.findUnique({
+    where: {
+      publicId: receiverPublicId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!receiver) {
+    throw new NotFoundError();
+  }
+
+  const receiverId = receiver.id;
+
+  const friendship = await prisma.friendship.findFirst({
+    where: {
+      OR: [
+        { requesterId: requesterId, receiverId: receiverId },
+        { requesterId: receiverId, receiverId: requesterId },
+      ],
+    },
+  });
+
+  if (!friendship) {
+    throw new BadRequestError("Vocês não são amigos.");
+  }
+
+  await prisma.friendship.delete({
+    where: {
+      id: friendship.id,
+    },
+  });
+
+  if (!friendship.accepted) {
+    if (friendship.requesterId === requesterId) {
+      return "canceled";
+    }
+
+    return "rejected";
+  }
+
+  return "ended";
+}
+
+export async function getFriends(
+  userId: bigint,
+  {
+    cursor = null,
+    limit = 5,
+  }: {
+    cursor?: number | null;
+    limit?: number;
+  } = {},
+) {
+  const friendships = await prisma.friendship.findMany({
+    take: limit + 1,
+    ...(cursor && { skip: 1, cursor: { id: cursor } }),
+    where: {
+      accepted: true,
+      OR: [{ requesterId: userId }, { receiverId: userId }],
+    },
+    include: {
+      requester: { select: { publicId: true, name: true } },
+      receiver: { select: { publicId: true, name: true } },
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
+  const hasMore = friendships.length > limit;
+
+  if (hasMore) {
+    friendships.pop();
+  }
+
+  const friends = friendships.map((f) => {
+    const friendData = f.requesterId === userId ? f.receiver : f.requester;
+    return {
+      publicId: friendData.publicId,
+      name: friendData.name,
+      createdAt: f.createdAt,
+    };
+  });
+
+  const nextCursor =
+    hasMore && friends.length > 0 ? friendships[friends.length - 1].id : null;
+
+  return {
+    friends,
+    nextCursor,
+  };
+}

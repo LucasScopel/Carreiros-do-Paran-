@@ -59,4 +59,9 @@ router.get(
   controller.getUserCollectionTrails,
 );
 
+// Amizades
+router.post("/me/friends", requireAuth, controller.addFriend);
+router.delete("/me/friends/:userId", requireAuth, controller.removeFriend);
+router.get("/me/friends", requireAuth, controller.getFriends);
+
 export default router;

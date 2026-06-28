@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { MeResponse } from "shared/types";
 import * as usersService from "./service";
 import {
+  addFriendSchema,
   createTrailCollectionSchema,
   updateTrailCollectionSchema,
   updateUserSchema,
@@ -209,6 +210,39 @@ export async function getUserCollectionTrails(req: Request, res: Response) {
       limit: limit,
     },
   );
+
+  res.json(data);
+}
+
+export async function addFriend(req: Request, res: Response) {
+  const { friendId } = addFriendSchema.parse(req.body);
+
+  const result = await usersService.addFriend(req.user!.id, friendId);
+
+  res.status(result === "sent-request" ? 201 : 200).json({});
+}
+
+export async function removeFriend(req: Request, res: Response) {
+  const friendId = getUserIdParam(req.params);
+
+  const result = await usersService.removeFriend(req.user!.id, friendId);
+
+  res.status(200).json({ message: result });
+}
+
+export async function getFriends(req: Request, res: Response) {
+  const cursor = getIntegerQueryParam(req.query, "cursor", {
+    default: null,
+  });
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    max: CONFIG.MAX_COLLECTION_TRAIL_COUNT,
+    default: 5,
+  });
+
+  const data = await usersService.getFriends(req.user!.id, {
+    cursor,
+    limit,
+  });
 
   res.json(data);
 }
