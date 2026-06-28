@@ -73,5 +73,6 @@ router.get(
   requireAuth,
   controller.getSentFriendRequests,
 );
+router.get("/:userId/friends", controller.getUserFriends);
 
 export default router;

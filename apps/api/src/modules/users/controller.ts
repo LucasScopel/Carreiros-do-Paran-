@@ -280,3 +280,21 @@ export async function getSentFriendRequests(req: Request, res: Response) {
 
   res.json(data);
 }
+
+export async function getUserFriends(req: Request, res: Response) {
+  const userId = getUserIdParam(req.params);
+  const cursor = getIntegerQueryParam(req.query, "cursor", {
+    default: null,
+  });
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    max: CONFIG.MAX_COLLECTION_TRAIL_COUNT,
+    default: 5,
+  });
+
+  const data = await usersService.getUserFriends(req.user?.id ?? null, userId, {
+    cursor: cursor,
+    limit: limit,
+  });
+
+  res.json(data);
+}

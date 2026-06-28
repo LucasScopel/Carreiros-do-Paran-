@@ -1,5 +1,10 @@
 import CONFIG from "@/config";
-import { BadRequestError, ConflictError, NotFoundError } from "@/utils/errors";
+import {
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from "@/utils/errors";
 import { Prisma, prisma } from "database";
 import { nanoid } from "nanoid";
 import fs from "node:fs/promises";
@@ -58,6 +63,7 @@ export async function updateUser(
     name: string;
     description: string;
     reviewsVisibility: VisibilityLevel;
+    friendsVisibility: VisibilityLevel;
   }>,
 ) {
   if (Object.keys(data).length === 0) return;
@@ -555,9 +561,17 @@ export async function getUserCollections(
 
   const isOwner = viewerId === owner.id;
 
+  const isFriend = viewerId && (await areFriends(viewerId, owner.id));
+
   let query;
-  if (isOwner) query = undefined;
-  else query = [{ visibility: "PUBLIC" as VisibilityLevel }];
+  if (isOwner) {
+    query = undefined;
+  } else {
+    query = [
+      { visibility: "PUBLIC" as VisibilityLevel },
+      ...(isFriend ? [{ visibility: "FRIENDS" as VisibilityLevel }] : []),
+    ];
+  }
 
   const collections = await prisma.trailCollection.findMany({
     where: {
@@ -962,4 +976,96 @@ export async function getSentFriendRequests(
     })),
     nextCursor,
   };
+}
+
+export async function getUserFriends(
+  viewerId: bigint | null,
+  ownerPublicId: string,
+  {
+    cursor = null,
+    limit = 5,
+  }: {
+    cursor?: number | null;
+    limit?: number;
+  } = {},
+) {
+  const owner = await prisma.user.findUnique({
+    where: {
+      publicId: ownerPublicId,
+    },
+    select: {
+      id: true,
+      friendsVisibility: true,
+    },
+  });
+
+  if (!owner) {
+    throw new NotFoundError();
+  }
+
+  const isOwner = viewerId === owner.id;
+
+  if (!isOwner) {
+    if (owner.friendsVisibility === "PRIVATE") {
+      throw new ForbiddenError();
+    }
+
+    if (owner.friendsVisibility === "FRIENDS") {
+      if (!viewerId || !(await areFriends(viewerId, owner.id))) {
+        throw new ForbiddenError();
+      }
+    }
+  }
+
+  const friendships = await prisma.friendship.findMany({
+    take: limit + 1,
+    ...(cursor && { skip: 1, cursor: { id: cursor } }),
+    where: {
+      accepted: true,
+      OR: [{ requesterId: owner.id }, { receiverId: owner.id }],
+    },
+    include: {
+      requester: { select: { publicId: true, name: true } },
+      receiver: { select: { publicId: true, name: true } },
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
+  const hasMore = friendships.length > limit;
+
+  if (hasMore) {
+    friendships.pop();
+  }
+
+  const friends = friendships.map((f) => {
+    const friendData = f.requesterId === owner.id ? f.receiver : f.requester;
+    return {
+      publicId: friendData.publicId,
+      name: friendData.name,
+      createdAt: f.createdAt,
+    };
+  });
+
+  const nextCursor =
+    hasMore && friends.length > 0 ? friendships[friends.length - 1].id : null;
+
+  return {
+    friends,
+    nextCursor,
+  };
+}
+
+export async function areFriends(userIdA: bigint, userIdB: bigint) {
+  return !!(await prisma.friendship.findFirst({
+    where: {
+      accepted: true,
+      OR: [
+        { requesterId: userIdA, receiverId: userIdB },
+        { requesterId: userIdB, receiverId: userIdA },
+      ],
+    },
+    select: { id: true },
+  }));
 }
