@@ -29,6 +29,8 @@ export async function getMe(userId: bigint): Promise<MeResponse | null> {
       birthDate: true,
       reviewCount: true,
       reviewsVisibility: true,
+      friendCount: true,
+      friendsVisibility: true,
     },
   });
 
@@ -740,10 +742,22 @@ export async function addFriend(requesterId: bigint, receiverPublicId: string) {
 
   // O pedido está pendente e foi enviado pela outra pessoa -> aceite o pedido
   if (existingFriendship.receiverId === requesterId) {
-    await prisma.friendship.update({
-      where: { id: existingFriendship.id },
-      data: { accepted: true },
-    });
+    await prisma.$transaction([
+      prisma.friendship.update({
+        where: { id: existingFriendship.id },
+        data: { accepted: true },
+      }),
+
+      prisma.user.update({
+        where: { id: requesterId },
+        data: { friendCount: { increment: 1 } },
+      }),
+
+      prisma.user.update({
+        where: { id: receiverId },
+        data: { friendCount: { increment: 1 } },
+      }),
+    ]);
 
     return "accepted";
   }
@@ -783,10 +797,24 @@ export async function removeFriend(
     throw new BadRequestError("Vocês não são amigos.");
   }
 
-  await prisma.friendship.delete({
-    where: {
-      id: friendship.id,
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.friendship.delete({
+      where: {
+        id: friendship.id,
+      },
+    });
+
+    if (friendship.accepted) {
+      await tx.user.update({
+        where: { id: requesterId },
+        data: { friendCount: { decrement: 1 } },
+      });
+
+      await tx.user.update({
+        where: { id: receiverId },
+        data: { friendCount: { decrement: 1 } },
+      });
+    }
   });
 
   if (!friendship.accepted) {
