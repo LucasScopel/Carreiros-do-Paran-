@@ -87,8 +87,12 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
       if (result.error.fields!["coordinates.lon"]) {
         toast.error("Latitude deve estar entre -90 e 90.");
       }
+    } else if (result.error.code === "PAYLOAD_TOO_LARGE") {
+      toast.error("Tamanho limite de imagens excedido.");
+    } else if (result.error.code === "CONFLICT") {
+      toast.error("Já existe uma trilha com esse nome.");
     } else {
-      toast.error(result.error.message);
+      toast.error(result.error.message ?? "Erro interno no servidor");
     }
 
     setSaving(false);
@@ -99,7 +103,21 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
 
     if (!e.target.files) return;
 
-    const newImages: FormImage[] = Array.from(e.target.files).map((file) => ({
+    if (images.length + e.target.files.length > 10) {
+      toast.error("Não é possível adicionar mais que 10 imagens a uma trilha.");
+      return;
+    }
+
+    const filesArray = Array.from(e.target.files);
+
+    e.target.value = "";
+
+    if (filesArray.some((file) => file.size > 10 * 1024 * 1024)) {
+      toast.error("Uma ou mais imagens ultrapassam o limite de 10 MB.");
+      return;
+    }
+
+    const newImages: FormImage[] = filesArray.map((file) => ({
       kind: "new",
       image: {
         key: crypto.randomUUID(),
@@ -117,6 +135,10 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
 
       if (image?.kind === "new") {
         URL.revokeObjectURL(image.image.previewUrl);
+
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       }
 
       return old.filter((_, i) => i !== index);
@@ -175,16 +197,29 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
       const newImages = images.filter((image) => image.kind === "new");
 
       if (newImages.length > 0) {
-        const formData = new FormData();
-
-        newImages.forEach((image) => {
-          formData.append("images", image.image.file);
-        });
-
-        await api.trails.uploadImages(
+        const result = await api.trails.uploadImages(
           trailId,
           newImages.map((image) => image.image.file),
         );
+
+        if (!result.ok) {
+          router.push(`/admin/trails/${trailId}`);
+
+          if (result.error.code === "PAYLOAD_TOO_LARGE") {
+            toast.warning(
+              "Trilha criada com sucesso, mas não foi possível adicionar as imagens: tamanho limite excedido.",
+            );
+          } else {
+            showErrorToasts(result);
+            toast.warning(
+              "Trilha criada com sucesso, mas não foi possível adicionar as imagens.",
+            );
+          }
+
+          setSaving(false);
+
+          return;
+        }
       }
 
       router.push(`/admin/trails/${trailId}`);
@@ -254,7 +289,20 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
       );
 
       if (!result.ok) {
-        showErrorToasts(result);
+        if (result.error.code === "PAYLOAD_TOO_LARGE") {
+          toast.warning(
+            "Trilha salva com sucesso, mas não foi possível adicionar as imagens: tamanho limite excedido.",
+          );
+        } else {
+          showErrorToasts(result);
+          toast.warning(
+            "Trilha salva com sucesso, mas não foi possível adicionar as imagens.",
+          );
+        }
+
+        router.push(`/admin/trails/${trailId}`);
+
+        setSaving(false);
         return;
       }
 
@@ -412,7 +460,13 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           </div>
 
           <div className="flex flex-row items-center justify-between mt-8">
-            <p className="text-xl font-semibold">Imagens</p>
+            <div className="flex flex-row items-baseline gap-5">
+              <p className="text-xl font-semibold">Imagens</p>
+
+              <p className="text-sm font-semibold text-zinc-700">
+                Máx. 10 imagens (até 10 MB cada)
+              </p>
+            </div>
 
             <button
               type="button"
