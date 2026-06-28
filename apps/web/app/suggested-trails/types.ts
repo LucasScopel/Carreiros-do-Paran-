@@ -4,10 +4,10 @@ export interface TrailSuggestion {
   id: string;
   name: string;
   location: string;
-  lengthKm: string;
+  lengthKm: number;
   description: string;
   status: SuggestionStatus;
   createdAt: string;
 }
 
-export const SUGGESTED_TRAILS_STORAGE_KEY = "suggested-trails";
+

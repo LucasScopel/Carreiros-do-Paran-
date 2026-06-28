@@ -47,11 +47,19 @@ export default function SuggestedTrailsList({
         suggestions.map((suggestion) => {
           const selected = suggestion.id === selectedSuggestionId;
           return (
-            <button
+            <div
               key={suggestion.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => onSelectSuggestion(suggestion.id)}
-              className={`w-full rounded-xl border px-4 py-4 text-left transition ${
+              onKeyDown={(e) => {
+                // Permite selecionar usando a tecla Enter para acessibilidade
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelectSuggestion(suggestion.id);
+                }
+              }}
+              className={`w-full rounded-xl border px-4 py-4 text-left transition cursor-pointer ${
                 selected
                   ? "border-[#D99C6A] bg-[#fff7ed]"
                   : "border-slate-200 bg-white hover:border-[#D99C6A]"
@@ -76,7 +84,7 @@ export default function SuggestedTrailsList({
                 {suggestion.description.slice(0, 100)}
                 {suggestion.description.length > 100 ? "…" : ""}
               </p>
-            </button>
+            </div>
           );
         })
       )}
