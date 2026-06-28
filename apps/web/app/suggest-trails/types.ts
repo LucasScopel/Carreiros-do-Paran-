@@ -9,5 +9,3 @@ export interface TrailSuggestion {
   status: SuggestionStatus;
   createdAt: string;
 }
-
-export const SUGGESTED_TRAILS_STORAGE_KEY = "suggested-trails";
