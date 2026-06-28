@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/lib/api/client";
-import { ChangeEvent, SubmitEvent, useRef, useState } from "react";
+import { ChangeEvent, SubmitEvent, useEffect, useRef, useState } from "react";
 import { ApiResult, GeoCoords } from "shared/types";
 import TextInput from "./text-input";
 import { ExistingImage, FormImage, NewImage } from "./types";
@@ -12,7 +12,7 @@ import {
   SortableContext,
 } from "@dnd-kit/sortable";
 import { getImageKey, SortableImage } from "./sortable-image";
-import { Plus } from "lucide-react";
+import { Plus, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -34,6 +34,7 @@ interface EditTrailProps {
 export default function EditTrailForm({ initial }: EditTrailProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
   const [saving, setSaving] = useState(false);
 
   const [name, setName] = useState(initial?.name ?? "");
@@ -52,6 +53,14 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
         image,
       })) ?? [],
   );
+
+  useEffect(() => {
+    const el = descriptionInputRef.current;
+    if (!el) return;
+
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [description]);
 
   function showErrorToasts(result: ApiResult<unknown>) {
     if (result.ok) return;
@@ -132,6 +141,10 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
 
       return arrayMove(current, oldIndex, newIndex);
     });
+  }
+
+  function handleCancel() {
+    router.replace("/admin/trails");
   }
 
   async function handleSave(e: SubmitEvent) {
@@ -314,6 +327,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
         >
           <TextInput
             label="Nome"
+            placeholder="Nome da trilha"
             name="name"
             value={name}
             required
@@ -323,12 +337,14 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           <label className="inline-flex flex-1 flex-col">
             Descrição
             <textarea
+              ref={descriptionInputRef}
               name="description"
+              placeholder="Descrição da trilha"
               value={description}
               required
               onChange={(e) => setDescription(e.target.value)}
               className="
-                px-4 py-2
+                min-h-16 h-16 px-4 py-2 resize-none overflow-hidden
                 border-2 rounded-md border-[#424242]
                 text-black bg-zinc-100
                 focus:border-[#D99C6A] focus:outline-none
@@ -340,6 +356,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
 
           <TextInput
             label="Endereço"
+            placeholder="Endereço da trilha"
             name="address"
             value={address}
             required
@@ -347,7 +364,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           />
 
           <TextInput
-            label="Tamanho do Trajeto (em Quilômetros)"
+            label="Tamanho do Trajeto (em quilômetros)"
             name="length"
             type="number"
             value={length}
@@ -356,7 +373,7 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
           />
 
           <TextInput
-            label="Duração Estimada"
+            label="Duração Estimada (em minutos)"
             name="duration"
             type="number"
             value={duration}
@@ -452,19 +469,38 @@ export default function EditTrailForm({ initial }: EditTrailProps) {
             </SortableContext>
           </DndContext>
 
-          <div className="flex flex-row justify-end gap-5">
+          <div className="flex flex-row justify-end gap-5 mt-10">
+            <button
+              type="button"
+              disabled={saving}
+              onClick={handleCancel}
+              className="
+                inline-flex justify-center items-center
+                w-48 gap-3 px-3 py-2 rounded-md
+                bg-zinc-200 text-slate-800
+                text-slate-800
+                hover:bg-zinc-300
+                cursor-pointer
+                transition-all duration-300
+              "
+            >
+              Cancelar
+            </button>
+
             <button
               type="submit"
               disabled={saving}
               className="
-                 w-48 py-2 rounded-md
+                inline-flex justify-center items-center
+                w-48 gap-3 px-3 py-2 rounded-md
                 bg-[#D99C6A]
-                text-white fon-bold
+                text-white font-semibold
                 hover:bg-[#c46518] hover:brightness-120
                 cursor-pointer
                 transition-all duration-300
               "
             >
+              <Save />
               {saving ? "Salvando..." : "Salvar"}
             </button>
           </div>
