@@ -58,14 +58,29 @@ export async function register(
 
   const publicId = nanoid();
 
-  const user = await prisma.user.create({
-    data: {
-      publicId,
-      email,
-      name,
-      password: hash,
-      birthDate,
-    },
+  const user = await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        publicId,
+        email,
+        name,
+        password: hash,
+        birthDate,
+      },
+    });
+
+    const collectionPublicId = nanoid();
+
+    await tx.trailCollection.create({
+      data: {
+        publicId: collectionPublicId,
+        name: "Salvas",
+        isDefault: true,
+        userId: user.id,
+      },
+    });
+
+    return user;
   });
 
   const token = await generateSessionToken(user.id, false);
