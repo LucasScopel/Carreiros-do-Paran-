@@ -10,6 +10,8 @@ export interface MeResponse {
   admin: boolean;
   reviewCount: number;
   reviewsVisibility: VisibilityLevel;
+  friendCount: number;
+  friendsVisibility: VisibilityLevel;
 }
 
 export const VisibilityLevel = {
