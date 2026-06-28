@@ -3,6 +3,7 @@ import * as controller from "./controller";
 import requireAdmin from "@/middleware/requireAdmin";
 import { trailImageUpload } from "./upload";
 import CONFIG from "@/config";
+import requireAuth from "@/middleware/requireAuth";
 
 const router = Router();
 
@@ -19,5 +20,10 @@ router.post(
   controller.uploadTrailImages,
 );
 router.patch("/:trailId/images", requireAdmin, controller.updateTrailImages);
+
+router.get("/:trailId/reviews", controller.getTrailReviews);
+router.get("/:trailId/reviews/me", requireAuth, controller.getMyTrailReview);
+router.put("/:trailId/reviews", requireAuth, controller.upsertTrailReview);
+router.delete("/:trailId/reviews", requireAuth, controller.deleteTrailReview);
 
 export default router;

@@ -16,11 +16,31 @@ export interface TrailResponse {
   address: string;
   duration: number;
   reviewCount: number;
-  averageRating: number;
+  rating: number;
   difficulty: number;
 }
 
 export interface TrailItemResponse {
   publicId: string;
   name: string;
+}
+
+export interface TrailReviewResponse {
+  rating: number;
+  difficultyRating: number;
+  comment: string;
+  visitDate: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
+    publicId: string;
+    name: string;
+    avatarUrl: string;
+  };
+}
+
+export interface TrailReviewsResponse {
+  reviews: TrailReviewResponse[];
+  nextCursor: number | null;
+  hasMore: boolean;
 }

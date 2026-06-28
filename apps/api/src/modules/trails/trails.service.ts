@@ -350,8 +350,7 @@ export async function getTrail(publicId: string): Promise<TrailResponse> {
 
   return {
     ...trail,
-    averageRating:
-      trail.reviewCount === 0 ? 0 : ratingSum / 2 / trail.reviewCount,
+    rating: trail.reviewCount === 0 ? 0 : ratingSum / 2 / trail.reviewCount,
     difficulty:
       trail.reviewCount === 0 ? 0 : difficultySum / 2 / trail.reviewCount,
     images: images.map((image) => ({
@@ -381,12 +380,38 @@ export async function removeTrail(publicId: string) {
     throw new NotFoundError();
   }
 
-  // Remover a trilha vai automaticamente remover as
-  // imagens e reviews dela, por conta do onCascade
-  await prisma.trail.delete({
-    where: {
-      id: trail.id,
-    },
+  await prisma.$transaction(async (tx) => {
+    // Retorna o id de todos os usuários que avaliaram essa trilha
+    const reviews = await tx.review.findMany({
+      where: {
+        trailId: trail.id,
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    // Decrementa a quantidade de reviews dos usuários
+    for (const review of reviews) {
+      await tx.user.update({
+        where: {
+          id: review.userId,
+        },
+        data: {
+          reviewsCount: {
+            decrement: 1,
+          },
+        },
+      });
+    }
+
+    // Remover a trilha vai automaticamente remover as
+    // imagens e reviews dela, por conta do onCascade
+    await tx.trail.delete({
+      where: {
+        id: trail.id,
+      },
+    });
   });
 
   await Promise.allSettled(
