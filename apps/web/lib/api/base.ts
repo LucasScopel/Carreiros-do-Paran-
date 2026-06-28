@@ -3,11 +3,15 @@ import {
   ApiResult,
   GeoCoords,
   GetCollectionsContainingTrail,
+  GetFriends,
   GetMyCollections,
   GetMyCollectionTrails,
+  GetReceivedFriendRequests,
+  GetSentFriendRequests,
   GetUserCollections,
   GetUserCollectionTrails,
   MeResponse,
+  RemoveFriend,
   TrailItemResponse,
   TrailResponse,
   TrailReviewsResponse,
@@ -301,6 +305,111 @@ export function createApi(fetcher: ApiFetcher) {
         getContainingTrail(trailId: string) {
           return fetcher<GetCollectionsContainingTrail>(
             `/users/me/trails/${trailId}/collections`,
+            {
+              method: "GET",
+            },
+          );
+        },
+      },
+
+      friends: {
+        get({ cursor, limit }: { cursor?: number; limit?: number } = {}) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<GetFriends>(
+            `/users/me/friends${query ? `${query}` : ""}`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        add(friendId: string) {
+          return fetcher<void>("/users/me/friends", {
+            method: "POST",
+            body: JSON.stringify({ friendId }),
+          });
+        },
+
+        remove(friendId: string) {
+          return fetcher<RemoveFriend>(`/users/me/friends/${friendId}`, {
+            method: "DELETE",
+          });
+        },
+
+        getReceived({
+          cursor,
+          limit,
+        }: { cursor?: number; limit?: number } = {}) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<GetReceivedFriendRequests>(
+            `/users/me/friends/requests/received${query ? `${query}` : ""}`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        getSent({ cursor, limit }: { cursor?: number; limit?: number } = {}) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<GetSentFriendRequests>(
+            `/users/me/friends/requests/sent${query ? `${query}` : ""}`,
+            {
+              method: "GET",
+            },
+          );
+        },
+
+        getUser(
+          userId: string,
+          { cursor, limit }: { cursor?: number; limit?: number } = {},
+        ) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<GetFriends>(
+            `/users/${userId}/friends${query ? `${query}` : ""}`,
             {
               method: "GET",
             },
