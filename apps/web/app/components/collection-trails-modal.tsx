@@ -151,7 +151,6 @@ export function CollectionModal({
             </div>
           )}
 
-          {/* Se não houver mais páginas, mostra apenas a mensagem de fim */}
           {status === "success" && !hasNextPage && (
             <div className="text-center py-4 text-sm text-gray-400 font-medium">
               Fim da coleção.

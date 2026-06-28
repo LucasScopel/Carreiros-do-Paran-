@@ -30,6 +30,10 @@ export default async function ProfileLayout({
               name: "Coleções",
               href: `/users/${userId}/collections`,
             },
+            {
+              name: "Amigos",
+              href: `/users/${userId}/friends`,
+            },
           ]}
         />
 

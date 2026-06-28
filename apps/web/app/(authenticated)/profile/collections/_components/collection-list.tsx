@@ -37,33 +37,31 @@ export default function CollectionList({
   }
 
   return (
-    <>
-      <div className="flex flex-col gap-6">
-        {collections.map((collection) => (
-          <CollectionItem
-            key={collection.publicId}
-            collection={collection}
-            onEdit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+    <div className="flex flex-col gap-6">
+      {collections.map((collection) => (
+        <CollectionItem
+          key={collection.publicId}
+          collection={collection}
+          onEdit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-              onEdit(collection);
-            }}
-            onDelete={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+            onEdit(collection);
+          }}
+          onDelete={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-              onDelete(collection);
-            }}
-            onOpen={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+            onDelete(collection);
+          }}
+          onOpen={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-              onOpen(collection);
-            }}
-          />
-        ))}
-      </div>
-    </>
+            onOpen(collection);
+          }}
+        />
+      ))}
+    </div>
   );
 }

@@ -1,6 +1,8 @@
 import { api } from "@/lib/api/server";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import FriendButton from "./_components/friend-button";
+import { getCurrentUser } from "@/lib/auth";
 
 interface UserPageProps {
   params: Promise<{
@@ -11,9 +13,11 @@ interface UserPageProps {
 export default async function UserPage({ params }: UserPageProps) {
   const { userId } = await params;
 
-  const user = await api.users.get(userId);
+  const viewer = await getCurrentUser();
 
-  if (!user.ok) {
+  const owner = await api.users.get(userId);
+
+  if (!owner.ok) {
     notFound();
   }
 
@@ -39,9 +43,9 @@ export default async function UserPage({ params }: UserPageProps) {
             "
           >
             <Image
-              src={user.data.avatarUrl}
+              src={owner.data.avatarUrl}
               alt="Profile picture"
-              title={user.data.name}
+              title={owner.data.name}
               fill
               unoptimized
               className="
@@ -57,8 +61,10 @@ export default async function UserPage({ params }: UserPageProps) {
             mt-4 ml-4 gap-2
             text-lg text-zinc-900 font-medium"
           >
-            <p>Avaliações: {user.data.reviewCount}</p>
+            <p>Avaliações: {owner.data.reviewCount}</p>
           </div>
+
+          <FriendButton viewer={viewer} owner={owner.data} />
         </div>
 
         <div className="flex flex-1 flex-col">
@@ -70,7 +76,7 @@ export default async function UserPage({ params }: UserPageProps) {
                 text-3xl font-semibold text-zinc-900
               "
             >
-              {user.data.name}
+              {owner.data.name}
             </div>
           </div>
 
@@ -79,11 +85,11 @@ export default async function UserPage({ params }: UserPageProps) {
               className={`
                 w-full min-h-60 p-3
                 text-md whitespace-pre-line
-                ${user.data.description ? "text-zinc-900" : "italic text-zinc-500"}
+                ${owner.data.description ? "text-zinc-900" : "italic text-zinc-500"}
               `}
             >
-              {user.data.description
-                ? user.data.description
+              {owner.data.description
+                ? owner.data.description
                 : "Nenhuma descrição..."}
             </div>
           </div>

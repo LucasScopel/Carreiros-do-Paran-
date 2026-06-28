@@ -93,7 +93,7 @@ export async function deleteAvatar(req: Request, res: Response) {
 export async function get(req: Request, res: Response) {
   const userId = getUserIdParam(req.params);
 
-  const user = await usersService.get(userId);
+  const user = await usersService.get(req.user?.id ?? null, userId);
 
   res.send(user);
 }

@@ -20,7 +20,12 @@ export interface GetUserResponse {
   description: string;
   avatarUrl: string;
   reviewCount: number;
-  reviewsVisibility: VisibilityLevel;
+  friendCount: number;
+  friendshipStatus:
+    | "not-friends"
+    | "friends"
+    | "request-sent"
+    | "request-received";
 }
 
 export interface GetUserReviewsResponse {
@@ -51,28 +56,19 @@ export interface GetFriends {
   friends: {
     publicId: string;
     name: string;
+    avatarUrl: string;
     createdAt: Date;
   }[];
   nextCursor: number | null;
 }
 
-export interface GetReceivedFriendRequests {
+export interface GetFriendRequests {
   requests: {
     createdAt: Date;
-    sender: {
+    user: {
       publicId: string;
       name: string;
-    };
-  }[];
-  nextCursor: number | null;
-}
-
-export interface GetSentFriendRequests {
-  requests: {
-    createdAt: Date;
-    receiver: {
-      publicId: string;
-      name: string;
+      avatarUrl: string;
     };
   }[];
   nextCursor: number | null;
