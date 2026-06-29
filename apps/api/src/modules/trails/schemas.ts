@@ -28,3 +28,24 @@ export const upsertReviewSchema = zod.object({
     .transform((date) => new Date(`${date}T12:00:00`))
     .refine((date) => date <= new Date(), "Invalid visit date"),
 });
+
+export const addSuggestionSchema = zod.object({
+  name: zod.string().trim().min(2).max(50),
+  location: zod.string().trim().min(2).max(50),
+  length: zod.number().min(0),
+  details: zod.string().trim().max(300),
+});
+
+const suggestionStatusSchema = zod.enum([
+  "PENDING",
+  "TODO",
+  "IN_PROGRESS",
+  "COMPLETED",
+] as const);
+
+export const updateSuggestionSchema = zod
+  .object({
+    status: suggestionStatusSchema,
+    notes: zod.string(),
+  })
+  .partial();

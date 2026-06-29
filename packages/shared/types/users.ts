@@ -73,12 +73,3 @@ export interface GetFriendRequests {
   }[];
   nextCursor: number | null;
 }
-
-export const VisibilityLevel = {
-  PUBLIC: "PUBLIC",
-  FRIENDS: "FRIENDS",
-  PRIVATE: "PRIVATE",
-} as const;
-
-export type VisibilityLevel =
-  (typeof VisibilityLevel)[keyof typeof VisibilityLevel];

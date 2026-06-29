@@ -36,10 +36,11 @@ model User {
   verification  EmailVerification?
   passwordReset PasswordReset?
 
-  friendCount            Int             @default(0)
-  friendsVisibility      VisibilityLevel @default(PUBLIC)
-  sentFriendRequests     Friendship[]    @relation("FriendshipRequester")
-  receivedFriendRequests Friendship[]    @relation("FriendshipReceiver")
+  friendCount            Int               @default(0)
+  friendsVisibility      VisibilityLevel   @default(PUBLIC)
+  sentFriendRequests     Friendship[]      @relation("FriendshipRequester")
+  receivedFriendRequests Friendship[]      @relation("FriendshipReceiver")
+  trailSuggestions       TrailSuggestion[]
 
   @@index([publicId])
   @@index([email])
@@ -195,4 +196,33 @@ model Friendship {
 
   @@index([requesterId])
   @@index([receiverId])
+}
+
+enum TrailSuggestionStatus {
+  PENDING
+  TODO
+  IN_PROGRESS
+  COMPLETED
+}
+
+model TrailSuggestion {
+  id Int @id @default(autoincrement())
+
+  publicId String @unique
+
+  userId BigInt
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name     String
+  location String
+  length   Float
+  details  String
+
+  status     TrailSuggestionStatus @default(PENDING)
+  adminNotes String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([status, id])
 }
