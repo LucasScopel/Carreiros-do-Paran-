@@ -36,6 +36,11 @@ model User {
   verification  EmailVerification?
   passwordReset PasswordReset?
 
+  friendCount            Int             @default(0)
+  friendsVisibility      VisibilityLevel @default(PUBLIC)
+  sentFriendRequests     Friendship[]    @relation("FriendshipRequester")
+  receivedFriendRequests Friendship[]    @relation("FriendshipReceiver")
+
   @@index([publicId])
   @@index([email])
 }
@@ -173,4 +178,21 @@ model TrailCollectionTrail {
 
   @@id([collectionId, trailId])
   @@index([trailId])
+}
+
+model Friendship {
+  id Int @id @default(autoincrement())
+
+  requesterId BigInt
+  requester   User   @relation("FriendshipRequester", fields: [requesterId], references: [id])
+
+  receiverId BigInt
+  receiver   User   @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  accepted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([requesterId])
+  @@index([receiverId])
 }

@@ -12,6 +12,7 @@ export const updateUserSchema = zod
     name: zod.string().trim().min(2).max(100),
     description: zod.string().trim().max(300),
     reviewsVisibility: visibilityLevelSchema,
+    friendsVisibility: visibilityLevelSchema,
   })
   .partial();
 
@@ -22,3 +23,7 @@ export const createTrailCollectionSchema = zod.object({
 
 export const updateTrailCollectionSchema =
   createTrailCollectionSchema.partial();
+
+export const addFriendSchema = zod.object({
+  friendId: zod.nanoid(),
+});

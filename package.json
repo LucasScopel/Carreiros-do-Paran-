@@ -11,12 +11,15 @@
     "db:migrate": "dotenv -e ./.env -- pnpm --filter database db:migrate",
     "db:reset": "dotenv -e ./.env -- pnpm --filter database db:reset",
     "db:studio": "dotenv -e ./.env -- pnpm --filter database db:studio",
-    "users": "dotenv -e ./.env -- tsx scripts/users.ts"
+    "user": "dotenv -e ./.env -- tsx scripts/users.ts"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
     "concurrently": "^9.0.0",
     "dotenv-cli": "^11.0.0",
-    "typescript": "^6.0.3"
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "argon2": "^0.44.0",
+    "nanoid": "^5.1.11"
   }
 }
