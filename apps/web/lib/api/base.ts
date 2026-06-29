@@ -5,6 +5,7 @@ import {
   MeResponse,
   TrailItemResponse,
   TrailResponse,
+  TrailReviewResponse,
   TrailReviewsResponse,
   VisibilityLevel,
 } from "shared/types";
@@ -294,12 +295,9 @@ export function createApi(fetcher: ApiFetcher) {
         },
 
         getMine(trailId: string) {
-          return fetcher<TrailReviewsResponse>(
-            `/trails/${trailId}/reviews/me`,
-            {
-              method: "GET",
-            },
-          );
+          return fetcher<TrailReviewResponse>(`/trails/${trailId}/reviews/me`, {
+            method: "GET",
+          });
         },
 
         upsert(
