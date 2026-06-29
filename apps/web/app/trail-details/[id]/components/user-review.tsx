@@ -34,7 +34,7 @@ export function UserReview({
     if (userReviewParam) {
       setStarRating(userReviewParam.rating || 0);
       setFlameRating(userReviewParam.difficultyRating || 0);
-      setVisitDate(userReviewParam.visitDate || "");
+      setVisitDate(userReviewParam.visitDate.split("T")[0] || "");
       setReview(userReviewParam.comment || "");
     } else {
       // Se mudar de trilha ou deslogar, limpa o formulário
@@ -43,6 +43,8 @@ export function UserReview({
       setVisitDate("");
       setReview("");
     }
+
+    console.log(visitDate);
   }, [userReviewParam]);
 
   //Função para enviar os dados à api
@@ -151,7 +153,7 @@ export function UserReview({
             <p className="text-xl text-black">Quando você fez a trilha</p>
             <input
               type="date"
-              value={visitDate}
+              value={visitDate ? visitDate.split("T")[0] : ""}
               onChange={(e) => setVisitDate(e.target.value)}
               className="w-55 px-4 py-3 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
                                 transition-colors duration-300"
