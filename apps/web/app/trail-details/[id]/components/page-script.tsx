@@ -17,6 +17,7 @@ import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-butt
 import { useMe } from "@/hooks/useMe";
 import { UserReview } from "./user-review";
 import Comment from "./comment";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function PageScript({
   params,
@@ -34,6 +35,9 @@ export default function PageScript({
 
   const [savedTrail, setSavedTrail] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const router = useRouter();
+  const pathName = usePathname();
 
   const labelDifficultyRating = (num: number) => {
     if (num <= 1) return "Muito Fácil";
@@ -250,14 +254,17 @@ export default function PageScript({
               onClick={() =>
                 user
                   ? setIsModalOpen(true)
-                  : alert("Faça login para salvar trilhas!")
+                  : router.push(
+                      `/login?redirect=${encodeURIComponent(pathName)}`,
+                    )
               }
-              className={`w-full px-6 py-4 rounded-xl shadow-md border text-left text-lg font-medium flex gap-2 items-center cursor-pointer transition-all duration-300 focus:outline-none
-    ${
-      savedTrail
-        ? "bg-green-500 border-green-600 text-white hover:bg-green-600"
-        : "bg-gray-50 border-[#D99C6A] text-gray-800 hover:border-[#ee8937]"
-    }`}
+              className={`w-full px-6 py-4 rounded-xl shadow-md border text-left text-lg flex gap-2 items-center cursor-pointer 
+                transition-all duration-300 focus:outline-none
+                ${
+                  savedTrail
+                    ? "bg-green-500 border-green-700 text-white font-semibold hover:brightness-108 transition-all"
+                    : "bg-gray-50 border-[#D99C6A] text-gray-800 font-medium hover:border-[#ff8119] hover:bg-gray-200 duration-200 transition-all"
+                }`}
             >
               {savedTrail ? "Salva" : "Salvar Trilha"}
               <div className="ml-auto">
@@ -265,19 +272,6 @@ export default function PageScript({
                 <SaveIcon saved={savedTrail} asChild />
               </div>
             </button>
-
-            {/*}
-            <div
-              onClick={handleSaveTrail}
-              className="px-6 py-4 p bg-gray-50 rounded-xl shadow-md border border-[#D99C6A] text-left text-lg text-gray-800 flex gap-2 items-center cursor-pointer
-                         focus:border-[#ee8937] focus:outline-none hover:border-[#ee8937] transition-colors duration-300"
-            >
-              Salvar Trilha
-              <div className="ml-auto right-0 pointer-events-none">
-                <SaveIcon saved={savedTrail} />
-              </div>
-            </div>
-            */}
 
             {/*Modal para quando salvar a trilha*/}
             <SaveModal

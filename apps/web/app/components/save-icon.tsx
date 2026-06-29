@@ -16,7 +16,7 @@ export default function SaveIcon({
     return (
       <Bookmark
         size={32}
-        className={`text-green-600 transition-colors ${saved ? "fill-green-600" : "fill-transparent"}`}
+        className={`text-green-600 transition-colors ${saved ? "text-white fill-white" : "fill-transparent"}`}
       />
     );
   }
@@ -29,7 +29,7 @@ export default function SaveIcon({
     >
       <Bookmark
         size={32}
-        className={`text-green-600 transition-colors ${saved ? "fill-green-600" : "fill-transparent"}`}
+        className={`text-green-600 transition-colors ${saved ? "text-white fill-white" : "fill-transparent"}`}
       />
     </button>
   );

@@ -22,6 +22,7 @@ export default function SaveModal({
   );
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   // Carrega as coleções e verifica quais já contêm esta trilha
   async function loadCollectionsStatus() {
@@ -36,12 +37,21 @@ export default function SaveModal({
     } finally {
       setLoading(false);
     }
+
+    setReady(true); //Só permite carregar o modal depois que já tiver determinado a altura máxima
   }
 
   useEffect(() => {
     if (isOpen && trailId) {
       loadCollectionsStatus();
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
     }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen, trailId]);
 
   // Alterna o estado da trilha na coleção (Salva / Remove)
@@ -83,28 +93,28 @@ export default function SaveModal({
     }
   }
 
-  if (!isOpen) return null;
+  if (!isOpen || !ready) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header do Modal */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-bs-green-700">
           <h3 className="text-xl font-bold text-gray-900">
-            Salvar em uma coleção
+            Salvar em uma Coleção
           </h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
           >
-            <X size={20} />
+            <X className="cursor-pointer" size={20} />
           </button>
         </div>
 
         {/* Corpo do Modal */}
-        <div className="p-4 max-h-80 overflow-y-auto">
+        <div className="min-h-[50px] max-h-80 overflow-y-auto py-2">
           {loading ? (
-            <div className="flex justify-center py-8">
+            <div className="flex justify-center items-center py-4">
               <Loader2 className="animate-spin text-orange-500" size={32} />
             </div>
           ) : collections.length === 0 ? (
@@ -112,13 +122,18 @@ export default function SaveModal({
               Você não possui nenhuma coleção criada.
             </p>
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 px-4 w-full">
               {collections.map((collection) => (
-                <div
+                <label
                   key={collection.publicId}
-                  className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors"
+                  className="
+                              flex items-center justify-between p-3 rounded-xl 
+                              border border-green-800 hover:border-green-600 
+                              cursor-pointer select-none
+                              active:scale-[0.99]
+                            "
                 >
-                  <span className="font-medium text-gray-800">
+                  <span className="font-normal text-gray-800 hover:brightness-140 transition-all">
                     {collection.name}
                   </span>
 
@@ -132,9 +147,9 @@ export default function SaveModal({
                         collection.containsTrail,
                       )
                     }
-                    className="w-5 h-5 accent-green-600 cursor-pointer disabled:opacity-50"
+                    className="w-5 h-5 accent-green-600 cursor-pointer"
                   />
-                </div>
+                </label>
               ))}
             </div>
           )}
