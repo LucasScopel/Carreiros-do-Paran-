@@ -31,6 +31,7 @@ export default function PageScript({
   const [reviews, setReviews] = useState<TrailReviewsResponse | null>(null);
   const [trail, setTrail] = useState<TrailResponse | null>(null);
   const [loading, setLoading] = useState(true);
+
   const [savedTrail, setSavedTrail] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -41,6 +42,21 @@ export default function PageScript({
     if (num <= 4) return "Difícil";
     return "Muito Difícil";
   };
+
+  // Função isolada para checar se a trilha está salva em alguma coleção do usuário
+  async function checkSavedStatus() {
+    if (!user || !id) return;
+    try {
+      const result = await api.users.collections.getContainingTrail(id);
+      if (result.ok) {
+        // Se ao menos uma coleção tiver "containsTrail: true", a trilha está salva
+        const isSaved = result.data.some((col) => col.containsTrail);
+        setSavedTrail(isSaved);
+      }
+    } catch (error) {
+      console.error("Erro ao checar status de salvamento:", error);
+    }
+  }
 
   useEffect(() => {
     //Função para pegar os dados da trilha na api
@@ -101,6 +117,7 @@ export default function PageScript({
 
       if (user) {
         loadUserReview();
+        checkSavedStatus();
       }
     }
   }, [id, user]);
@@ -229,6 +246,27 @@ export default function PageScript({
             </InfoCard>
 
             {/*Botão de salvar trilha*/}
+            <button
+              onClick={() =>
+                user
+                  ? setIsModalOpen(true)
+                  : alert("Faça login para salvar trilhas!")
+              }
+              className={`w-full px-6 py-4 rounded-xl shadow-md border text-left text-lg font-medium flex gap-2 items-center cursor-pointer transition-all duration-300 focus:outline-none
+    ${
+      savedTrail
+        ? "bg-green-500 border-green-600 text-white hover:bg-green-600"
+        : "bg-gray-50 border-[#D99C6A] text-gray-800 hover:border-[#ee8937]"
+    }`}
+            >
+              {savedTrail ? "Salva" : "Salvar Trilha"}
+              <div className="ml-auto">
+                {/* Passando asChild para evitar o erro de botões aninhados */}
+                <SaveIcon saved={savedTrail} asChild />
+              </div>
+            </button>
+
+            {/*}
             <div
               onClick={handleSaveTrail}
               className="px-6 py-4 p bg-gray-50 rounded-xl shadow-md border border-[#D99C6A] text-left text-lg text-gray-800 flex gap-2 items-center cursor-pointer
@@ -239,11 +277,14 @@ export default function PageScript({
                 <SaveIcon saved={savedTrail} />
               </div>
             </div>
+            */}
 
             {/*Modal para quando salvar a trilha*/}
             <SaveModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
+              trailId={id}
+              onRefreshStatus={checkSavedStatus}
             />
           </div>
         </div>
