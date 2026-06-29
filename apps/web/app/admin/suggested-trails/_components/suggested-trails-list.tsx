@@ -10,9 +10,10 @@ import {
 import { STATUS_CLASSES, STATUS_LABEL } from "../status";
 import LoadingIndicator from "@/app/components/loading-indicator";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, CircleAlert } from "lucide-react";
+import { Check, ChevronDown, CircleAlert, RotateCw } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { queryClient } from "@/lib/query";
 
 interface SuggestedTrailsListProps {
   selectedSuggestionId: string | undefined;
@@ -105,6 +106,12 @@ export default function SuggestedTrailsList({
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
+  function handleReload() {
+    queryClient.invalidateQueries({
+      queryKey: ["admin", "suggestions", statusFilter],
+    });
+  }
+
   return (
     <div className="flex flex-col h-full min-h-0 space-y-4">
       <div className="flex-shrink-0 rounded-md bg-white p-6 shadow-sm">
@@ -166,6 +173,15 @@ export default function SuggestedTrailsList({
               </div>
             )}
           </button>
+          <div className="flex-1 flex flex-row justify-end">
+            <button
+              type="button"
+              onClick={handleReload}
+              className="rounded-full p-2 text-gray-800 hover:bg-gray-200 hover:text-gray-700 transition-colors duration-300 cursor-pointer"
+            >
+              <RotateCw />
+            </button>
+          </div>
         </div>
 
         <div
