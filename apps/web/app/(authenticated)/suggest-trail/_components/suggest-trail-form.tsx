@@ -3,13 +3,14 @@
 import { useState } from "react";
 import SuggestTrailInput from "./suggest-trail-input";
 import SuggestTrailButton from "./suggest-trail-button";
+import { api } from "@/lib/api/client";
 
 export default function SuggestTrailForm() {
   const [formData, setFormData] = useState({
     name: "",
     location: "",
     lengthKm: "",
-    description: "",
+    details: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -27,10 +28,10 @@ export default function SuggestTrailForm() {
   const validateForm = () => {
     const name = formData.name.trim();
     const location = formData.location.trim();
-    const description = formData.description.trim();
+    const details = formData.details.trim();
     const lengthKm = formData.lengthKm.trim();
 
-    if (!name || !location || !lengthKm || !description) {
+    if (!name || !location || !lengthKm || !details) {
       return "Todos os campos são obrigatórios.";
     }
 
@@ -48,7 +49,7 @@ export default function SuggestTrailForm() {
       return "O tamanho deve ser um número maior que zero.";
     }
 
-    if (description.length < 10) {
+    if (details.length < 10) {
       return "A descrição deve conter pelo menos 10 caracteres.";
     }
 
@@ -66,7 +67,7 @@ export default function SuggestTrailForm() {
 
     const name = formData.name.trim();
     const location = formData.location.trim();
-    const description = formData.description.trim();
+    const details = formData.details.trim();
     const length = Number(formData.lengthKm.trim().replace(",", "."));
 
     setIsSubmitting(true);
@@ -74,26 +75,32 @@ export default function SuggestTrailForm() {
 
     //API
     try {
-      const response = await fetch("/api/suggest-trails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          location,
-          lengthKm: length,
-          description,
-        }),
+      const response = await api.trails.suggestions.create({
+        name,
+        location,
+        length,
+        details,
       });
 
       if (!response.ok) {
-        const jsonBody = await response.json().catch(() => null);
-        throw new Error(jsonBody?.message ?? `HTTP ${response.status}`);
+        if (response.error.code === "VALIDATION_ERROR") {
+          if (response.error.fields!.name) {
+            setMessage("Nome muito curto ou muito longo.");
+          } else if (response.error.fields!.details) {
+            setMessage("Detalhes muito longos.");
+          } else if (response.error.fields!.location) {
+            setMessage("Localização muito curta ou muito longa.");
+          } else {
+            setMessage(
+              "Não foi possível enviar a sugestão no momento. Tente novamente mais tarde.",
+            );
+          }
+        }
+        return;
       }
 
       setMessage("Sugestão enviada com sucesso!");
-      setFormData({ name: "", location: "", lengthKm: "", description: "" });
+      setFormData({ name: "", location: "", lengthKm: "", details: "" });
     } catch (error) {
       console.error("Erro ao submeter à API:", error);
       setMessage(
@@ -142,9 +149,9 @@ export default function SuggestTrailForm() {
             required
           />
           <textarea
-            name="description"
+            name="details"
             placeholder="Descrição da trilha"
-            value={formData.description}
+            value={formData.details}
             onChange={handleChange}
             required
             className="min-h-30 resize-none rounded-md border-2 border-[#424242] bg-gray-100 px-4 py-3 text-black outline-none transition-colors duration-300 focus:border-[#D99C6A] hover:border-[#D99C6A]"
@@ -156,11 +163,11 @@ export default function SuggestTrailForm() {
             {message}
           </div>
         ) : null}
-
-        <SuggestTrailButton type="submit" className="w-full">
-          {isSubmitting ? "Enviando..." : "Enviar Sugestão"}
-        </SuggestTrailButton>
       </div>
+
+      <SuggestTrailButton type="submit" className="w-full">
+        {isSubmitting ? "Enviando..." : "Enviar Sugestão"}
+      </SuggestTrailButton>
     </form>
   );
 }
