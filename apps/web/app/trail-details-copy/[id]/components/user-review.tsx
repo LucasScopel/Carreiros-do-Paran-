@@ -1,3 +1,5 @@
+"use client";
+
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { TrailReviewResponse } from "shared/types";
@@ -27,11 +29,13 @@ export function UserReview({
     if (userReviewParam) {
       setStarRating(userReviewParam.rating || 0);
       setFlameRating(userReviewParam.difficultyRating || 0);
+      setVisitDate(userReviewParam.visitDate || "");
       setReview(userReviewParam.comment || "");
     } else {
       // Se mudar de trilha ou deslogar, limpa o formulário
       setStarRating(0);
       setFlameRating(0);
+      setVisitDate("");
       setReview("");
     }
   }, [userReviewParam]);

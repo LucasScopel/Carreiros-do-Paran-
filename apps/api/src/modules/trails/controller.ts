@@ -161,7 +161,7 @@ export async function getMyTrailReview(req: Request, res: Response) {
 
   const review = await reviewsService.getUserTrailReview(trailId, req.user!.id);
 
-  res.send({ review });
+  res.send(review);
 }
 
 export async function upsertTrailReview(req: Request, res: Response) {
