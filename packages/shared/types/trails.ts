@@ -99,21 +99,23 @@ export const SuggestionStatus = [
 
 export type SuggestionStatus = (typeof SuggestionStatus)[number];
 
-export type ListSuggestions = {
-  suggestions: {
+export type TrailSuggestion = {
+  publicId: string;
+  name: string;
+  location: string;
+  length: number;
+  details: string;
+  status: SuggestionStatus;
+  createdAt: string;
+  adminNotes: string;
+  user: {
     publicId: string;
     name: string;
-    location: string;
-    length: number;
-    details: string;
-    status: SuggestionStatus;
-    createdAt: string;
-    adminNotes: string;
-    user: {
-      publicId: string;
-      name: string;
-      avatarUrl: string;
-    };
-  }[];
+    avatarUrl: string;
+  };
+};
+
+export type ListSuggestions = {
+  suggestions: TrailSuggestion[];
   nextCursor: number | null;
 };
