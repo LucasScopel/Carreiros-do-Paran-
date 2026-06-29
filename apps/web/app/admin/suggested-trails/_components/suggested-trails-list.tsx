@@ -12,6 +12,7 @@ import LoadingIndicator from "@/app/components/loading-indicator";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, CircleAlert } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface SuggestedTrailsListProps {
   selectedSuggestionId: string | undefined;
@@ -202,11 +203,24 @@ export default function SuggestedTrailsList({
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div>
-                          <h2 className="text-lg font-semibold text-slate-900">
+                          <h2 className="text-lg font-semibold text-slate-900 line-clamp-1">
                             {suggestion.name}
                           </h2>
-                          <p className="text-sm text-slate-600">
+                          <p className="text-sm text-slate-600 line-clamp-1">
                             {suggestion.location}
+                          </p>
+                        </div>
+                        <div className="flex-1 flex flex-row justify-end items-center gap-2">
+                          <Image
+                            unoptimized
+                            src={suggestion.user.avatarUrl}
+                            alt={`Foto de perfil de ${suggestion.user.name}`}
+                            width={28}
+                            height={28}
+                            className="rounded-full"
+                          />
+                          <p className="text-md font-semibold text-slate-600 line-clamp-1">
+                            {suggestion.user.name}
                           </p>
                         </div>
                         <span
