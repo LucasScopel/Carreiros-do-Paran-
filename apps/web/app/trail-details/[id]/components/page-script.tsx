@@ -1,7 +1,11 @@
 "use client";
 import React, { useState, useEffect, use } from "react";
 import { api } from "@/lib/api/client";
-import type { TrailResponse } from "shared/types";
+import {
+  TrailReviewResponse,
+  TrailReviewsResponse,
+  type TrailResponse,
+} from "shared/types";
 import { Bookmark, Star, Flame } from "lucide-react";
 import { InfoCard } from "./info-card";
 import Banner from "./banner";
@@ -9,6 +13,10 @@ import StarRating from "./star-rating";
 import FlameRating from "./flame-rating";
 import SaveIcon from "@/app/components/save-icon";
 import SaveModal from "./save-modal";
+import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
+import { useMe } from "@/hooks/useMe";
+import { UserReview } from "./user-review";
+import Comment from "./comment";
 
 export default function PageScript({
   params,
@@ -16,16 +24,26 @@ export default function PageScript({
   params: Promise<{ id: string }>;
 }) {
   const { id } = React.use(params);
+  const { data: user, error } = useMe(); //Captura os dados do usuário
+  const [userReview, setUserReview] = useState<TrailReviewResponse | null>(
+    null,
+  );
+  const [reviews, setReviews] = useState<TrailReviewsResponse | null>(null);
   const [trail, setTrail] = useState<TrailResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [starRating, setStarRating] = useState(0);
-  const [flameRating, setFlameRating] = useState(0);
   const [savedTrail, setSavedTrail] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [review, setReview] = useState("");
+
+  const labelDifficultyRating = (num: number) => {
+    if (num <= 1) return "Muito Fácil";
+    if (num <= 2) return "Fácil";
+    if (num <= 3) return "Média";
+    if (num <= 4) return "Difícil";
+    return "Muito Difícil";
+  };
 
   useEffect(() => {
-    //Função para pegar os dados da api
+    //Função para pegar os dados da trilha na api
     async function loadTrail() {
       try {
         //Coloca em estado de loading e pega os dados
@@ -44,28 +62,55 @@ export default function PageScript({
       }
     }
 
-    //Se, por algum motivo, não tiver o id, não tem para que chamar a função
-    if (id) loadTrail();
-  }, [id]);
+    //Função para pegar os dados da review na api
+    async function loadUserReview() {
+      try {
+        const result = await api.trails.reviews.getMine(id);
+
+        // Se der certo, guarda o a review
+        if (result.ok) {
+          setUserReview(result.data);
+        } else {
+          // Se der erro 404 (não encontrado), significa apenas que ele não avaliou ainda
+          setUserReview(null);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar review do usuário:", error); //Se nem chegar na api, erro na comunicação
+        setUserReview(null);
+      }
+    }
+
+    //Função para pegas as demais reviews
+    async function loadAllReviews() {
+      try {
+        //Chamada da api
+        const result = await api.trails.reviews.get(id);
+
+        if (result.ok) {
+          setReviews(result.data);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar todas as avaliações:", error);
+      }
+    }
+
+    //Se, por algum motivo, não tiver os campos, não tem para que chamar as funções
+    if (id) {
+      loadTrail();
+      loadAllReviews();
+
+      if (user) {
+        loadUserReview();
+      }
+    }
+  }, [id, user]);
 
   //Função para alterar o estado de ter ou não uma trilha salva
   const handleSaveTrail = () => {
-    //Altera o estado da trilha para salva ou não
-    setSavedTrail((prev) => !prev);
+    if (!savedTrail) setSavedTrail(true);
 
-    //Só apresenta o modal se for na hora de salvar a trilha
-    if (!savedTrail) setIsModalOpen(true);
+    setIsModalOpen(true);
   };
-
-  /* FUNÇÃO PARA ENVIAR OS DADOS PRA API
-  const handleSubmit = async () => {
-    const result = await api.algumaCoisa(
-      starRating, 
-      flameRating, 
-      review,
-    );
-  };
-  */
 
   //Controle visual dos estados para renderização
   if (loading)
@@ -92,7 +137,10 @@ export default function PageScript({
           <div className="col-span-8">
             {/* Cards mais quadrados */}
             <div className="grid grid-cols-3 gap-4">
-              <InfoCard title="Dificuldade" description="Hardcore"></InfoCard>
+              <InfoCard
+                title="Dificuldade"
+                description={labelDifficultyRating(trail.difficulty)}
+              ></InfoCard>
               <InfoCard
                 title="Distância"
                 description={`${trail.length.toString()} Km`}
@@ -113,133 +161,42 @@ export default function PageScript({
 
             {/* Container das avaliações */}
             <div className="mt-6 mb">
-              <InfoCard title="Avaliações da Comunidade">
+              <InfoCard title="Sua avaliação">
                 <div className="flex flex-col gap-4 mt-3">
                   {/* Container de realizar avaliação */}
 
                   <InfoCard
                     variant="container"
-                    title="Conte a sua Experiência"
-                    className="bg-green-100 border-green-900"
+                    bgColor={
+                      user ? "bg-green-100 border-green-900" : "bg-orange-100"
+                    }
                   >
-                    <div className="flex flex-col gap-4 mt-3">
-                      <div className="flex justify-between">
-                        <div>
-                          <p className="text-xl text-black">Sua Avaliação</p>
-                          <StarRating
-                            value={starRating}
-                            onChange={setStarRating}
-                          />
-                        </div>
-
-                        <div>
-                          <p className="text-xl text-black">
-                            O quão difícil achou
-                          </p>
-                          <FlameRating
-                            value={flameRating}
-                            onChange={setFlameRating}
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-xl text-black">
-                          Quando você fez a trilha
-                        </p>
-                        <input
-                          type="date"
-                          className="w-55 px-4 py-3 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
-                        transition-colors duration-300"
-                        ></input>
-                      </div>
-
-                      <div>
-                        <p className="text-xl text-black">Seu relato</p>
-                        <textarea
-                          value={review}
-                          onChange={(e) => setReview(e.target.value)}
-                          className="w-full h-36 px-4 py-4 border-2 rounded-md text-black border-green-900 bg-green-50 focus:border-green-700 focus:outline-none hover:border-green-600 
-                                     transition-colors duration-300"
-                        ></textarea>
-                      </div>
-
-                      <button className="w-full px-4 py-4 rounded-md text-center bg-green-800 font-bold text-white cursor-pointer hover:bg-green-700 hover:brightness-120  transition-all duration-300">
-                        Avaliar
-                      </button>
-                    </div>
+                    <UserReview
+                      user={user}
+                      userReviewParam={userReview}
+                      trailId={id}
+                    />
                   </InfoCard>
 
                   {/* Parte das avaliações de outros usuários */}
                   <p className="text-2xl font-bold text-gray-800">
-                    Outras Avaliações
+                    Avaliações dos Usuários
                   </p>
 
-                  <InfoCard>
-                    <div className="flex flex-col gap-4">
-                      <div className="relative flex flex-col gap-0.5">
-                        <div>
-                          <h3 className="text-2xl font-bold text-[#263327] leading-tight">
-                            João da Silva
-                          </h3>
-                        </div>
-
-                        <p className="text-sm">5 de maio</p>
-
-                        <div className="absolute top-0 right-0 flex flex-col gap-1">
-                          <div className="flex gap-0.5">
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                          </div>
-                          <div className="flex gap-0.5">
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="text-lg">Boa</p>
-                    </div>
-                  </InfoCard>
-
-                  <InfoCard>
-                    <div className="flex flex-col gap-4">
-                      <div className="relative flex flex-col gap-0.5">
-                        <div>
-                          <h3 className="text-2xl font-bold text-[#263327] leading-tight">
-                            Cleide
-                          </h3>
-                        </div>
-
-                        <p className="text-sm">6 de agosto</p>
-
-                        <div className="absolute top-0 right-0 flex flex-col gap-1">
-                          <div className="flex gap-0.5">
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                          </div>
-                          <div className="flex gap-0.5">
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                            <Flame className="w-5 h-5 text-red-600 fill-red-600" />
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="text-lg">Tava fechado</p>
-                    </div>
-                  </InfoCard>
+                  {/* Verifica se existem reviews na trilha e renderiza dinamicamente */}
+                  {reviews && reviews.reviews.length > 0 ? (
+                    reviews.reviews.map(
+                      (review: TrailReviewResponse, index: number) => (
+                        <InfoCard key={`Review-${index}`}>
+                          <Comment review={review} />
+                        </InfoCard>
+                      ),
+                    )
+                  ) : (
+                    <p className="text-sm text-zinc-500 italic p-4 text-center">
+                      Não há avaliações para essa trilha
+                    </p>
+                  )}
                 </div>
               </InfoCard>
             </div>

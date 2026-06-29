@@ -3,9 +3,9 @@ import React from "react";
 interface InfoCardProps {
   title?: string;
   description?: string;
-  icon?: React.ReactNode;
   variant?: "default" | "container";
   className?: string;
+  bgColor?: string;
   children?: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
@@ -13,18 +13,18 @@ interface InfoCardProps {
 export const InfoCard: React.FC<InfoCardProps> = ({
   title,
   description,
-  icon,
   variant = "default",
   className = "",
+  bgColor = "bg-gray-50",
   children,
   onClick,
 }) => {
   return (
     <div
       onClick={onClick}
-      className={`p-6 bg-gray-50 rounded-xl shadow-md border border-[#D99C6A] flex flex-col ${
+      className={`p-6 rounded-xl shadow-md border border-[#D99C6A] flex flex-col ${
         variant === "container" ? "gap-4" : ""
-      } ${className}`}
+      } ${bgColor} ${className}`}
     >
       {title && (
         <h3 className="text-2xl font-bold text-[#263327] mb-2">{title}</h3>
