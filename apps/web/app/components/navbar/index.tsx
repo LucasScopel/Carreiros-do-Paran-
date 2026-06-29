@@ -12,13 +12,23 @@ function getMenuItems(user: MeResponse) {
       icon: "user_round",
       href: "/profile",
     },
+    {
+      label: "Sugerir uma trilha",
+      icon: "lightbulb",
+      href: "/suggest-trail",
+    },
   ];
 
   if (user?.admin) {
-    menuItems.push({
+    menuItems.splice(1, 0, {
       label: "Trilhas",
       icon: "footprints",
       href: "/admin/trails",
+    });
+    menuItems.push({
+      label: "Sugestões de trilha",
+      icon: "clipboard_list",
+      href: "/admin/suggested-trails",
     });
   }
 

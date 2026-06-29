@@ -17,6 +17,8 @@ import {
   TrailResponse,
   TrailReviewsResponse,
   VisibilityLevel,
+  SuggestionStatus,
+  ListSuggestions,
 } from "shared/types";
 
 /**
@@ -541,9 +543,7 @@ export function createApi(fetcher: ApiFetcher) {
         getMine(trailId: string) {
           return fetcher<TrailReviewsResponse>(
             `/trails/${trailId}/reviews/me`,
-            {
-              method: "GET",
-            },
+            { method: "GET" },
           );
         },
 
@@ -566,6 +566,70 @@ export function createApi(fetcher: ApiFetcher) {
           return fetcher<void>(`/trails/${trailId}/reviews`, {
             method: "DELETE",
           });
+        },
+      },
+
+      suggestions: {
+        create(data: {
+          name: string;
+          location: string;
+          length: number;
+          details: string;
+        }) {
+          return fetcher<void>("/trails/suggestions", {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
+        },
+
+        remove(suggestionId: string) {
+          return fetcher<void>(`/trails/suggestions/${suggestionId}`, {
+            method: "DELETE",
+          });
+        },
+
+        update(
+          suggestionId: string,
+          data: Partial<{
+            status: SuggestionStatus;
+            notes: string;
+          }>,
+        ) {
+          return fetcher<void>(`/trails/suggestions/${suggestionId}`, {
+            method: "PATCH",
+            body: JSON.stringify(data),
+          });
+        },
+
+        list({
+          status,
+          cursor,
+          limit,
+        }: {
+          status?: SuggestionStatus;
+          cursor?: number;
+          limit?: number;
+        } = {}) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof status !== "undefined") {
+            searchParams.append("status", status.toString());
+          }
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<ListSuggestions>(
+            `/trails/suggestions${query ? `?${query}` : ""}`,
+            { method: "GET" },
+          );
         },
       },
     },
