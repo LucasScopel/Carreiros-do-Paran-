@@ -2,12 +2,13 @@ import {
   ApiErrorResponse,
   ApiResult,
   GeoCoords,
+  GetUserResponse,
+  GetUserReviewsResponse,
   GetCollectionsContainingTrail,
   GetFriends,
   GetMyCollections,
   GetMyCollectionTrails,
-  GetReceivedFriendRequests,
-  GetSentFriendRequests,
+  GetFriendRequests,
   GetUserCollections,
   GetUserCollectionTrails,
   MeResponse,
@@ -167,6 +168,7 @@ export function createApi(fetcher: ApiFetcher) {
       me() {
         return fetcher<MeResponse>("/users/me", {
           method: "GET",
+          cache: "no-store",
         });
       },
 
@@ -175,6 +177,7 @@ export function createApi(fetcher: ApiFetcher) {
           name: string;
           description: string;
           reviewsVisibility: VisibilityLevel;
+          friendsVisibility: VisibilityLevel;
         }>,
       ) {
         return fetcher<void>("/users/me", {
@@ -199,6 +202,21 @@ export function createApi(fetcher: ApiFetcher) {
         });
       },
 
+      get(userId: string) {
+        return fetcher<GetUserResponse>(`/users/${userId}`, {
+          method: "GET",
+        });
+      },
+
+      getReviews(userId: string) {
+        return fetcher<GetUserReviewsResponse[] | null>(
+          `/users/${userId}/reviews`,
+          {
+            method: "GET",
+          },
+        );
+      },
+
       collections: {
         getMine() {
           return fetcher<GetMyCollections>("/users/me/collections", {
@@ -218,7 +236,7 @@ export function createApi(fetcher: ApiFetcher) {
           data: Partial<{ name: string; visibility: VisibilityLevel }>,
         ) {
           return fetcher<void>(`/users/me/collections/${collectionId}`, {
-            method: "POST",
+            method: "PATCH",
             body: JSON.stringify(data),
           });
         },
@@ -327,7 +345,7 @@ export function createApi(fetcher: ApiFetcher) {
           const query = searchParams.toString();
 
           return fetcher<GetFriends>(
-            `/users/me/friends${query ? `${query}` : ""}`,
+            `/users/me/friends${query ? `?${query}` : ""}`,
             {
               method: "GET",
             },
@@ -363,8 +381,8 @@ export function createApi(fetcher: ApiFetcher) {
 
           const query = searchParams.toString();
 
-          return fetcher<GetReceivedFriendRequests>(
-            `/users/me/friends/requests/received${query ? `${query}` : ""}`,
+          return fetcher<GetFriendRequests>(
+            `/users/me/friends/requests/received${query ? `?${query}` : ""}`,
             {
               method: "GET",
             },
@@ -384,8 +402,8 @@ export function createApi(fetcher: ApiFetcher) {
 
           const query = searchParams.toString();
 
-          return fetcher<GetSentFriendRequests>(
-            `/users/me/friends/requests/sent${query ? `${query}` : ""}`,
+          return fetcher<GetFriendRequests>(
+            `/users/me/friends/requests/sent${query ? `?${query}` : ""}`,
             {
               method: "GET",
             },
@@ -409,7 +427,7 @@ export function createApi(fetcher: ApiFetcher) {
           const query = searchParams.toString();
 
           return fetcher<GetFriends>(
-            `/users/${userId}/friends${query ? `${query}` : ""}`,
+            `/users/${userId}/friends${query ? `?${query}` : ""}`,
             {
               method: "GET",
             },

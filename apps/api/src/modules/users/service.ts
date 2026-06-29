@@ -9,7 +9,13 @@ import { Prisma, prisma } from "database";
 import { nanoid } from "nanoid";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { MeResponse, VisibilityLevel } from "shared/types";
+import {
+  MeResponse,
+  VisibilityLevel,
+  GetUserResponse,
+  GetUserReviewsResponse,
+  GetFriendRequests,
+} from "shared/types";
 import { getUserAvatarURL } from "shared/utils";
 import sharp from "sharp";
 
@@ -148,6 +154,96 @@ export async function removeAvatar(userId: bigint, publicUserId: string) {
     data: {
       hasAvatar: false,
     },
+  });
+}
+
+export async function get(
+  viewerId: bigint | null,
+  publicUserId: string,
+): Promise<GetUserResponse> {
+  const user = await prisma.user.findUnique({
+    where: {
+      publicId: publicUserId,
+    },
+    select: {
+      id: true,
+      publicId: true,
+      name: true,
+      description: true,
+      hasAvatar: true,
+      avatarVersion: true,
+      reviewCount: true,
+      friendCount: true,
+    },
+  });
+
+  if (!user) {
+    throw new NotFoundError();
+  }
+
+  return {
+    publicId: user.publicId,
+    name: user.name,
+    description: user.description,
+    avatarUrl: getUserAvatarURL(user),
+    reviewCount: user.reviewCount,
+    friendCount: user.friendCount,
+    friendshipStatus: viewerId
+      ? await friendshipStatus(viewerId, user.id)
+      : "not-friends",
+  };
+}
+
+export async function getReviews(
+  publicUserId: string,
+  callerUserId?: bigint,
+): Promise<GetUserReviewsResponse[]> {
+  const user = await prisma.user.findUnique({
+    where: {
+      publicId: publicUserId,
+    },
+    select: {
+      id: true,
+      reviewsVisibility: true,
+    },
+  });
+
+  if (!user) {
+    throw new NotFoundError();
+  }
+
+  if (user.id !== callerUserId) {
+    if (user.reviewsVisibility !== "PUBLIC") {
+      throw new ForbiddenError();
+    }
+  }
+
+  const reviews = await prisma.review.findMany({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      comment: true,
+      visitDate: true,
+      rating: true,
+      difficultyRating: true,
+      trail: {
+        select: {
+          publicId: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return reviews.map((review) => {
+    const { rating, difficultyRating, visitDate, ...rest } = review;
+    return {
+      rating: rating / 2,
+      difficultyRating: difficultyRating / 2,
+      visitDate: visitDate.toISOString(),
+      ...rest,
+    };
   });
 }
 
@@ -376,9 +472,9 @@ export async function getMyCollectionTrails(
         trail: { ratingSum, difficultySum, ...rest },
       } = t;
       return {
-        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount,
+        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount / 2,
         difficulty:
-          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount,
+          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount / 2,
         ...rest,
       };
     }),
@@ -561,7 +657,8 @@ export async function getUserCollections(
 
   const isOwner = viewerId === owner.id;
 
-  const isFriend = viewerId && (await areFriends(viewerId, owner.id));
+  const isFriend =
+    viewerId && (await friendshipStatus(viewerId, owner.id)) === "friends";
 
   let query;
   if (isOwner) {
@@ -689,9 +786,9 @@ export async function getUserCollectionTrails(
         trail: { ratingSum, difficultySum, ...rest },
       } = t;
       return {
-        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount,
+        rating: rest.reviewCount === 0 ? 0 : ratingSum / rest.reviewCount / 2,
         difficulty:
-          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount,
+          rest.reviewCount === 0 ? 0 : difficultySum / rest.reviewCount / 2,
         ...rest,
       };
     }),
@@ -860,8 +957,22 @@ export async function getFriends(
       OR: [{ requesterId: userId }, { receiverId: userId }],
     },
     include: {
-      requester: { select: { publicId: true, name: true } },
-      receiver: { select: { publicId: true, name: true } },
+      requester: {
+        select: {
+          publicId: true,
+          name: true,
+          hasAvatar: true,
+          avatarVersion: true,
+        },
+      },
+      receiver: {
+        select: {
+          publicId: true,
+          name: true,
+          hasAvatar: true,
+          avatarVersion: true,
+        },
+      },
     },
     orderBy: {
       id: "asc",
@@ -876,9 +987,11 @@ export async function getFriends(
 
   const friends = friendships.map((f) => {
     const friendData = f.requesterId === userId ? f.receiver : f.requester;
+
     return {
       publicId: friendData.publicId,
       name: friendData.name,
+      avatarUrl: getUserAvatarURL(friendData),
       createdAt: f.createdAt,
     };
   });
@@ -901,7 +1014,7 @@ export async function getReceivedFriendRequests(
     cursor?: number | null;
     limit?: number;
   } = {},
-) {
+): Promise<GetFriendRequests> {
   const requests = await prisma.friendship.findMany({
     take: limit + 1,
     ...(cursor && { skip: 1, cursor: { id: cursor } }),
@@ -910,7 +1023,14 @@ export async function getReceivedFriendRequests(
       receiverId: userId,
     },
     include: {
-      requester: { select: { publicId: true, name: true } },
+      requester: {
+        select: {
+          publicId: true,
+          name: true,
+          hasAvatar: true,
+          avatarVersion: true,
+        },
+      },
     },
     orderBy: {
       id: "asc",
@@ -929,7 +1049,11 @@ export async function getReceivedFriendRequests(
   return {
     requests: requests.map((r) => ({
       createdAt: r.createdAt,
-      sender: r.requester,
+      user: {
+        publicId: r.requester.publicId,
+        name: r.requester.name,
+        avatarUrl: getUserAvatarURL(r.requester),
+      },
     })),
     nextCursor,
   };
@@ -944,7 +1068,7 @@ export async function getSentFriendRequests(
     cursor?: number | null;
     limit?: number;
   } = {},
-) {
+): Promise<GetFriendRequests> {
   const requests = await prisma.friendship.findMany({
     take: limit + 1,
     ...(cursor && { skip: 1, cursor: { id: cursor } }),
@@ -953,7 +1077,14 @@ export async function getSentFriendRequests(
       requesterId: userId,
     },
     include: {
-      receiver: { select: { publicId: true, name: true } },
+      receiver: {
+        select: {
+          publicId: true,
+          name: true,
+          hasAvatar: true,
+          avatarVersion: true,
+        },
+      },
     },
     orderBy: {
       id: "asc",
@@ -972,7 +1103,11 @@ export async function getSentFriendRequests(
   return {
     requests: requests.map((r) => ({
       createdAt: r.createdAt,
-      receiver: r.receiver,
+      user: {
+        publicId: r.receiver.publicId,
+        name: r.receiver.name,
+        avatarUrl: getUserAvatarURL(r.receiver),
+      },
     })),
     nextCursor,
   };
@@ -1011,7 +1146,10 @@ export async function getUserFriends(
     }
 
     if (owner.friendsVisibility === "FRIENDS") {
-      if (!viewerId || !(await areFriends(viewerId, owner.id))) {
+      if (
+        !viewerId ||
+        (await friendshipStatus(viewerId, owner.id)) !== "friends"
+      ) {
         throw new ForbiddenError();
       }
     }
@@ -1025,8 +1163,22 @@ export async function getUserFriends(
       OR: [{ requesterId: owner.id }, { receiverId: owner.id }],
     },
     include: {
-      requester: { select: { publicId: true, name: true } },
-      receiver: { select: { publicId: true, name: true } },
+      requester: {
+        select: {
+          publicId: true,
+          name: true,
+          hasAvatar: true,
+          avatarVersion: true,
+        },
+      },
+      receiver: {
+        select: {
+          publicId: true,
+          name: true,
+          hasAvatar: true,
+          avatarVersion: true,
+        },
+      },
     },
     orderBy: {
       id: "asc",
@@ -1041,9 +1193,11 @@ export async function getUserFriends(
 
   const friends = friendships.map((f) => {
     const friendData = f.requesterId === owner.id ? f.receiver : f.requester;
+
     return {
       publicId: friendData.publicId,
       name: friendData.name,
+      avatarUrl: getUserAvatarURL(friendData),
       createdAt: f.createdAt,
     };
   });
@@ -1057,15 +1211,22 @@ export async function getUserFriends(
   };
 }
 
-export async function areFriends(userIdA: bigint, userIdB: bigint) {
-  return !!(await prisma.friendship.findFirst({
+export async function friendshipStatus(meId: bigint, otherId: bigint) {
+  const res = await prisma.friendship.findFirst({
     where: {
-      accepted: true,
       OR: [
-        { requesterId: userIdA, receiverId: userIdB },
-        { requesterId: userIdB, receiverId: userIdA },
+        { requesterId: meId, receiverId: otherId },
+        { requesterId: otherId, receiverId: meId },
       ],
     },
-    select: { id: true },
-  }));
+    select: { accepted: true, requesterId: true },
+  });
+
+  if (!res) return "not-friends";
+
+  return res.accepted
+    ? "friends"
+    : res.requesterId === meId
+      ? "request-sent"
+      : "request-received";
 }

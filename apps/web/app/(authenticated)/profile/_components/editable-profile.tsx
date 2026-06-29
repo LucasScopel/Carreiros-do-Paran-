@@ -110,6 +110,8 @@ export default function EditableProfile({ user }: EditableProfileProps) {
     }
 
     router.refresh();
+
+    toast.success("Perfil salvo com sucesso!");
   }
 
   return (
@@ -117,10 +119,9 @@ export default function EditableProfile({ user }: EditableProfileProps) {
       className="
         flex flex-col flex-1
         rounded-2xl border border-zinc-200
-        bg-white
-        p-8
-        gap-5
-        "
+        bg-white relative z-0
+        p-8 gap-5
+      "
     >
       <div className="flex flex-row flex-1 items-stretch gap-10">
         <EditableAvatar

@@ -15,6 +15,8 @@ router.post(
   controller.uploadAvatar,
 );
 router.delete("/me/avatar", requireAuth, controller.deleteAvatar);
+router.get("/:userId", controller.get);
+router.get("/:userId/reviews", controller.getReviews);
 
 // Criar, atualizar, recuperar e deletar Coleções de Trilhas
 router.get("/me/collections", requireAuth, controller.getMyCollections);

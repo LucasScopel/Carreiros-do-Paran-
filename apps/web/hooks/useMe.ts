@@ -23,7 +23,7 @@ async function getMe() {
     throw new Error(result.error.message);
   }
 
-  return result;
+  return result.data;
 }
 
 /**
@@ -35,5 +35,6 @@ export function useMe() {
   return useQuery({
     queryKey: ["me"],
     queryFn: getMe,
+    staleTime: 5 * 60 * 1000, // 5 minuto
   });
 }

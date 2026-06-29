@@ -90,6 +90,22 @@ export async function deleteAvatar(req: Request, res: Response) {
   res.sendStatus(204);
 }
 
+export async function get(req: Request, res: Response) {
+  const userId = getUserIdParam(req.params);
+
+  const user = await usersService.get(req.user?.id ?? null, userId);
+
+  res.send(user);
+}
+
+export async function getReviews(req: Request, res: Response) {
+  const userId = getUserIdParam(req.params);
+
+  const reviews = await usersService.getReviews(userId, req.user?.id);
+
+  res.json(reviews);
+}
+
 export async function getMyCollections(req: Request, res: Response) {
   const collections = await usersService.getMyCollections(req.user!.id);
 

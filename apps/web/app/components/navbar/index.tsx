@@ -8,7 +8,7 @@ import { MeResponse } from "shared/types";
 function getMenuItems(user: MeResponse) {
   const menuItems: UserMenuItem[] = [
     {
-      label: "Perfil",
+      label: "Minha conta",
       icon: "user_round",
       href: "/profile",
     },
