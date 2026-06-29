@@ -6,11 +6,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MeResponse } from "shared/types";
-import { Footprints, LogOut, UserRound } from "lucide-react";
+import {
+  ClipboardList,
+  Footprints,
+  Lightbulb,
+  LogOut,
+  UserRound,
+} from "lucide-react";
 
 const MENU_ICONS = {
   footprints: () => <Footprints />,
   user_round: () => <UserRound />,
+  lightbulb: () => <Lightbulb />,
+  clipboard_list: () => <ClipboardList />,
 } as const;
 
 export interface UserMenuItem {
