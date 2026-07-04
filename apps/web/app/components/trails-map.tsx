@@ -3,11 +3,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import maplibregl, { LngLatBounds, VectorTileSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-
-const PARANA_BOUNDS = [
-  [-54.620889, -26.716667], // Oeste, Sul
-  [-48.023611, -22.516111], // Leste, Norte
-];
+import { PARANA_BOUNDS } from "shared/utils/parana";
 
 interface Props {
   filters: {
@@ -74,7 +70,9 @@ export const TrailMap = forwardRef<MapRef, Props>(
     }));
 
     useEffect(() => {
-      if (!mapRef.current) return;
+      if (!mapRef.current) {
+        return;
+      }
 
       const source = mapRef.current.getSource<VectorTileSource>("trails");
 
@@ -366,6 +364,7 @@ export const TrailMap = forwardRef<MapRef, Props>(
 
       return () => {
         map.remove();
+        mapRef.current = null;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

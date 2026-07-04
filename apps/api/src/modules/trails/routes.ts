@@ -20,7 +20,8 @@ router.delete(
   controller.removeSuggestion,
 );
 
-router.get("/", requireAdmin, controller.getAllTrails);
+router.get("/", controller.searchTrails);
+router.get("/all", requireAdmin, controller.getAllTrails);
 router.get("/:trailId", controller.getTrail);
 router.post("/", requireAdmin, controller.newTrail);
 router.patch("/:trailId", requireAdmin, controller.updateTrail);

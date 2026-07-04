@@ -436,3 +436,188 @@ export async function getAllTrails(): Promise<TrailItemResponse[]> {
 
   return trails;
 }
+
+interface SearchTrailsParams {
+  bounds: number[];
+  difficulty: number;
+  minLength: number;
+  maxLength: number;
+  minDuration: number;
+  maxDuration: number;
+  limit: number;
+  cursor: {
+    id: number;
+    rating: number;
+  } | null;
+  orderBy: "highest-rated" | "lowest-rated";
+}
+
+export async function searchTrails({
+  bounds,
+  difficulty,
+  minLength,
+  maxLength,
+  minDuration,
+  maxDuration,
+  limit,
+  cursor,
+  orderBy,
+}: SearchTrailsParams) {
+  console.log(
+    bounds,
+    difficulty,
+    minLength,
+    maxLength,
+    minDuration,
+    maxDuration,
+    limit,
+    cursor,
+    orderBy,
+  );
+
+  const take = limit + 1;
+  const [west, south, east, north] = bounds;
+
+  let cursorFilter = Prisma.raw("");
+  let orderBySql = Prisma.raw("");
+
+  if (orderBy === "highest-rated") {
+    orderBySql = Prisma.sql`ORDER BY ct.rating DESC NULLS LAST, ct.id DESC`;
+    if (cursor !== null) {
+      cursorFilter = Prisma.sql`
+        AND (
+          (ct.rating < ${cursor.rating})
+          OR 
+          (ct.rating = ${cursor.rating} AND ct.id < ${cursor.id})
+        )
+      `;
+    }
+  } else if (orderBy === "lowest-rated") {
+    orderBySql = Prisma.sql`ORDER BY ct.rating ASC NULLS LAST, ct.id DESC`;
+
+    if (cursor !== null) {
+      cursorFilter = Prisma.sql`
+        AND (
+          (ct.rating > ${cursor.rating})
+          OR 
+          (ct.rating = ${cursor.rating} AND ct.id < ${cursor.id})
+        )
+      `;
+    }
+  }
+
+  const filters = [];
+  filters.push(Prisma.sql`
+    AND ct.duration >= ${minDuration}
+    AND ct.length >= ${minLength}
+    AND ct.length <= ${maxLength}
+    AND ct.duration >= ${minDuration}
+    AND ct.duration <= ${maxDuration}
+  `);
+
+  if (difficulty === 1) {
+    filters.push(Prisma.sql`AND FLOOR(ct.difficulty) <= 1`);
+  } else if (difficulty === 4) {
+    filters.push(Prisma.sql`AND FLOOR(ct.difficulty) >= 4`);
+  } else if (difficulty !== 0) {
+    filters.push(Prisma.sql`AND FLOOR(ct.difficulty) = ${difficulty}`);
+  }
+
+  const trails = await prisma.$queryRaw<
+    {
+      id: number;
+      publicId: string;
+      name: string;
+      length: number;
+      duration: number;
+      reviewCount: number;
+      rating: number;
+      difficulty: number;
+      coordinates: {
+        type: "Point";
+        coordinates: [number, number];
+      };
+      image_id: number;
+      image_format: string;
+    }[]
+  >`
+    WITH calculated_trails AS NOT MATERIALIZED (
+      SELECT
+        t.id,
+        t."publicId",
+        t.name,
+        t.length,
+        t.duration,
+        t."reviewCount",
+        COALESCE(CAST(t."ratingSum" AS numeric) / NULLIF(t."reviewCount", 0) / 2, 0)::float as rating,
+        COALESCE(CAST(t."difficultySum" AS numeric) / NULLIF(t."reviewCount", 0) / 2, 0)::float as difficulty,
+        t.coordinates
+      FROM "Trail" t
+    )
+    
+    SELECT
+      ct.id,
+      ct."publicId",
+      ct.name,
+      ct.length,
+      ct.duration,
+      ct."reviewCount",
+      ct.rating,
+      ct.difficulty,
+      ST_AsGeoJSON(ct.coordinates)::json as coordinates,
+      img.id as "image_id",
+      img.format as "image_format"
+    FROM calculated_trails ct
+    LEFT JOIN LATERAL (
+      SELECT i.id, i.format 
+      FROM "TrailImage" i 
+      WHERE i."trailId" = ct.id AND i.position = 0
+      LIMIT 1
+    ) img ON true
+    
+    WHERE
+      ct.coordinates && ST_Transform(ST_MakeEnvelope(${west}, ${south}, ${east}, ${north}, 4326), 4326)
+      ${cursorFilter}
+      ${Prisma.join(filters, " ")}
+    ${orderBySql}
+    LIMIT ${take};
+  `;
+
+  const hasMore = trails.length > limit;
+
+  if (hasMore) {
+    trails.pop();
+  }
+
+  const lastTrail = trails[trails.length - 1];
+
+  const nextCursor =
+    hasMore && trails.length > 0
+      ? btoa(
+          JSON.stringify({
+            id: lastTrail.id,
+            rating: lastTrail.rating,
+          }),
+        )
+      : null;
+
+  return {
+    trails: trails.map((t) => ({
+      publicId: t.publicId,
+      name: t.name,
+      length: t.length,
+      duration: t.duration,
+      rating: t.rating,
+      difficulty: t.difficulty,
+      coordinates: {
+        lon: t.coordinates.coordinates[0],
+        lat: t.coordinates.coordinates[1],
+      },
+      imageUrl:
+        t.image_id === null
+          ? null
+          : `/uploads/trails/${createTrailImageFileName(t.publicId, t.image_id, t.image_format)}`,
+    })),
+    nextCursor,
+  };
+}
