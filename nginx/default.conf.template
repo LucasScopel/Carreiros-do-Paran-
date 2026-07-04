@@ -43,4 +43,19 @@ server {
     location /uploads/ {
         return 404;
     }
+
+    location /parana-mask.geojson {
+        proxy_pass http://${WEB_HOST}:${WEB_PORT};
+
+        proxy_hide_header Cache-Control;
+
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+    }
+
+    location /tiles/ {
+        rewrite ^(.+)/$ $1 last;
+
+        proxy_pass http://${MARTIN_HOST}:${MARTIN_PORT}/;
+        proxy_set_header Host $host;
+    }
 }
