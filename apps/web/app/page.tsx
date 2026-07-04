@@ -4,6 +4,7 @@ export default function Home() {
       <main>
         <a href="/admin/trails">Criar trilha</a>
         <br></br>
+        <a href="/trail-details/doKy7U3AsmMjSsqydhnHy">Detalhes da Trilha</a>
       </main>
     </div>
   );

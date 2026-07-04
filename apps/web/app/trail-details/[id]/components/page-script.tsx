@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { api } from "@/lib/api/client";
 import {
   TrailReviewResponse,
@@ -18,6 +18,7 @@ import { UserReview } from "./user-review";
 import Comment from "./comment";
 import { useRouter, usePathname } from "next/navigation";
 import FilterCommentsDropdown from "./filter-comments-dropdown";
+import { InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
 
 export default function PageScript({
   params,
@@ -51,6 +52,65 @@ export default function PageScript({
     if (num <= 4) return "Difícil";
     return "Muito Difícil";
   };
+
+  //Chamo a função useInfinieQuery para me retornar as reviews em "páginas"
+  //Esses atributos no começo são da própria função, só evito ter que ficar chamando algo como query.data, query.hasNextPage
+  const {
+    data: infiniteData, //data vai receber todas as reviews. O tipo infiniteData já ajeita a tipagem conforme o componente
+    fetchNextPage, //Função que carrega a próxima página
+    hasNextPage, //Booleano que verifica se ainda tem página para renderizar
+    isFetchingNextPage, //Booleano que verifica se está naquele momento de busca por uma nova página
+    status: reviewsStatus, //Se está carregando, deu certo, errado
+  } = useInfiniteQuery({
+    queryKey: ["trail", "reviews", id, activeFilter], //Identificador daquela página
+
+    //Passo a própria chamada da api como parâmetro, de forma que, quando o query precisar de mais data,
+    //ele mesmo passa pageParam para a função, de forma que faz isso sozinho, sem minha intervenção
+    queryFn: async ({ pageParam }) => {
+      const result = await api.trails.reviews.get(id, {
+        limit: 8,
+        cursor: pageParam as unknown as number,
+      });
+
+      if (!result.ok) throw new Error("Erro na API de reviews");
+      return result.data;
+    },
+
+    initialPageParam: undefined as string | undefined, //Quando chamado pela primeira vez, deixa a primeira página como indefinida
+
+    //Passo uma função que, dada a página atual, me retorna qual será a próxima
+    getNextPageParam: (lastPage) => {
+      return (lastPage.nextCursor as unknown as string) ?? undefined;
+    },
+  });
+
+  //Junta as reviews, que o infinityQuery retornou em páginas separadas, em uma só
+  const allReviews = infiniteData?.pages.flatMap((page) => page.reviews) || [];
+
+  //Função para carregar mais comentários se estiver no fim da página
+  const handleWindowScroll = useCallback(() => {
+    //useCallback serve para reutilizar função até um parâmetro mudar
+    //Pega o quanto já scrolou, a altura
+    const { scrollTop, clientHeight, scrollHeight } = document.documentElement;
+
+    //Booleano que ativa quando detectar que chegou a 150px do fim da página
+    const isBottom = scrollHeight - scrollTop <= clientHeight + 150;
+
+    //Se está no fim da página, tem mais coisas para renderizar e não está carregando
+    if (isBottom && hasNextPage && !isFetchingNextPage) {
+      //Carrega mais comentários
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  //Cuida da execução da função acima, como se fosse um onScroll(handleWidowScroll())
+  useEffect(() => {
+    //Sempre que o usuário scrolar, chama a função de handle
+    window.addEventListener("scroll", handleWindowScroll);
+
+    //Assim que parar de scrolar, remove a função
+    return () => window.removeEventListener("scroll", handleWindowScroll);
+  }, [handleWindowScroll]);
 
   //Guarda as reviews conforme o filtro selecionado
   const filteredReviews =
@@ -161,13 +221,6 @@ export default function PageScript({
     };
   }, [id, user]);
 
-  //Função para alterar o estado de ter ou não uma trilha salva
-  const handleSaveTrail = () => {
-    if (!savedTrail) setSavedTrail(true);
-
-    setIsModalOpen(true);
-  };
-
   //Controle visual dos estados para renderização
   if (loading)
     return <div className="text-center p-10 text-white">Loading...</div>;
@@ -216,9 +269,9 @@ export default function PageScript({
             </div>
 
             {/* Container das avaliações */}
-            <div className="mt-6 mb">
+            <div className="mt-6 mb min-h-241">
               <InfoCard title="Sua avaliação">
-                <div className="flex flex-col gap-4 mt-3">
+                <div className="flex flex-col gap-4 mt-3 min-h-190">
                   {/* Container de realizar avaliação */}
 
                   <InfoCard
@@ -235,33 +288,34 @@ export default function PageScript({
                   </InfoCard>
 
                   {/* Parte das avaliações de outros usuários */}
-                  <div className="flex justify-between items-center">
-                    <p className="text-2xl font-bold text-gray-800">
-                      Avaliações dos Usuários
+                  {reviewsStatus === "pending" ? (
+                    <p className="text-sm text-zinc-500 text-center p-4">
+                      Carregando comentários...
                     </p>
+                  ) : allReviews.length > 0 ? (
+                    <>
+                      {allReviews.map(
+                        (review: TrailReviewResponse, index: number) => (
+                          <InfoCard
+                            key={`Review-${review.user.publicId}-${index}`}
+                          >
+                            <Comment review={review} />
+                          </InfoCard>
+                        ),
+                      )}
 
-                    <FilterCommentsDropdown
-                      currentFilter={activeFilter}
-                      onFilterChange={setActiveFilter}
-                    />
-
-                    {/*
-                    <button className="w-50 px-6 py-3 rounded-xl shadow-md border text-left text-lg cursor-pointer focus:outline-none bg-gray-50 border-[#D99C6A] text-gray-800 font-medium hover:border-[#ff8119] hover:bg-gray-200 duration-200 transition-all">
-                      Filtrar
-                    </button>
-*/}
-                  </div>
-                  {/* Verifica se existem reviews na trilha e renderiza dinamicamente */}
-                  {filteredReviews.length > 0 ? (
-                    filteredReviews.map(
-                      (review: TrailReviewResponse, index: number) => (
-                        <InfoCard key={`Review-${index}`}>
-                          <Comment review={review} />
-                        </InfoCard>
-                      ),
-                    )
+                      {isFetchingNextPage && (
+                        <p className="text-xs text-zinc-400 text-center p-4 italic">
+                          Carregando mais avaliações...
+                        </p>
+                      )}
+                    </>
+                  ) : allReviews.length === 0 ? (
+                    <p className="text-sm text-zinc-500 italic p-4 text-center mt-11 mb-7">
+                      Não há reviews para esta trilha.
+                    </p>
                   ) : (
-                    <p className="text-sm text-zinc-500 italic p-4 text-center">
+                    <p className="text-sm text-zinc-500 italic p-4 text-center mt-11 mb-7">
                       Nenhum comentário encontrado para este filtro.
                     </p>
                   )}
