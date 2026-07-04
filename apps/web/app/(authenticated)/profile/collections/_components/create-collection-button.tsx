@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import EditCollectionModal from "./edit-collection-modal";
+import AddCollectionModal from "@/app/components/add-collection-modal";
 
 export default function CreateCollectionButton() {
   const [open, setOpen] = useState(false);
@@ -34,7 +34,7 @@ export default function CreateCollectionButton() {
         Nova coleção
       </button>
 
-      {open && <EditCollectionModal onClose={handleClose} />}
+      {open && <AddCollectionModal onClose={handleClose} />}
     </>
   );
 }

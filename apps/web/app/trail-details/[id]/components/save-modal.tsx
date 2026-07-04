@@ -1,10 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, RefObject } from "react";
 import { api } from "@/lib/api/client";
 import { GetCollectionsContainingTrail } from "shared/types";
 import { X, Loader2 } from "lucide-react";
+import AddCollectionModal from "@/app/components/add-collection-modal";
 
 interface SaveModalProps {
+  modalRef?: RefObject<HTMLDivElement | null>;
   isOpen: boolean;
   onClose: () => void;
   trailId: string;
@@ -12,6 +14,7 @@ interface SaveModalProps {
 }
 
 export default function SaveModal({
+  modalRef,
   isOpen,
   onClose,
   trailId,
@@ -23,6 +26,7 @@ export default function SaveModal({
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Carrega as coleções e verifica quais já contêm esta trilha
   async function loadCollectionsStatus() {
@@ -43,6 +47,7 @@ export default function SaveModal({
 
   useEffect(() => {
     if (isOpen && trailId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadCollectionsStatus();
       document.body.style.overflow = "hidden";
     } else {
@@ -93,13 +98,27 @@ export default function SaveModal({
     }
   }
 
+  function onCloseCreateCollectionModal(hasCreated?: boolean) {
+    setIsCreateModalOpen(false);
+
+    if (hasCreated) {
+      loadCollectionsStatus();
+    }
+  }
+
   if (!isOpen || !ready) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div
+      className={`fixed inset-0 bg-black backdrop-blur-sm z-50 flex items-center justify-center p-4
+                     ${isCreateModalOpen ? "bg-transparent" : "bg-black/60"}`}
+    >
+      <div
+        ref={modalRef}
+        className="bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 pb-4"
+      >
         {/* Header do Modal */}
-        <div className="flex items-center justify-between p-4 border-b border-bs-green-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-300">
           <h3 className="text-xl font-bold text-gray-900">
             Salvar em uma Coleção
           </h3>
@@ -112,7 +131,7 @@ export default function SaveModal({
         </div>
 
         {/* Corpo do Modal */}
-        <div className="min-h-[50px] max-h-80 overflow-y-auto py-2">
+        <div className="max-h-80 overflow-y-auto py-2 flex justify-center mb-3">
           {loading ? (
             <div className="flex justify-center items-center py-4">
               <Loader2 className="animate-spin text-orange-500" size={32} />
@@ -122,18 +141,28 @@ export default function SaveModal({
               Você não possui nenhuma coleção criada.
             </p>
           ) : (
-            <div className="flex flex-col gap-2 px-4 w-full">
+            <div className="flex flex-col gap-1 px-4 w-full">
               {collections.map((collection) => (
                 <label
                   key={collection.publicId}
-                  className="
-                              flex items-center justify-between p-3 rounded-xl 
-                              border border-green-800 hover:border-green-600 
-                              cursor-pointer select-none
+                  className={`
+                              flex items-center justify-between p-5 rounded-xl 
+                              cursor-pointer select-none transition-all duration-200
                               active:scale-[0.99]
-                            "
+                              ${
+                                collection.containsTrail
+                                  ? "bg-green-200/50 hover:bg-green-200/80"
+                                  : "bg-gray-200/70 hover:bg-gray-300/70"
+                              }
+                            `}
                 >
-                  <span className="font-normal text-gray-800 hover:brightness-140 transition-all">
+                  <span
+                    className={`text-sm transition-colors ${
+                      collection.containsTrail
+                        ? "text-green-900 font-medium"
+                        : "text-gray-700"
+                    }`}
+                  >
                     {collection.name}
                   </span>
 
@@ -147,11 +176,34 @@ export default function SaveModal({
                         collection.containsTrail,
                       )
                     }
-                    className="w-5 h-5 accent-green-600 cursor-pointer"
+                    className="w-5 h-5 accent-green-600 cursor-pointer rounded"
                   />
                 </label>
               ))}
             </div>
+          )}
+        </div>
+
+        {/* Botão de adicionar coleção */}
+        <div className="px-4">
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="w-full p-3 rounded-xl cursor-pointer bg-transparent border-3 border-dashed border-green-700 hover:border-green-600 text-green-900 hover:text-green-700 font-medium transition-all duration-200"
+          >
+            Adicionar Coleção
+          </button>
+
+          {isCreateModalOpen && (
+            <AddCollectionModal
+              onClose={(e?: boolean) => onCloseCreateCollectionModal(e)}
+              themeColors={{
+                borderDefault: "border-green-800",
+                borderHover: "hover:border-green-500",
+                focusBorder: "focus:border-green-500",
+                saveButtonBg: "bg-green-800",
+                saveButtonHoover: "hover:bg-green-700",
+              }}
+            />
           )}
         </div>
       </div>

@@ -1,23 +1,23 @@
 "use client";
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { api } from "@/lib/api/client";
 import {
   TrailReviewResponse,
   TrailReviewsResponse,
   type TrailResponse,
 } from "shared/types";
-import { Bookmark, Star, Flame } from "lucide-react";
+
 import { InfoCard } from "./info-card";
 import Banner from "./banner";
-import StarRating from "./star-rating";
-import FlameRating from "./flame-rating";
+
 import SaveIcon from "@/app/components/save-icon";
 import SaveModal from "./save-modal";
-import SubmitFilledOrangeButton from "@/app/components/submit-filled-orange-button";
+
 import { useMe } from "@/hooks/useMe";
 import { UserReview } from "./user-review";
 import Comment from "./comment";
 import { useRouter, usePathname } from "next/navigation";
+import FilterCommentsDropdown from "./filter-comments-dropdown";
 
 export default function PageScript({
   params,
@@ -30,15 +30,20 @@ export default function PageScript({
     null,
   );
   const [reviews, setReviews] = useState<TrailReviewsResponse | null>(null);
+  const [activeFilter, setActiveFilter] = useState<
+    "all" | "star-5" | "star-1" | "diff-5" | "diff-1" | "new" | "old"
+  >("all");
   const [trail, setTrail] = useState<TrailResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [savedTrail, setSavedTrail] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalReference = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
   const pathName = usePathname();
 
+  //Cria labels para apresentação da dificuldade
   const labelDifficultyRating = (num: number) => {
     if (num <= 1) return "Muito Fácil";
     if (num <= 2) return "Fácil";
@@ -46,6 +51,16 @@ export default function PageScript({
     if (num <= 4) return "Difícil";
     return "Muito Difícil";
   };
+
+  //Guarda as reviews conforme o filtro selecionado
+  const filteredReviews =
+    reviews?.reviews.filter((review) => {
+      if (activeFilter === "star-5") return review.rating === 5;
+      if (activeFilter === "star-1") return review.rating === 1;
+      if (activeFilter === "diff-5") return review.difficultyRating === 5;
+      if (activeFilter === "diff-1") return review.difficultyRating === 1;
+      return true; // "all" retorna tudo
+    }) || [];
 
   // Função isolada para checar se a trilha está salva em alguma coleção do usuário
   async function checkSavedStatus() {
@@ -114,6 +129,17 @@ export default function PageScript({
       }
     }
 
+    //Função para fechar o dropdown caso clique fora
+    function handleClickOutside(event: MouseEvent) {
+      // Se existir uma referência e o elementos clicado estiver fora dela, fecha o dropboxwh
+      if (
+        modalReference.current &&
+        !modalReference.current.contains(event.target as Node)
+      ) {
+        setIsModalOpen(false);
+      }
+    }
+
     //Se, por algum motivo, não tiver os campos, não tem para que chamar as funções
     if (id) {
       loadTrail();
@@ -121,9 +147,18 @@ export default function PageScript({
 
       if (user) {
         loadUserReview();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         checkSavedStatus();
       }
     }
+
+    //Toda vez que o navegador perceber um clique, roda o comando.
+    document.addEventListener("mousedown", handleClickOutside);
+
+    //Ao fechar o dropdown, "limpa" o comando
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, [id, user]);
 
   //Função para alterar o estado de ter ou não uma trilha salva
@@ -200,13 +235,25 @@ export default function PageScript({
                   </InfoCard>
 
                   {/* Parte das avaliações de outros usuários */}
-                  <p className="text-2xl font-bold text-gray-800">
-                    Avaliações dos Usuários
-                  </p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-2xl font-bold text-gray-800">
+                      Avaliações dos Usuários
+                    </p>
 
+                    <FilterCommentsDropdown
+                      currentFilter={activeFilter}
+                      onFilterChange={setActiveFilter}
+                    />
+
+                    {/*
+                    <button className="w-50 px-6 py-3 rounded-xl shadow-md border text-left text-lg cursor-pointer focus:outline-none bg-gray-50 border-[#D99C6A] text-gray-800 font-medium hover:border-[#ff8119] hover:bg-gray-200 duration-200 transition-all">
+                      Filtrar
+                    </button>
+*/}
+                  </div>
                   {/* Verifica se existem reviews na trilha e renderiza dinamicamente */}
-                  {reviews && reviews.reviews.length > 0 ? (
-                    reviews.reviews.map(
+                  {filteredReviews.length > 0 ? (
+                    filteredReviews.map(
                       (review: TrailReviewResponse, index: number) => (
                         <InfoCard key={`Review-${index}`}>
                           <Comment review={review} />
@@ -215,7 +262,7 @@ export default function PageScript({
                     )
                   ) : (
                     <p className="text-sm text-zinc-500 italic p-4 text-center">
-                      Não há avaliações para essa trilha
+                      Nenhum comentário encontrado para este filtro.
                     </p>
                   )}
                 </div>
@@ -275,6 +322,7 @@ export default function PageScript({
 
             {/*Modal para quando salvar a trilha*/}
             <SaveModal
+              modalRef={modalReference}
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               trailId={id}
