@@ -518,16 +518,34 @@ export function createApi(fetcher: ApiFetcher) {
       reviews: {
         get(
           trailId: string,
-          { cursor, limit }: { cursor?: number; limit?: number } = {},
+          {
+            cursor,
+            limit,
+            orderBy,
+          }: {
+            cursor?: string;
+            limit?: number;
+            orderBy?:
+              | "newest"
+              | "oldest"
+              | "rating-desc"
+              | "rating-asc"
+              | "difficulty-desc"
+              | "difficulty-asc";
+          } = {},
         ) {
           const searchParams = new URLSearchParams();
 
           if (typeof cursor !== "undefined") {
-            searchParams.append("cursor", cursor.toString());
+            searchParams.append("cursor", cursor);
           }
 
           if (typeof limit !== "undefined") {
             searchParams.append("limit", limit.toString());
+          }
+
+          if (typeof orderBy !== "undefined") {
+            searchParams.append("order_by", orderBy);
           }
 
           const query = searchParams.toString();
