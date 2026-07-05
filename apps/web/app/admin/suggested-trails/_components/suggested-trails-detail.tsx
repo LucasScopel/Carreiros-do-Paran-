@@ -121,7 +121,7 @@ export default function SuggestedTrailsDetail({
 
     if (result.ok) {
       toast.success("Removido com sucesso!");
-      console.log(status);
+
       queryClient.setQueryData(
         ["admin", "suggestions", status],
         (oldData: InfiniteData<ListSuggestions>) => {
