@@ -43,8 +43,7 @@ export interface TrailReviewResponse {
 
 export interface TrailReviewsResponse {
   reviews: TrailReviewResponse[];
-  nextCursor: number | null;
-  hasMore: boolean;
+  nextCursor: string | null;
 }
 
 export type GetMyCollections = {

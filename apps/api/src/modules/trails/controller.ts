@@ -92,18 +92,58 @@ export async function getAllTrails(_req: Request, res: Response) {
 
 export async function getTrailReviews(req: Request, res: Response) {
   const trailId = getTrailIdParam(req.params);
-  const cursor = getIntegerQueryParam(req.query, "cursor", {
-    default: null,
-  });
+
   const limit = getIntegerQueryParam(req.query, "limit", {
     max: 10,
     default: 5,
   });
 
+  const orderBy =
+    typeof req.query["order_by"] === "undefined"
+      ? "newest"
+      : req.query["order_by"];
+
+  if (
+    typeof orderBy !== "string" ||
+    !(
+      orderBy === "newest" ||
+      orderBy === "oldest" ||
+      orderBy === "rating-desc" ||
+      orderBy === "rating-asc" ||
+      orderBy === "difficulty-desc" ||
+      orderBy === "difficulty-asc"
+    )
+  ) {
+    throw new BadRequestError("Invalid query parameter 'order_by'");
+  }
+
+  let cursor;
+
+  try {
+    cursor =
+      typeof req.query["cursor"] === "undefined" ? null : req.query["cursor"];
+
+    if (cursor !== null) {
+      if (typeof cursor !== "string") throw "";
+
+      cursor = JSON.parse(atob(cursor));
+
+      if (
+        typeof cursor.id !== "number" ||
+        typeof cursor.value === "undefined"
+      ) {
+        throw "";
+      }
+    }
+  } catch {
+    throw new BadRequestError("Invalid query parameter 'cursor'");
+  }
+
   const reviews = await reviewsService.getTrailReviews({
     trailPublicId: trailId,
-    cursor,
     limit,
+    cursor,
+    orderBy,
   });
 
   res.send(reviews);

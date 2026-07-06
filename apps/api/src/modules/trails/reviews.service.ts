@@ -6,13 +6,24 @@ import { getUserAvatarURL } from "shared/utils";
 interface GetTrailReviewsParams {
   trailPublicId: string;
   limit: number;
-  cursor: number | null;
+  cursor: {
+    id: number;
+    value: any;
+  } | null;
+  orderBy:
+    | "newest"
+    | "oldest"
+    | "rating-desc"
+    | "rating-asc"
+    | "difficulty-desc"
+    | "difficulty-asc";
 }
 
 export async function getTrailReviews({
   trailPublicId,
   limit,
   cursor,
+  orderBy,
 }: GetTrailReviewsParams): Promise<TrailReviewsResponse> {
   const trail = await prisma.trail.findUnique({
     where: {
@@ -27,23 +38,41 @@ export async function getTrailReviews({
     throw new NotFoundError();
   }
 
+  const orderConfig = {
+    newest: { field: "updatedAt", direction: "desc" },
+    oldest: { field: "updatedAt", direction: "asc" },
+    "rating-desc": { field: "rating", direction: "desc" },
+    "rating-asc": { field: "rating", direction: "asc" },
+    "difficulty-desc": { field: "difficultyRating", direction: "desc" },
+    "difficulty-asc": { field: "difficultyRating", direction: "asc" },
+  } as const;
+
+  const order = orderConfig[orderBy];
+
+  const where: Prisma.ReviewWhereInput[] = [{ trailId: trail.id }];
+
+  if (cursor) {
+    if (order.direction === "desc") {
+      where.push({
+        OR: [
+          { [order.field]: { lt: cursor.value } },
+          {
+            [order.field]: cursor.value,
+            id: { lt: cursor.id },
+          },
+        ],
+      });
+    }
+  }
+
   const reviews = await prisma.review.findMany({
     where: {
-      trailId: trail.id,
+      AND: where,
     },
 
-    orderBy: {
-      id: "desc",
-    },
+    orderBy: [{ [order.field]: order.direction }, { id: order.direction }],
 
     take: limit + 1,
-
-    ...(cursor && {
-      cursor: {
-        id: cursor,
-      },
-      skip: 1,
-    }),
 
     select: {
       id: true,
@@ -71,8 +100,14 @@ export async function getTrailReviews({
     reviews.pop();
   }
 
+  const lastReview = reviews[reviews.length - 1];
+
   const nextCursor =
-    hasMore && reviews.length > 0 ? reviews[reviews.length - 1].id : null;
+    hasMore && reviews.length > 0
+      ? btoa(
+          JSON.stringify({ id: lastReview.id, value: lastReview[order.field] }),
+        )
+      : null;
 
   return {
     reviews: reviews.map((review) => {
@@ -91,7 +126,6 @@ export async function getTrailReviews({
       };
     }),
     nextCursor,
-    hasMore,
   };
 }
 
