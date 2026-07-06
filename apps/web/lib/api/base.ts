@@ -563,7 +563,7 @@ export function createApi(fetcher: ApiFetcher) {
         }
 
         if (typeof maxDuration !== "undefined") {
-          searchParams.append("max_duratino", maxDuration.toString());
+          searchParams.append("max_duration", maxDuration.toString());
         }
 
         if (typeof cursor !== "undefined") {

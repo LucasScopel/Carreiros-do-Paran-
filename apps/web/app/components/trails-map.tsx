@@ -15,7 +15,8 @@ interface Props {
     maxDuration: number;
     minRating?: number;
   };
-  setBbox: (bounds: LngLatBounds) => void;
+  setBbox: (bounds: LngLatBounds) => boolean;
+  setSelectedTrail: (publicId: string) => void;
 }
 
 export interface MapRef {
@@ -43,7 +44,7 @@ function buildTilesUrl(filters: Props["filters"]) {
 
 // eslint-disable-next-line react/display-name
 export const TrailMap = forwardRef<MapRef, Props>(
-  ({ filters, setBbox }, ref) => {
+  ({ filters, setBbox, setSelectedTrail }, ref) => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const mapRef = useRef<maplibregl.Map>(null);
 
@@ -288,27 +289,6 @@ export const TrailMap = forwardRef<MapRef, Props>(
         });
       });
 
-      map.on("moveend", () => {
-        if (lastUpdatedBounds.current === null) {
-          return;
-        }
-
-        if (hadSignificantMove(lastUpdatedBounds.current, map.getBounds())) {
-          lastUpdatedBounds.current = map.getBounds();
-          setBbox(map.getBounds());
-        }
-      });
-
-      map.on("click", "trails-circles", (e) => {
-        const feature = e.features?.[0];
-
-        if (!feature) {
-          return;
-        }
-
-        console.log(feature.properties);
-      });
-
       map.on("click", "clusters-circles", (e) => {
         const feature = e.features?.[0];
         if (!feature) return;
@@ -377,23 +357,58 @@ export const TrailMap = forwardRef<MapRef, Props>(
       map.on("mouseleave", "trails-circles", onMouseLeave);
       map.on("mouseleave", "clusters-circles", onMouseLeave);
 
-      window.addEventListener("keydown", (e) => {
-        if (e.key === "z") {
-          console.log(map.getZoom());
-          console.log(
-            map
-              .queryRenderedFeatures({ layers: ["trails-circles"] })
-              .map((x) => x.properties),
-          );
-        }
-      });
-
       return () => {
         map.remove();
         mapRef.current = null;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const mapLoaded = mapRef.current?.loaded() ?? false;
+
+    useEffect(() => {
+      if (!mapRef.current || !mapLoaded) return () => {};
+
+      const onMoveEnd = () => {
+        if (lastUpdatedBounds.current === null) {
+          return;
+        }
+
+        const newBounds = mapRef.current!.getBounds();
+
+        if (hadSignificantMove(lastUpdatedBounds.current, newBounds)) {
+          if (setBbox(newBounds)) {
+            lastUpdatedBounds.current = newBounds;
+          }
+        }
+      };
+
+      mapRef.current.on("moveend", onMoveEnd);
+
+      return () => mapRef.current?.off("moveend", onMoveEnd);
+    }, [mapRef, mapLoaded, setBbox]);
+
+    useEffect(() => {
+      if (!mapRef.current || !mapLoaded) return () => {};
+
+      const onClick = (
+        e: maplibregl.MapMouseEvent & {
+          features?: maplibregl.MapGeoJSONFeature[];
+        },
+      ) => {
+        const feature = e.features?.[0];
+
+        if (!feature) {
+          return;
+        }
+
+        setSelectedTrail(feature.properties.publicId);
+      };
+
+      mapRef.current.on("click", "trails-circles", onClick);
+
+      return () => mapRef.current?.off("click", "trails-circles", onClick);
+    });
 
     return (
       <div

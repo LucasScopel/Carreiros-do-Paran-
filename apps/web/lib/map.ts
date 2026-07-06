@@ -67,7 +67,7 @@ export function hadSignificantMove(
 
   const areaRatio = currentArea / lastArea;
 
-  const AREA_UPPER_THRESHOLD = 1.75; // +75% de área
+  const AREA_UPPER_THRESHOLD = 1.5; // +50% de área
   const AREA_LOWER_THRESHOLD = 0.25; // -75% de área
 
   // Se a área atual for muito maior ou muito menor que a anterior, retorne true
