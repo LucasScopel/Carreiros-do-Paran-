@@ -7,6 +7,19 @@ import requireAuth from "@/middleware/requireAuth";
 
 const router = Router();
 
+router.post("/suggestions", requireAuth, controller.createSuggestion);
+router.get("/suggestions", requireAdmin, controller.listSuggestions);
+router.patch(
+  "/suggestions/:suggestionId",
+  requireAdmin,
+  controller.updateSuggestion,
+);
+router.delete(
+  "/suggestions/:suggestionId",
+  requireAdmin,
+  controller.removeSuggestion,
+);
+
 router.get("/", requireAdmin, controller.getAllTrails);
 router.get("/:trailId", controller.getTrail);
 router.post("/", requireAdmin, controller.newTrail);

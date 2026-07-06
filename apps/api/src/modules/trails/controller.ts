@@ -4,11 +4,15 @@ import {
   newTrailSchema,
   updateTrailImagesSchema,
   updateTrailSchema,
+  addSuggestionSchema,
+  updateSuggestionSchema,
 } from "./schemas";
 import * as trailsService from "./trails.service";
 import * as reviewsService from "./reviews.service";
+import * as suggestionsService from "./suggestions.service";
 import { BadRequestError } from "@/utils/errors";
 import { getIntegerQueryParam, ParamsDictionary } from "@/utils/params";
+import { SuggestionStatus } from "shared/types";
 
 function getTrailIdParam(params: ParamsDictionary) {
   if (!params.trailId) {
@@ -88,18 +92,58 @@ export async function getAllTrails(_req: Request, res: Response) {
 
 export async function getTrailReviews(req: Request, res: Response) {
   const trailId = getTrailIdParam(req.params);
-  const cursor = getIntegerQueryParam(req.query, "cursor", {
-    default: null,
-  });
+
   const limit = getIntegerQueryParam(req.query, "limit", {
     max: 10,
     default: 5,
   });
 
+  const orderBy =
+    typeof req.query["order_by"] === "undefined"
+      ? "newest"
+      : req.query["order_by"];
+
+  if (
+    typeof orderBy !== "string" ||
+    !(
+      orderBy === "newest" ||
+      orderBy === "oldest" ||
+      orderBy === "rating-desc" ||
+      orderBy === "rating-asc" ||
+      orderBy === "difficulty-desc" ||
+      orderBy === "difficulty-asc"
+    )
+  ) {
+    throw new BadRequestError("Invalid query parameter 'order_by'");
+  }
+
+  let cursor;
+
+  try {
+    cursor =
+      typeof req.query["cursor"] === "undefined" ? null : req.query["cursor"];
+
+    if (cursor !== null) {
+      if (typeof cursor !== "string") throw "";
+
+      cursor = JSON.parse(atob(cursor));
+
+      if (
+        typeof cursor.id !== "number" ||
+        typeof cursor.value === "undefined"
+      ) {
+        throw "";
+      }
+    }
+  } catch {
+    throw new BadRequestError("Invalid query parameter 'cursor'");
+  }
+
   const reviews = await reviewsService.getTrailReviews({
     trailPublicId: trailId,
-    cursor,
     limit,
+    cursor,
+    orderBy,
   });
 
   res.send(reviews);
@@ -129,4 +173,66 @@ export async function deleteTrailReview(req: Request, res: Response) {
   await reviewsService.deleteTrailReview(trailId, req.user!.id);
 
   res.sendStatus(204);
+}
+
+function getSuggestionIdParam(params: ParamsDictionary) {
+  if (!params.suggestionId) {
+    throw new BadRequestError("Missing suggestion id");
+  }
+  return params.suggestionId as string;
+}
+
+export async function createSuggestion(req: Request, res: Response) {
+  const data = addSuggestionSchema.parse(req.body);
+
+  const publicId = await suggestionsService.createSuggestion(
+    req.user!.id,
+    data,
+  );
+
+  res.status(201).json({ publicId });
+}
+
+export async function updateSuggestion(req: Request, res: Response) {
+  const suggestionId = getSuggestionIdParam(req.params);
+
+  const data = updateSuggestionSchema.parse(req.body);
+
+  await suggestionsService.updateSuggestion(suggestionId, data);
+
+  res.sendStatus(204);
+}
+
+export async function removeSuggestion(req: Request, res: Response) {
+  const suggestionId = getSuggestionIdParam(req.params);
+
+  await suggestionsService.removeSuggestion(suggestionId);
+
+  res.sendStatus(204);
+}
+
+export async function listSuggestions(req: Request, res: Response) {
+  const cursor = getIntegerQueryParam(req.query, "cursor", {
+    default: null,
+  });
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    max: 10,
+    default: 5,
+  });
+
+  const status =
+    typeof req.query["status"] === "string" &&
+    ["PENDING", "TODO", "IN_PROGRESS", "COMPLETED"].includes(
+      req.query["status"],
+    )
+      ? (req.query["status"] as SuggestionStatus)
+      : "PENDING";
+
+  const result = await suggestionsService.listSuggestions({
+    cursor,
+    limit,
+    status,
+  });
+
+  res.json(result);
 }

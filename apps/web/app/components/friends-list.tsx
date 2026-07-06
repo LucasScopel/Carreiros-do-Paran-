@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
-import { GetFriends, MeResponse } from "shared/types";
+import { GetFriends } from "shared/types";
 import { api } from "@/lib/api/client";
 import Link from "next/link";
 import Image from "next/image";

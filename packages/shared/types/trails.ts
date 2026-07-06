@@ -43,8 +43,7 @@ export interface TrailReviewResponse {
 
 export interface TrailReviewsResponse {
   reviews: TrailReviewResponse[];
-  nextCursor: number | null;
-  hasMore: boolean;
+  nextCursor: string | null;
 }
 
 export type GetMyCollections = {
@@ -89,3 +88,33 @@ export type GetCollectionsContainingTrail = {
   isDefault: boolean;
   containsTrail: boolean;
 }[];
+
+export const SuggestionStatus = [
+  "PENDING",
+  "TODO",
+  "IN_PROGRESS",
+  "COMPLETED",
+] as const;
+
+export type SuggestionStatus = (typeof SuggestionStatus)[number];
+
+export type TrailSuggestion = {
+  publicId: string;
+  name: string;
+  location: string;
+  length: number;
+  details: string;
+  status: SuggestionStatus;
+  createdAt: string;
+  adminNotes: string;
+  user: {
+    publicId: string;
+    name: string;
+    avatarUrl: string;
+  };
+};
+
+export type ListSuggestions = {
+  suggestions: TrailSuggestion[];
+  nextCursor: number | null;
+};

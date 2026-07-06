@@ -18,6 +18,8 @@ import {
   TrailReviewResponse,
   TrailReviewsResponse,
   VisibilityLevel,
+  SuggestionStatus,
+  ListSuggestions,
 } from "shared/types";
 
 /**
@@ -517,16 +519,34 @@ export function createApi(fetcher: ApiFetcher) {
       reviews: {
         get(
           trailId: string,
-          { cursor, limit }: { cursor?: number; limit?: number } = {},
+          {
+            cursor,
+            limit,
+            orderBy,
+          }: {
+            cursor?: string;
+            limit?: number;
+            orderBy?:
+              | "newest"
+              | "oldest"
+              | "rating-desc"
+              | "rating-asc"
+              | "difficulty-desc"
+              | "difficulty-asc";
+          } = {},
         ) {
           const searchParams = new URLSearchParams();
 
           if (typeof cursor !== "undefined") {
-            searchParams.append("cursor", cursor.toString());
+            searchParams.append("cursor", cursor);
           }
 
           if (typeof limit !== "undefined") {
             searchParams.append("limit", limit.toString());
+          }
+
+          if (typeof orderBy !== "undefined") {
+            searchParams.append("order_by", orderBy);
           }
 
           const query = searchParams.toString();
@@ -540,9 +560,10 @@ export function createApi(fetcher: ApiFetcher) {
         },
 
         getMine(trailId: string) {
-          return fetcher<TrailReviewResponse>(`/trails/${trailId}/reviews/me`, {
-            method: "GET",
-          });
+          return fetcher<TrailReviewsResponse>(
+            `/trails/${trailId}/reviews/me`,
+            { method: "GET" },
+          );
         },
 
         upsert(
@@ -564,6 +585,70 @@ export function createApi(fetcher: ApiFetcher) {
           return fetcher<void>(`/trails/${trailId}/reviews`, {
             method: "DELETE",
           });
+        },
+      },
+
+      suggestions: {
+        create(data: {
+          name: string;
+          location: string;
+          length: number;
+          details: string;
+        }) {
+          return fetcher<void>("/trails/suggestions", {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
+        },
+
+        remove(suggestionId: string) {
+          return fetcher<void>(`/trails/suggestions/${suggestionId}`, {
+            method: "DELETE",
+          });
+        },
+
+        update(
+          suggestionId: string,
+          data: Partial<{
+            status: SuggestionStatus;
+            notes: string;
+          }>,
+        ) {
+          return fetcher<void>(`/trails/suggestions/${suggestionId}`, {
+            method: "PATCH",
+            body: JSON.stringify(data),
+          });
+        },
+
+        list({
+          status,
+          cursor,
+          limit,
+        }: {
+          status?: SuggestionStatus;
+          cursor?: number;
+          limit?: number;
+        } = {}) {
+          const searchParams = new URLSearchParams();
+
+          if (typeof status !== "undefined") {
+            searchParams.append("status", status.toString());
+          }
+
+          if (typeof cursor !== "undefined") {
+            searchParams.append("cursor", cursor.toString());
+          }
+
+          if (typeof limit !== "undefined") {
+            searchParams.append("limit", limit.toString());
+          }
+
+          const query = searchParams.toString();
+
+          return fetcher<ListSuggestions>(
+            `/trails/suggestions${query ? `?${query}` : ""}`,
+            { method: "GET" },
+          );
         },
       },
     },
