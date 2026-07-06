@@ -13,7 +13,7 @@ export default function SuggestTrailButton({
     <button
       type={type}
       onClick={onClick}
-      className={`py-2 rounded-md mx-auto mt-auto bg-[#D99C6A] text-white font-bold w-48 cursor-pointer hover:bg-[#c46518] hover:brightness-120 transition-all duration-300 ${className}`}
+      className={`py-2 rounded-md mx-auto mt-auto bg-[#D99C6A] text-white font-semibold w-48 cursor-pointer hover:bg-[#c46518] hover:brightness-120 transition-all duration-300 ${className}`}
     >
       {children}
     </button>

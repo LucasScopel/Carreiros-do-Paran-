@@ -4,11 +4,15 @@ import {
   newTrailSchema,
   updateTrailImagesSchema,
   updateTrailSchema,
+  addSuggestionSchema,
+  updateSuggestionSchema,
 } from "./schemas";
 import * as trailsService from "./trails.service";
 import * as reviewsService from "./reviews.service";
+import * as suggestionsService from "./suggestions.service";
 import { BadRequestError } from "@/utils/errors";
 import { getIntegerQueryParam, ParamsDictionary } from "@/utils/params";
+import { SuggestionStatus } from "shared/types";
 
 function getTrailIdParam(params: ParamsDictionary) {
   if (!params.trailId) {
@@ -129,4 +133,66 @@ export async function deleteTrailReview(req: Request, res: Response) {
   await reviewsService.deleteTrailReview(trailId, req.user!.id);
 
   res.sendStatus(204);
+}
+
+function getSuggestionIdParam(params: ParamsDictionary) {
+  if (!params.suggestionId) {
+    throw new BadRequestError("Missing suggestion id");
+  }
+  return params.suggestionId as string;
+}
+
+export async function createSuggestion(req: Request, res: Response) {
+  const data = addSuggestionSchema.parse(req.body);
+
+  const publicId = await suggestionsService.createSuggestion(
+    req.user!.id,
+    data,
+  );
+
+  res.status(201).json({ publicId });
+}
+
+export async function updateSuggestion(req: Request, res: Response) {
+  const suggestionId = getSuggestionIdParam(req.params);
+
+  const data = updateSuggestionSchema.parse(req.body);
+
+  await suggestionsService.updateSuggestion(suggestionId, data);
+
+  res.sendStatus(204);
+}
+
+export async function removeSuggestion(req: Request, res: Response) {
+  const suggestionId = getSuggestionIdParam(req.params);
+
+  await suggestionsService.removeSuggestion(suggestionId);
+
+  res.sendStatus(204);
+}
+
+export async function listSuggestions(req: Request, res: Response) {
+  const cursor = getIntegerQueryParam(req.query, "cursor", {
+    default: null,
+  });
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    max: 10,
+    default: 5,
+  });
+
+  const status =
+    typeof req.query["status"] === "string" &&
+    ["PENDING", "TODO", "IN_PROGRESS", "COMPLETED"].includes(
+      req.query["status"],
+    )
+      ? (req.query["status"] as SuggestionStatus)
+      : "PENDING";
+
+  const result = await suggestionsService.listSuggestions({
+    cursor,
+    limit,
+    status,
+  });
+
+  res.json(result);
 }
