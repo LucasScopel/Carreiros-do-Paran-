@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import maplibregl, { LngLatBounds, VectorTileSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { hadSignificantMove } from "@/lib/map";
 import { PARANA_BOUNDS } from "shared/utils/parana";
 
 interface Props {
@@ -19,7 +20,11 @@ interface Props {
 
 export interface MapRef {
   flyTo: (lng: number, lat: number, zoom?: number) => void;
+  getBounds: () => LngLatBounds | null;
+  getPanZoom: () => { lng: number; lat: number; zoom: number } | null;
 }
+
+const INITIAL_MAP_CENTER = new LngLatBounds([...PARANA_BOUNDS]).getCenter();
 
 function buildTilesUrl(filters: Props["filters"]) {
   const params = new URLSearchParams();
@@ -42,6 +47,8 @@ export const TrailMap = forwardRef<MapRef, Props>(
     const mapContainer = useRef<HTMLDivElement>(null);
     const mapRef = useRef<maplibregl.Map>(null);
 
+    const lastUpdatedBounds = useRef<LngLatBounds>(null);
+
     useImperativeHandle(ref, () => ({
       flyTo(lng: number, lat: number, zoom = 14) {
         if (mapRef.current) {
@@ -53,6 +60,24 @@ export const TrailMap = forwardRef<MapRef, Props>(
             curve: 1.2,
           });
         }
+      },
+
+      getBounds() {
+        if (mapRef.current) {
+          return mapRef.current.getBounds();
+        }
+        return null;
+      },
+
+      getPanZoom() {
+        if (mapRef.current) {
+          return {
+            lng: mapRef.current.getCenter().lng,
+            lat: mapRef.current.getCenter().lat,
+            zoom: mapRef.current.getZoom(),
+          };
+        }
+        return null;
       },
 
       setTrailHoverStatus(id: number, hovered: boolean) {
@@ -86,8 +111,6 @@ export const TrailMap = forwardRef<MapRef, Props>(
         return;
       }
 
-      const [[west, south], [east, north]] = PARANA_BOUNDS;
-
       const map = new maplibregl.Map({
         container: mapContainer.current,
 
@@ -113,7 +136,7 @@ export const TrailMap = forwardRef<MapRef, Props>(
           ],
         },
 
-        center: [(west + east) / 2, (south + north) / 2],
+        center: INITIAL_MAP_CENTER,
         zoom: 6.5,
         minZoom: 1,
         maxZoom: 20,
@@ -124,14 +147,8 @@ export const TrailMap = forwardRef<MapRef, Props>(
       map.addControl(new maplibregl.NavigationControl());
 
       map.on("load", () => {
-        // Limita o mapa apenas ao Paraná mas com uma certa margem de liberdade
-        /* const lonMargin = east - west;
-      const latMargin = (north - south) * 0.5;
-
-      map.setMaxBounds([
-        [west - lonMargin, south - latMargin],
-        [east + lonMargin, north + latMargin],
-      ]); */
+        lastUpdatedBounds.current = map.getBounds();
+        setBbox(map.getBounds());
 
         // Adiciona a fonte de dados de trilhas
         map.addSource("trails", {
@@ -271,7 +288,16 @@ export const TrailMap = forwardRef<MapRef, Props>(
         });
       });
 
-      map.on("moveend", () => setBbox(map.getBounds()));
+      map.on("moveend", () => {
+        if (lastUpdatedBounds.current === null) {
+          return;
+        }
+
+        if (hadSignificantMove(lastUpdatedBounds.current, map.getBounds())) {
+          lastUpdatedBounds.current = map.getBounds();
+          setBbox(map.getBounds());
+        }
+      });
 
       map.on("click", "trails-circles", (e) => {
         const feature = e.features?.[0];

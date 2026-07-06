@@ -14,6 +14,7 @@ import { BadRequestError } from "@/utils/errors";
 import { getIntegerQueryParam, ParamsDictionary } from "@/utils/params";
 import { SuggestionStatus } from "shared/types";
 import { PARANA_BOUNDS } from "shared/utils/parana";
+import { clamp } from "shared/utils";
 
 function getTrailIdParam(params: ParamsDictionary) {
   if (!params.trailId) {
@@ -278,10 +279,10 @@ export async function searchTrails(req: Request, res: Response) {
   if (Array.isArray(req.query["bounds"])) {
     bounds = req.query["bounds"].map(Number);
 
-    bounds[0] = Math.max(bounds[0], PARANA_BOUNDS[0][0]);
-    bounds[1] = Math.min(bounds[0], PARANA_BOUNDS[0][1]);
-    bounds[2] = Math.max(bounds[0], PARANA_BOUNDS[1][0]);
-    bounds[3] = Math.min(bounds[0], PARANA_BOUNDS[1][1]);
+    bounds[0] = clamp(bounds[0], PARANA_BOUNDS[0], PARANA_BOUNDS[2]);
+    bounds[1] = clamp(bounds[1], PARANA_BOUNDS[1], PARANA_BOUNDS[3]);
+    bounds[2] = clamp(bounds[2], PARANA_BOUNDS[0], PARANA_BOUNDS[2]);
+    bounds[3] = clamp(bounds[3], PARANA_BOUNDS[1], PARANA_BOUNDS[3]);
 
     if (
       bounds.length !== 4 ||
@@ -292,7 +293,7 @@ export async function searchTrails(req: Request, res: Response) {
       throw new BadRequestError("Invalid query parameter 'bounds'");
     }
   } else if (typeof req.query["bounds"] === "undefined") {
-    bounds = PARANA_BOUNDS.flatMap((x) => x);
+    bounds = PARANA_BOUNDS.map((x) => x);
   } else {
     throw new BadRequestError("Invalid query parameter 'bounds'");
   }

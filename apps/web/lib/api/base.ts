@@ -19,6 +19,7 @@ import {
   VisibilityLevel,
   SuggestionStatus,
   ListSuggestions,
+  TrailSearch,
 } from "shared/types";
 
 /**
@@ -527,15 +528,12 @@ export function createApi(fetcher: ApiFetcher) {
         orderBy,
       }: {
         bounds?: number[];
-        difficulty?: number;
+        difficulty?: number | null;
         minLength?: number;
         maxLength?: number;
         minDuration?: number;
         maxDuration?: number;
-        cursor?: {
-          id: number;
-          rating: number;
-        };
+        cursor?: string;
         limit?: number;
         orderBy?: "highest-rated" | "lowest-rated";
       } = {}) {
@@ -548,7 +546,7 @@ export function createApi(fetcher: ApiFetcher) {
           searchParams.append("bounds", bounds[3].toFixed(6));
         }
 
-        if (typeof difficulty !== "undefined") {
+        if (typeof difficulty !== "undefined" && difficulty !== null) {
           searchParams.append("difficulty", difficulty.toString());
         }
 
@@ -569,7 +567,7 @@ export function createApi(fetcher: ApiFetcher) {
         }
 
         if (typeof cursor !== "undefined") {
-          searchParams.append("cursor", btoa(JSON.stringify(cursor)));
+          searchParams.append("cursor", cursor);
         }
 
         if (typeof limit !== "undefined") {
@@ -581,13 +579,10 @@ export function createApi(fetcher: ApiFetcher) {
         }
 
         const query = searchParams.toString();
-        console.log(query);
-        return fetcher<TrailReviewsResponse>(
-          `/trails${query ? `?${query}` : ""}`,
-          {
-            method: "GET",
-          },
-        );
+
+        return fetcher<TrailSearch>(`/trails${query ? `?${query}` : ""}`, {
+          method: "GET",
+        });
       },
 
       reviews: {

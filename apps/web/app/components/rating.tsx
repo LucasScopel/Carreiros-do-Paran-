@@ -6,7 +6,7 @@ export default function Rating({
   icon,
   tooltip = "none",
 }: {
-  label: string;
+  label?: string;
   rating: number;
   icon: "star" | "flame";
   tooltip?: "none" | "left" | "right";
@@ -15,7 +15,7 @@ export default function Rating({
 
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-sm font-medium">{label}</p>
+      {label && <p className="text-sm font-medium">{label}</p>}
 
       <div className="relative group">
         <div className="flex gap-1 stroke-zinc-800">

@@ -463,18 +463,6 @@ export async function searchTrails({
   cursor,
   orderBy,
 }: SearchTrailsParams) {
-  console.log(
-    bounds,
-    difficulty,
-    minLength,
-    maxLength,
-    minDuration,
-    maxDuration,
-    limit,
-    cursor,
-    orderBy,
-  );
-
   const take = limit + 1;
   const [west, south, east, north] = bounds;
 

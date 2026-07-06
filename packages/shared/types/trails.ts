@@ -98,7 +98,7 @@ export const SuggestionStatus = [
 
 export type SuggestionStatus = (typeof SuggestionStatus)[number];
 
-export type TrailSuggestion = {
+export interface TrailSuggestion {
   publicId: string;
   name: string;
   location: string;
@@ -112,9 +112,25 @@ export type TrailSuggestion = {
     name: string;
     avatarUrl: string;
   };
-};
+}
 
-export type ListSuggestions = {
+export interface ListSuggestions {
   suggestions: TrailSuggestion[];
   nextCursor: number | null;
-};
+}
+
+export interface TrailSearchItem {
+  publicId: string;
+  name: string;
+  length: number;
+  duration: number;
+  rating: number;
+  difficulty: number;
+  coordinates: GeoCoords;
+  imageUrl: string | null;
+}
+
+export interface TrailSearch {
+  trails: TrailSearchItem[];
+  nextCursor: string | null;
+}
