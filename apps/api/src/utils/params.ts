@@ -8,19 +8,20 @@ export interface ParamsDictionary {
 export function getIntegerQueryParam(
   query: qs.ParsedQs,
   property: string,
-  options: { max?: number },
+  options: { min?: number; max?: number },
 ): number;
 
 export function getIntegerQueryParam<T>(
   query: qs.ParsedQs,
   property: string,
-  options: { max?: number; default: T },
+  options: { min?: number; max?: number; default: T },
 ): number | T;
 
 export function getIntegerQueryParam<T>(
   query: qs.ParsedQs,
   property: string,
   options: {
+    min?: number;
     max?: number;
     default?: T;
   } = {},
@@ -46,6 +47,12 @@ export function getIntegerQueryParam<T>(
   if (typeof options.max === "number" && value > options.max) {
     throw new BadRequestError(
       `Query parameter '${property}' can't be bigger than ${options.max}`,
+    );
+  }
+
+  if (typeof options.min === "number" && value < options.min) {
+    throw new BadRequestError(
+      `Query parameter '${property}' can't be smaller than ${options.min}`,
     );
   }
 

@@ -14,10 +14,12 @@
     "@tailwindcss/postcss": "^4.3.0",
     "@tanstack/react-query": "^5.101.0",
     "lucide-react": "^1.20.0",
+    "maplibre-gl": "^5.24.0",
     "next": "16.2.6",
     "postcss": "^8.5.14",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-map-gl": "^8.1.1",
     "shared": "workspace:*",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.3.0"

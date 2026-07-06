@@ -1,1 +1,44 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
+
+.double-range-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+}
+
+.double-range-slider-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.double-range-slider-thumb::-moz-range-track {
+  background: transparent;
+}
+
+.double-range-slider-thumb::-webkit-slider-thumb {
+  background-color: #059669 !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer !important;
+  height: 18px !important;
+  width: 18px !important;
+  pointer-events: auto !important; 
+  appearance: none;
+  -webkit-appearance: none;
+  margin-top: -1px;
+}
+
+.double-range-slider-thumb::-moz-range-thumb {
+  background-color: #059669 !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer !important;
+  height: 18px !important;
+  width: 18px !important;
+  pointer-events: auto !important;
+  appearance: none;
+}

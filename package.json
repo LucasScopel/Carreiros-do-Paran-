@@ -5,18 +5,20 @@
     "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:api\"",
     "dev:web": "dotenv -e ./.env -- node scripts/dev-web.js",
     "dev:api": "dotenv -e ./.env -- pnpm --filter api dev",
-    "docker:up": "docker compose up -d postgres_dev nginx_dev",
+    "docker:up": "docker compose up -d postgres_dev nginx_dev martin_dev",
     "docker:down": "docker compose down",
     "db:generate": "dotenv -e ./.env -- pnpm --filter database db:generate",
     "db:migrate": "dotenv -e ./.env -- pnpm --filter database db:migrate",
     "db:reset": "dotenv -e ./.env -- pnpm --filter database db:reset",
     "db:studio": "dotenv -e ./.env -- pnpm --filter database db:studio",
-    "user": "dotenv -e ./.env -- tsx scripts/users.ts"
+    "user": "dotenv -e ./.env -- tsx scripts/users.ts",
+    "martin:setup": "dotenv -e ./.env -- node scripts/setup-martin.js"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
     "concurrently": "^9.0.0",
     "dotenv-cli": "^11.0.0",
+    "pg": "^8.20.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "argon2": "^0.44.0",

@@ -1,11 +1,7 @@
 import { NotFoundError } from "@/utils/errors";
 import { Prisma, prisma } from "database";
 import { nanoid } from "nanoid";
-import {
-  ListSuggestions,
-  SuggestionStatus,
-  TrailReviewsResponse,
-} from "shared/types";
+import { ListSuggestions, SuggestionStatus } from "shared/types";
 import { getUserAvatarURL } from "shared/utils";
 
 export async function createSuggestion(

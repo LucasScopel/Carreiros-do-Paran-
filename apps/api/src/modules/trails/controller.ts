@@ -13,6 +13,8 @@ import * as suggestionsService from "./suggestions.service";
 import { BadRequestError } from "@/utils/errors";
 import { getIntegerQueryParam, ParamsDictionary } from "@/utils/params";
 import { SuggestionStatus } from "shared/types";
+import { PARANA_BOUNDS } from "shared/utils/parana";
+import { clamp } from "shared/utils";
 
 function getTrailIdParam(params: ParamsDictionary) {
   if (!params.trailId) {
@@ -94,6 +96,7 @@ export async function getTrailReviews(req: Request, res: Response) {
   const trailId = getTrailIdParam(req.params);
 
   const limit = getIntegerQueryParam(req.query, "limit", {
+    min: 1,
     max: 10,
     default: 5,
   });
@@ -216,6 +219,7 @@ export async function listSuggestions(req: Request, res: Response) {
     default: null,
   });
   const limit = getIntegerQueryParam(req.query, "limit", {
+    min: 1,
     max: 10,
     default: 5,
   });
@@ -232,6 +236,91 @@ export async function listSuggestions(req: Request, res: Response) {
     cursor,
     limit,
     status,
+  });
+
+  res.json(result);
+}
+
+export async function searchTrails(req: Request, res: Response) {
+  const limit = getIntegerQueryParam(req.query, "limit", {
+    min: 1,
+    max: 10,
+    default: 5,
+  });
+  const difficulty = getIntegerQueryParam(req.query, "difficulty", {
+    min: 0,
+    max: 4,
+    default: 0,
+  });
+  const minLength = getIntegerQueryParam(req.query, "min_length", {
+    default: 0,
+  });
+  const maxLength = getIntegerQueryParam(req.query, "max_length", {
+    default: 30,
+  });
+  const minDuration = getIntegerQueryParam(req.query, "min_duration", {
+    default: 0,
+  });
+  const maxDuration = getIntegerQueryParam(req.query, "max_duration", {
+    default: 300,
+  });
+
+  const orderBy =
+    typeof req.query["order_by"] !== "undefined"
+      ? req.query["order_by"]
+      : "highest-rated";
+  if (orderBy !== "highest-rated" && orderBy !== "lowest-rated") {
+    throw new BadRequestError(
+      `Query parameter 'order_by' needs to be 'highest-rated' or 'lowest-rated'`,
+    );
+  }
+
+  let bounds: number[] = [];
+  if (Array.isArray(req.query["bounds"])) {
+    bounds = req.query["bounds"].map(Number);
+
+    bounds[0] = clamp(bounds[0], PARANA_BOUNDS[0], PARANA_BOUNDS[2]);
+    bounds[1] = clamp(bounds[1], PARANA_BOUNDS[1], PARANA_BOUNDS[3]);
+    bounds[2] = clamp(bounds[2], PARANA_BOUNDS[0], PARANA_BOUNDS[2]);
+    bounds[3] = clamp(bounds[3], PARANA_BOUNDS[1], PARANA_BOUNDS[3]);
+
+    if (
+      bounds.length !== 4 ||
+      bounds.some(isNaN) ||
+      bounds[0] > bounds[2] ||
+      bounds[1] > bounds[3]
+    ) {
+      throw new BadRequestError("Invalid query parameter 'bounds'");
+    }
+  } else if (typeof req.query["bounds"] === "undefined") {
+    bounds = PARANA_BOUNDS.map((x) => x);
+  } else {
+    throw new BadRequestError("Invalid query parameter 'bounds'");
+  }
+
+  let cursor = null;
+  if (typeof req.query["cursor"] === "string") {
+    try {
+      cursor = JSON.parse(atob(req.query["cursor"]));
+    } catch {
+      throw new BadRequestError("Invalid query parameter 'cursor'");
+    }
+
+    if (typeof cursor.id !== "number" || typeof cursor.rating !== "number") {
+      throw new BadRequestError("Invalid query parameter 'cursor'");
+    }
+  }
+
+  const result = await trailsService.searchTrails({
+    bounds,
+    difficulty,
+    minLength,
+    maxLength,
+    minDuration,
+    maxDuration,
+    limit,
+    cursor,
+    orderBy,
   });
 
   res.json(result);
