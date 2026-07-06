@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "start": "node --import tsx src/server.ts"
+    "start": "node --import tsx src/server.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@types/nodemailer": "^8.0.0",
