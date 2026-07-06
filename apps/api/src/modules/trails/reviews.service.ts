@@ -39,8 +39,8 @@ export async function getTrailReviews({
   }
 
   const orderConfig = {
-    newest: { field: "updatedAt", direction: "desc" },
-    oldest: { field: "updatedAt", direction: "asc" },
+    newest: { field: "visitDate", direction: "desc" },
+    oldest: { field: "visitDate", direction: "asc" },
     "rating-desc": { field: "rating", direction: "desc" },
     "rating-asc": { field: "rating", direction: "asc" },
     "difficulty-desc": { field: "difficultyRating", direction: "desc" },
