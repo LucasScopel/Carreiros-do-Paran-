@@ -1,14 +1,16 @@
 "use client";
+import { useMe } from "@/hooks/useMe";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { TrailReviewResponse } from "shared/types";
+import { MeResponse, TrailReviewResponse } from "shared/types";
 import { api } from "@/lib/api/client";
 import StarRating from "./star-rating";
 import FlameRating from "./flame-rating";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface userReviewProps {
-  user: any;
+  user: NoInfer<MeResponse | null> | undefined;
   userReviewParam: TrailReviewResponse | null;
   trailId: string;
 }
@@ -25,13 +27,14 @@ export function UserReview({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const onChangeQuery = useQueryClient();
   const router = useRouter();
-  const pathName = usePathname();
 
   //Se o usuário já tiver feito review, pega os dados
   useEffect(() => {
     console.log("userReviewParam", userReviewParam);
     if (userReviewParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStarRating(userReviewParam.rating || 0);
       setFlameRating(userReviewParam.difficultyRating || 0);
       setVisitDate(userReviewParam.visitDate.split("T")[0] || "");
@@ -75,7 +78,7 @@ export function UserReview({
 
     if (result.ok) {
       toast.success("Avaliação salva com sucesso!");
-      router.refresh();
+      onChangeQuery.invalidateQueries({ queryKey: ["trail", "reviews"] });
     } else {
       //Erro em envolvendo o salvamento dos dados na api
       if (result.error?.code === "VALIDATION_ERROR") {
@@ -100,7 +103,7 @@ export function UserReview({
 
     if (result.ok) {
       toast.success("Avaliação excluída com sucesso!");
-      router.refresh();
+      onChangeQuery.invalidateQueries({ queryKey: ["trail", "reviews"] });
     } else {
       toast.error("Não foi possível excluir sua avaliação no momento.");
     }
@@ -121,9 +124,7 @@ export function UserReview({
         </p>
 
         <button
-          onClick={() =>
-            router.push(`/login?redirect=${encodeURIComponent(pathName)}`)
-          }
+          onClick={() => router.push("/login")}
           className="py-2 rounded-md mx-auto mt-auto bg-[#D99C6A] text-white font-bold w-48
                    cursor-pointer hover:bg-[#c46518] hover:brightness-120  transition-all duration-300"
         >

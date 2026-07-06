@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/api/client";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";

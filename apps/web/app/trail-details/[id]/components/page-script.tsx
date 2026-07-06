@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  SetStateAction,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { api } from "@/lib/api/client";
 import {
   TrailReviewResponse,
@@ -23,12 +17,8 @@ import { useMe } from "@/hooks/useMe";
 import { UserReview } from "./user-review";
 import Comment from "./comment";
 import { useRouter, usePathname } from "next/navigation";
-import FilterCommentsDropdown, { FilterType } from "./filter-comments-dropdown";
-import {
-  InfiniteData,
-  keepPreviousData,
-  useInfiniteQuery,
-} from "@tanstack/react-query";
+import FilterCommentsDropdown from "./filter-comments-dropdown";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 
 export default function PageScript({
   params,
@@ -129,10 +119,6 @@ export default function PageScript({
     //Assim que parar de scrolar, remove a função
     return () => window.removeEventListener("scroll", handleWindowScroll);
   }, [handleWindowScroll]);
-
-  const handleChangeActiveFilter = (newFilter: SetStateAction<FilterType>) => {
-    setActiveFilter(newFilter);
-  };
 
   // Função isolada para checar se a trilha está salva em alguma coleção do usuário
   async function checkSavedStatus() {
@@ -306,7 +292,7 @@ export default function PageScript({
                     </h1>
                     <FilterCommentsDropdown
                       currentFilter={activeFilter}
-                      onFilterChange={(e) => handleChangeActiveFilter(e)}
+                      onFilterChange={(e) => setActiveFilter(e)}
                     />
                   </div>
 
