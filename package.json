@@ -12,16 +12,19 @@
     "db:reset": "dotenv -e ./.env -- pnpm --filter database db:reset",
     "db:studio": "dotenv -e ./.env -- pnpm --filter database db:studio",
     "user": "dotenv -e ./.env -- tsx scripts/users.ts",
-    "martin:setup": "dotenv -e ./.env -- node scripts/setup-martin.js"
+    "martin:setup": "dotenv -e ./.env -- node scripts/setup-martin.js",
+    "test:unit": "dotenv -e ./.env -- pnpm --filter api test"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
+    "argon2": "^0.44.0",
     "concurrently": "^9.0.0",
     "dotenv-cli": "^11.0.0",
+    "nanoid": "^5.1.11",
     "pg": "^8.20.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3",
-    "argon2": "^0.44.0",
-    "nanoid": "^5.1.11"
+    "vitest": "^4.1.9",
+    "vitest-mock-extended": "^4.0.0"
   }
 }
