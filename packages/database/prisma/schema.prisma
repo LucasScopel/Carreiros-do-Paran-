@@ -148,6 +148,9 @@ model Review {
   @@index([trailId])
   @@index([userId])
   @@index([trailId, id(sort: Desc)])
+  @@index([visitDate, id])
+  @@index([rating, id])
+  @@index([difficultyRating, id])
 }
 
 model TrailCollection {
