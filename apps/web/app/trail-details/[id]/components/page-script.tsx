@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  SetStateAction,
+} from "react";
 import { api } from "@/lib/api/client";
 import {
   TrailReviewResponse,
@@ -17,8 +23,12 @@ import { useMe } from "@/hooks/useMe";
 import { UserReview } from "./user-review";
 import Comment from "./comment";
 import { useRouter, usePathname } from "next/navigation";
-import FilterCommentsDropdown from "./filter-comments-dropdown";
-import { InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
+import FilterCommentsDropdown, { FilterType } from "./filter-comments-dropdown";
+import {
+  InfiniteData,
+  keepPreviousData,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 
 export default function PageScript({
   params,
@@ -32,7 +42,13 @@ export default function PageScript({
   );
   const [reviews, setReviews] = useState<TrailReviewsResponse | null>(null);
   const [activeFilter, setActiveFilter] = useState<
-    "all" | "star-5" | "star-1" | "diff-5" | "diff-1" | "new" | "old"
+    | "all"
+    | "newest"
+    | "oldest"
+    | "rating-desc"
+    | "rating-asc"
+    | "difficulty-desc"
+    | "difficulty-asc"
   >("all");
   const [trail, setTrail] = useState<TrailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,7 +85,8 @@ export default function PageScript({
     queryFn: async ({ pageParam }) => {
       const result = await api.trails.reviews.get(id, {
         limit: 8,
-        cursor: pageParam as unknown as number,
+        cursor: pageParam,
+        orderBy: activeFilter === "all" ? "newest" : activeFilter,
       });
 
       if (!result.ok) throw new Error("Erro na API de reviews");
@@ -82,6 +99,7 @@ export default function PageScript({
     getNextPageParam: (lastPage) => {
       return (lastPage.nextCursor as unknown as string) ?? undefined;
     },
+    placeholderData: keepPreviousData, //Mantém os comentários anteriores na tela quando troca o filtro, o que evita glitches
   });
 
   //Junta as reviews, que o infinityQuery retornou em páginas separadas, em uma só
@@ -112,15 +130,9 @@ export default function PageScript({
     return () => window.removeEventListener("scroll", handleWindowScroll);
   }, [handleWindowScroll]);
 
-  //Guarda as reviews conforme\ o filtro selecionado
-  const filteredReviews =
-    reviews?.reviews.filter((review) => {
-      if (activeFilter === "star-5") return review.rating === 5;
-      if (activeFilter === "star-1") return review.rating === 1;
-      if (activeFilter === "diff-5") return review.difficultyRating === 5;
-      if (activeFilter === "diff-1") return review.difficultyRating === 1;
-      return true; // "all" retorna tudo
-    }) || [];
+  const handleChangeActiveFilter = (newFilter: SetStateAction<FilterType>) => {
+    setActiveFilter(newFilter);
+  };
 
   // Função isolada para checar se a trilha está salva em alguma coleção do usuário
   async function checkSavedStatus() {
@@ -288,6 +300,16 @@ export default function PageScript({
                   </InfoCard>
 
                   {/* Parte das avaliações de outros usuários */}
+                  <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-[#263327] mb">
+                      Avaliações dos Usuários
+                    </h1>
+                    <FilterCommentsDropdown
+                      currentFilter={activeFilter}
+                      onFilterChange={(e) => handleChangeActiveFilter(e)}
+                    />
+                  </div>
+
                   {reviewsStatus === "pending" ? (
                     <p className="text-sm text-zinc-500 text-center p-4">
                       Carregando comentários...
