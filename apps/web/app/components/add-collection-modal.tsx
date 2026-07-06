@@ -203,7 +203,7 @@ export default function AddCollectionModal({
 
           <div className="flex flex-row justify-end gap-5">
             <button
-              onClick={() => onClose}
+              onClick={() => onClose(false)}
               className="py-2 rounded-md bg-zinc-200 text-slate-800 w-48 cursor-pointer hover:bg-zinc-300 transition-all duration-300"
             >
               Cancelar

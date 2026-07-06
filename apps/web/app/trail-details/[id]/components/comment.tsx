@@ -29,57 +29,63 @@ export default function Comment({ review }: CommentProps) {
 
   return (
     <div className="flex gap-4 items-start w-full">
-      {/* Imagem do Perfil */}
-      <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-zinc-200 border border-zinc-300">
-        <img
-          src={avatarSrc}
-          alt={`Foto de perfil de ${user.name}`}
-          className="w-full h-full object-cover"
-        />
-      </div>
+      {/* Clickable Profile Picture */}
+      <a href={`/users/${user.publicId}`}>
+        <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-zinc-200 border border-zinc-300">
+          <img
+            src={avatarSrc}
+            alt={`Foto de perfil de ${user.name}`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </a>
 
-      {/* Conteúdo da Avaliação */}
-      <div className="flex-1 relative flex flex-col gap-1">
-        <div>
-          <h3 className="text-xl font-bold text-[#263327] leading-tight">
-            {user.name}
-          </h3>
-          <p className="text-xs text-zinc-500">{formattedDate}</p>
+      {/* Review Content */}
+      <div className="flex-1 flex flex-col gap-2">
+        {/* Top row */}
+        <div className="flex justify-between items-start gap-4">
+          {/* Clickable Name + Date */}
+          <a href={`/users/${user.publicId}`} className="min-w-0">
+            <h3 className="text-xl font-bold text-[#263327] leading-tight">
+              {user.name}
+            </h3>
+            <p className="text-xs text-zinc-500">{formattedDate}</p>
+          </a>
+
+          {/* Stars + Flames */}
+          <div className="flex flex-col gap-1 items-end flex-shrink-0">
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Star
+                  key={index}
+                  className={`w-4 h-4 ${
+                    index < rating
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-zinc-300"
+                  }`}
+                />
+              ))}
+            </div>
+
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Flame
+                  key={index}
+                  className={`w-4 h-4 ${
+                    index < difficultyRating
+                      ? "text-red-600 fill-red-600"
+                      : "text-zinc-300"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Texto do comentário */}
-        <p className="text-gray-700 mt-2 text-base">{comment}</p>
-
-        {/* Estrelas e Chamas alinhadas à direita */}
-        <div className="absolute top-0 right-0 flex flex-col gap-1 items-end">
-          {/* Estrelas (Rating) */}
-          <div className="flex gap-0.5">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Star
-                key={index}
-                className={`w-4 h-4 ${
-                  index < rating
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-zinc-300"
-                }`}
-              />
-            ))}
-          </div>
-
-          {/* Chamas (Dificuldade) */}
-          <div className="flex gap-0.5">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Flame
-                key={index}
-                className={`w-4 h-4 ${
-                  index < difficultyRating
-                    ? "text-red-600 fill-red-600"
-                    : "text-zinc-300"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Comment */}
+        <p className="text-gray-700 text-base text-justify whitespace-pre-wrap wrap-break-words mt-3">
+          {comment}
+        </p>
       </div>
     </div>
   );

@@ -112,7 +112,7 @@ export default function PageScript({
     return () => window.removeEventListener("scroll", handleWindowScroll);
   }, [handleWindowScroll]);
 
-  //Guarda as reviews conforme o filtro selecionado
+  //Guarda as reviews conforme\ o filtro selecionado
   const filteredReviews =
     reviews?.reviews.filter((review) => {
       if (activeFilter === "star-5") return review.rating === 5;

@@ -4,12 +4,12 @@ import { useState, useEffect, useRef } from "react";
 //Quais opções terão na filtragem
 export type FilterType =
   | "all"
-  | "star-5"
-  | "star-1"
-  | "diff-5"
-  | "diff-1"
-  | "new"
-  | "old";
+  | "newest"
+  | "oldest"
+  | "rating-desc"
+  | "rating-asc"
+  | "difficulty-desc"
+  | "difficulty-asc";
 
 interface FilterCommentsDropdownProps {
   currentFilter: FilterType;
@@ -30,20 +30,20 @@ export default function FilterCommentsDropdown({
     switch (filter) {
       case "all":
         return "Todos";
-      case "star-5":
-        return "Melhor Avaliado";
-      case "star-1":
-        return "Pior Avaliado";
-      case "diff-5":
-        return "Muito Difícil";
-      case "diff-1":
-        return "Muito Fácil";
-      case "new":
+      case "newest":
         return "Mais Recentes";
-      case "old":
+      case "oldest":
         return "Mais Antigos";
+      case "rating-desc":
+        return "Melhor Avaliados";
+      case "rating-asc":
+        return "Pior Avaliados";
+      case "difficulty-desc":
+        return "Maior Dificuldade";
+      case "difficulty-asc":
+        return "Menor Dificuldade";
       default:
-        return "Filtrar";
+        return "all";
     }
   };
 
@@ -83,7 +83,7 @@ export default function FilterCommentsDropdown({
         {/* Texto conforme o filtro */}
         <span>{getLabel(currentFilter)}</span>
 
-        {/* Ícone de seta simples */}
+        {/* Ícone de seta para indicar se o dropdwon está aberto ou fechado */}
         <svg
           className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
           fill="none"
@@ -107,55 +107,55 @@ export default function FilterCommentsDropdown({
                 onClick={() => handleSelect("all")}
                 className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "all" ? "font-bold bg-gray-50" : ""}`}
               >
-                Todos os comentários
+                Todos
               </button>
             </li>
             <li>
               <button
-                onClick={() => handleSelect("star-5")}
-                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "star-5" ? "font-bold bg-gray-50" : ""}`}
-              >
-                Melhor Avaliados
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleSelect("star-1")}
-                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "star-1" ? "font-bold bg-gray-50" : ""}`}
-              >
-                Pior Avaliados
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleSelect("diff-5")}
-                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "diff-5" ? "font-bold bg-gray-50" : ""}`}
-              >
-                Muito Difícil
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleSelect("diff-1")}
-                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "diff-1" ? "font-bold bg-gray-50" : ""}`}
-              >
-                Muito Fácil
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleSelect("diff-1")}
-                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "new" ? "font-bold bg-gray-50" : ""}`}
+                onClick={() => handleSelect("newest")}
+                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "newest" ? "font-bold bg-gray-50" : ""}`}
               >
                 Mais Recentes
               </button>
             </li>
             <li>
               <button
-                onClick={() => handleSelect("diff-1")}
-                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "old" ? "font-bold bg-gray-50" : ""}`}
+                onClick={() => handleSelect("oldest")}
+                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "oldest" ? "font-bold bg-gray-50" : ""}`}
               >
                 Mais Antigos
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleSelect("rating-desc")}
+                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "rating-desc" ? "font-bold bg-gray-50" : ""}`}
+              >
+                Melhor Avaliados
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleSelect("rating-asc")}
+                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "rating-asc" ? "font-bold bg-gray-50" : ""}`}
+              >
+                Pior Avaliados
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleSelect("difficulty-desc")}
+                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "difficulty-desc" ? "font-bold bg-gray-50" : ""}`}
+              >
+                Maior Dificuldade
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleSelect("difficulty-asc")}
+                className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${currentFilter === "difficulty-asc" ? "font-bold bg-gray-50" : ""}`}
+              >
+                Menor Dificuldade
               </button>
             </li>
           </ul>
