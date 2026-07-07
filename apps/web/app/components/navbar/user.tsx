@@ -3,8 +3,8 @@
 import { api } from "@/lib/api/client";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { MeResponse } from "shared/types";
 import {
   ClipboardList,
@@ -34,6 +34,7 @@ interface UserMenuProps {
 
 export default function UserMenu({ user, items }: UserMenuProps) {
   const router = useRouter();
+  const pathName = usePathname();
 
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -65,8 +66,9 @@ export default function UserMenu({ user, items }: UserMenuProps) {
 
     setOpen(false);
 
-    router.push("/");
-    router.refresh();
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   return (

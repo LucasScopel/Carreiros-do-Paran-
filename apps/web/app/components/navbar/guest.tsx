@@ -1,10 +1,14 @@
+"use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function GuestMenu() {
+  const pathName = usePathname();
+
   return (
     <>
       <Link
-        href="/login"
+        href={`/login?callbackUrl=${encodeURIComponent(pathName)}`}
         className="
             hover:bg-gray-200
             transition-all duration-300
@@ -16,7 +20,7 @@ export default function GuestMenu() {
         Entrar
       </Link>
       <Link
-        href="/create-account"
+        href={`/create-account?callbackUrl=${encodeURIComponent(pathName)}`}
         className="
             bg-[#D99C6A] hover:bg-[#c46518]
             transition-all duration-300

@@ -1,5 +1,4 @@
 "use client";
-import { useMe } from "@/hooks/useMe";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -29,6 +28,7 @@ export function UserReview({
 
   const onChangeQuery = useQueryClient();
   const router = useRouter();
+  const pathName = usePathname();
 
   //Se o usuário já tiver feito review, pega os dados
   useEffect(() => {
@@ -124,7 +124,9 @@ export function UserReview({
         </p>
 
         <button
-          onClick={() => router.push("/login")}
+          onClick={() =>
+            router.push(`/login?callbackUrl=${encodeURIComponent(pathName)}`)
+          }
           className="py-2 rounded-md mx-auto mt-auto bg-[#D99C6A] text-white font-bold w-48
                    cursor-pointer hover:bg-[#c46518] hover:brightness-120  transition-all duration-300"
         >

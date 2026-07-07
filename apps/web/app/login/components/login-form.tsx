@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/api/client";
 import MenuWhiteboard from "@/app/components/menu-whiteboard";
@@ -12,6 +12,10 @@ import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  //Lê a url de origem para redirecionar. Se não especificado, vai pra página inicial
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const [formData, setFormData] = useState({
     email: "",
@@ -40,7 +44,7 @@ export default function LoginForm() {
       return;
     }
 
-    router.push("/");
+    router.push(callbackUrl);
     router.refresh();
   };
 
