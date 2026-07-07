@@ -21,6 +21,8 @@ services:
       WEB_PORT: ${WEB_PORT}
       API_HOST: host.docker.internal
       API_PORT: ${API_PORT}
+      MARTIN_HOST: host.docker.internal
+      MARTIN_PORT: ${MARTIN_PORT}
     ports:
       - "${NGINX_PORT}:80"
     volumes:
@@ -28,6 +30,22 @@ services:
       - ./uploads:/var/www/uploads:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      - martin_dev
+
+  martin_dev:
+    image: ghcr.io/maplibre/martin:1.11.0
+    restart: unless-stopped
+    environment:
+      MARTIN_PORT: ${MARTIN_PORT}
+      DATABASE_URL: postgresql://${MARTIN_USER}:${MARTIN_PASSWORD}@postgres_dev:5432/${POSTGRES_DB}
+    ports:
+      - "${MARTIN_PORT}:${MARTIN_PORT}"
+    depends_on:
+      - postgres_dev
+    volumes:
+      - ./martin/config.yaml:/etc/martin/martin.yaml:ro
+    command: ["--config", "/etc/martin/martin.yaml"]
 
 volumes:
   postgres_data:

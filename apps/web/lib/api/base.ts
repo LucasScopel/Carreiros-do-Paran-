@@ -20,6 +20,7 @@ import {
   VisibilityLevel,
   SuggestionStatus,
   ListSuggestions,
+  TrailSearch,
 } from "shared/types";
 
 /**
@@ -441,7 +442,7 @@ export function createApi(fetcher: ApiFetcher) {
 
     trails: {
       getAll() {
-        return fetcher<TrailItemResponse[]>("/trails", {
+        return fetcher<TrailItemResponse[]>("/trails/all", {
           method: "GET",
         });
       },
@@ -513,6 +514,75 @@ export function createApi(fetcher: ApiFetcher) {
             deletedImages: data.deleted ?? [],
             orderedImages: data.ordered ?? [],
           }),
+        });
+      },
+
+      search({
+        bounds,
+        difficulty,
+        minLength,
+        maxLength,
+        minDuration,
+        maxDuration,
+        cursor,
+        limit,
+        orderBy,
+      }: {
+        bounds?: number[];
+        difficulty?: number | null;
+        minLength?: number;
+        maxLength?: number;
+        minDuration?: number;
+        maxDuration?: number;
+        cursor?: string;
+        limit?: number;
+        orderBy?: "highest-rated" | "lowest-rated";
+      } = {}) {
+        const searchParams = new URLSearchParams();
+
+        if (typeof bounds !== "undefined") {
+          searchParams.append("bounds", bounds[0].toFixed(6));
+          searchParams.append("bounds", bounds[1].toFixed(6));
+          searchParams.append("bounds", bounds[2].toFixed(6));
+          searchParams.append("bounds", bounds[3].toFixed(6));
+        }
+
+        if (typeof difficulty !== "undefined" && difficulty !== null) {
+          searchParams.append("difficulty", difficulty.toString());
+        }
+
+        if (typeof minLength !== "undefined") {
+          searchParams.append("min_length", minLength.toString());
+        }
+
+        if (typeof maxLength !== "undefined") {
+          searchParams.append("max_length", maxLength.toString());
+        }
+
+        if (typeof minDuration !== "undefined") {
+          searchParams.append("min_duration", minDuration.toString());
+        }
+
+        if (typeof maxDuration !== "undefined") {
+          searchParams.append("max_duration", maxDuration.toString());
+        }
+
+        if (typeof cursor !== "undefined") {
+          searchParams.append("cursor", cursor);
+        }
+
+        if (typeof limit !== "undefined") {
+          searchParams.append("limit", limit.toString());
+        }
+
+        if (typeof orderBy !== "undefined") {
+          searchParams.append("order_by", orderBy.toString());
+        }
+
+        const query = searchParams.toString();
+
+        return fetcher<TrailSearch>(`/trails${query ? `?${query}` : ""}`, {
+          method: "GET",
         });
       },
 
