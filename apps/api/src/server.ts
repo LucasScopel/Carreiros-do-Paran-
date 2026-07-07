@@ -11,7 +11,6 @@ function startJobs() {
 }
 
 async function makeUploadFolders() {
-  console.log(path.join(process.cwd(), CONFIG.AVATARS_DIR));
   await fs.mkdir(CONFIG.AVATARS_DIR, { recursive: true });
   await fs.mkdir(CONFIG.TRAILS_IMG_DIR, { recursive: true });
 }
