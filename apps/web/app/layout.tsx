@@ -12,6 +12,9 @@ import {
 
 export const metadata: Metadata = {
   title: "Carreiros do Paraná",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default async function RootLayout({
