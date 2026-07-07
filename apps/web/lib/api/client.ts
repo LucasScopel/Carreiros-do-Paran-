@@ -1,5 +1,5 @@
 import { ApiResult } from "shared/types";
-import { baseApiFetch, createApi } from "./base";
+import { baseApiFetch, createApi } from "shared/api";
 
 /**
  * Implementação de fetch para o lado do cliente.
@@ -16,4 +16,6 @@ export const apiClientFetch: <T>(
  *
  * @see {@link ApiResult}
  */
-export const api = createApi(baseApiFetch);
+export const api = createApi(<T>(path: string, init?: RequestInit) =>
+  baseApiFetch<T>(path, init, "/api"),
+);

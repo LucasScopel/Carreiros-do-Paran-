@@ -34,7 +34,7 @@ export default async function ProfileReviewsPage() {
           {reviews.map((review) => (
             <UserReviewTile
               key={review.trail.publicId}
-              user={user}
+              user={{ ...user, friendshipStatus: "not-friends" }}
               review={review}
             />
           ))}

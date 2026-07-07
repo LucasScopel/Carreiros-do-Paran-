@@ -5,3 +5,6 @@
 !/.env.example
 
 /uploads
+
+/bin/pnpm 
+pnpm
