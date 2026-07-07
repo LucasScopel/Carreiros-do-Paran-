@@ -361,11 +361,7 @@ export default function PageScript({
             {/*Botão de salvar trilha*/}
             <button
               onClick={() =>
-                user
-                  ? setIsModalOpen(true)
-                  : router.push(
-                      `/login?redirect=${encodeURIComponent(pathName)}`,
-                    )
+                user ? setIsModalOpen(true) : router.push("/login")
               }
               className={`w-full px-6 py-4 rounded-xl shadow-md border text-left text-lg flex gap-2 items-center cursor-pointer 
                 transition-all duration-300 focus:outline-none
