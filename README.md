@@ -1,6 +1,6 @@
 # Carreiros do Paraná
 
-Projeto desenolvido para a disciplina de Engenharia de Software, UTFPR campus Campo Mourão.
+Projeto desenolvido para a disciplina de Engenharia de Software, UTFPR campus Campo Mourão, lecionada pelo professor [Igor Wiese](https://github.com/igorwiese).
 
 Carreiros do Paraná é uma plataforma web para descoberta, avaliação e organização de trilhas. Os usuários podem explorar trilhas em um mapa interativo, publicar avaliações, criar coleções personalizadas, interagir com outros usuários através do sistema de amizades e contribuir com sugestões de novas trilhas.
 
@@ -170,3 +170,6 @@ pnpm test:e2e:ui
 
 # Uso de LLM
 
+Houve uso considerável de ferramentas de inteligência artificial para auxílio e a própria escrita do código, especialmente na parte do front-end. 
+
+Mediante a falta de experiência da maioria dos membros do projeto com as tecnologias de desenvolvimento web, as LLMs foram de grande valia para a conclusão do projeto no escopo em que ele foi concluído. 
