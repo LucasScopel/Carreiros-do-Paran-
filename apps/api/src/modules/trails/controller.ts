@@ -262,7 +262,7 @@ export async function searchTrails(req: Request, res: Response) {
     default: 0,
   });
   const maxDuration = getIntegerQueryParam(req.query, "max_duration", {
-    default: 300,
+    default: 600,
   });
 
   const orderBy =
