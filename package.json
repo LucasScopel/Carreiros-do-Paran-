@@ -13,7 +13,9 @@
     "db:studio": "dotenv -e ./.env -- pnpm --filter database db:studio",
     "user": "dotenv -e ./.env -- tsx scripts/users.ts",
     "martin:setup": "dotenv -e ./.env -- node scripts/setup-martin.js",
-    "test:unit": "dotenv -e ./.env -- pnpm --filter api test"
+    "test:unit": "dotenv -e ./.env -- pnpm --filter api test",
+    "test:e2e": "dotenv -e ./.env -- pnpm --filter web test:e2e",
+    "test:e2e:ui": "dotenv -e ./.env -- pnpm --filter web test:e2e --ui"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
