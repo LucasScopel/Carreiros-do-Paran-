@@ -64,7 +64,7 @@ git clone https://github.com/LucasScopel/Carreiros-do-Paran-.git
 cd "Carreiros-do-Paran-"
 ```
 
-Cria o arquivo `.env` baseado no `.env.example` e preencha as variáveis vazias e placeholders:
+Crie o arquivo `.env` baseado no `.env.example` e preencha as variáveis vazias e placeholders:
 ```
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=senhasegura123
@@ -162,6 +162,10 @@ pnpm test:unit
 Os testes E2E utilizam **Playwright**.
 ```bash
 pnpm test:e2e
+```
+Abrir interface do Playwright:
+```bash
+pnpm test:e2e:ui
 ```
 
 # Uso de LLM
