@@ -8,7 +8,7 @@ export const trailImageUpload = multer({
   },
 
   fileFilter(_req, file, cb) {
-    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
     cb(null, allowed.includes(file.mimetype));
   },

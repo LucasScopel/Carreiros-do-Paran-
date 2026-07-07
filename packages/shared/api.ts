@@ -21,7 +21,7 @@ import {
   SuggestionStatus,
   ListSuggestions,
   TrailSearch,
-} from "shared/types";
+} from "./types";
 
 /**
  * Função utilitária base responsável por realizar chamadas HTTP para a API.
@@ -49,7 +49,7 @@ export async function baseApiFetch<T>(
   }
 
   // Faz a requisição para a rota da API
-  const response = await fetch(`${baseUrl}/api${path}`, {
+  const response = await fetch(`${baseUrl}${path}`, {
     ...init,
     credentials: "include",
     headers,
@@ -63,7 +63,8 @@ export async function baseApiFetch<T>(
   } catch {
     // Toda resposta da API deve ser JSON válido
     // Caso contrário consideramos um erro inesperado
-    throw new Error("Invalid JSON response from server");
+    console.log(response);
+    throw new Error(`Invalid JSON response from server (${response.status})`);
   }
 
   if (!response.ok) {

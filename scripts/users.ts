@@ -67,7 +67,7 @@ const COMMANDS: Record<string, () => Promise<void>> = {
       name = email.split("@")[0];
     } else {
       console.error(
-        `Usage:\n\n  pnpm create-user <name> [--admin] [--verified]\n\nor\n\n  pnpm create-user <email> <password> [--admin] [--verified]\n`,
+        `Usage:\n\n  pnpm user create <name> [--admin] [--verified]\n\nor\n\n  pnpm user create <email> <password> [--admin] [--verified]\n`,
       );
 
       process.exit(1);

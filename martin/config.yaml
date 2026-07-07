@@ -5,7 +5,7 @@ cache: disable
 postgres:
   connection_string: ${DATABASE_URL}
 
-function_sources:
-  trails_map_layer:
-    schema: 'public'
-    function: 'trails_map_layer'
+  functions:
+    trails_map_layer:
+      schema: 'public'
+      function: 'trails_map_layer'
