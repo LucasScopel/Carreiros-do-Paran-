@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import { app } from "./app";
 import CONFIG from "./config";
 import jobs from "./jobs";
+import path from "node:path";
 
 function startJobs() {
   for (const job of jobs) {

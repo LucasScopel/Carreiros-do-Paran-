@@ -6,11 +6,11 @@ import CollectionList from "./_components/collection-list";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { GetMyCollections, GetUserCollections } from "shared/types";
-import EditCollectionModal from "./_components/edit-collection-modal";
 import DeleteConfirmation from "./_components/delete-confirmation";
 import { toast } from "sonner";
 import { queryClient } from "@/lib/query";
 import { CollectionModal } from "@/app/components/collection-trails-modal";
+import AddCollectionModal from "@/app/components/add-collection-modal";
 
 export default function ProfileCollectionsPage() {
   const query = useQuery({
@@ -91,7 +91,7 @@ export default function ProfileCollectionsPage() {
       />
 
       {editingCollection && (
-        <EditCollectionModal
+        <AddCollectionModal
           initial={editingCollection}
           onClose={() => setEditingCollection(null)}
         />

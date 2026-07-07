@@ -28,7 +28,7 @@ export default function RoundedOrangeInput({
       onChange={onChange}
       required={required}
       className={`px-4 py-2 border-2 rounded-md text-black 
-                  border-[#424242] bg-gray-100
+                  border-[#424242] bg-gray-100 
                   focus:border-[#D99C6A] focus:outline-none hover:border-[#D99C6A] 
                   transition-colors duration-300
                   ${isDateEmpty ? "text-gray-400" : "text-black"}
