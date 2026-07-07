@@ -1,5 +1,5 @@
 import { ApiResult } from "shared/types";
-import { baseApiFetch, createApi } from "./base";
+import { baseApiFetch, createApi } from "shared/api";
 import { cookies } from "next/headers";
 
 /**
@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
  *
  * Diferenças em relação ao client:
  * - Injeta cookies da requisição atual
- * - Usa APP_URL como base URL
+ * - Usa API_URL como base URL
  *
  * É preferível utilizar a API pela interface {@link api}
  */
@@ -32,7 +32,7 @@ export async function apiServerFetch<T>(
     },
 
     // Server-side é necessário a URL completa da API
-    process.env.APP_URL,
+    process.env.API_URL,
   );
 }
 

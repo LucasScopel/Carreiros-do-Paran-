@@ -69,7 +69,7 @@ export default function Home() {
     minLength: 0,
     maxLength: 30,
     minDuration: 0,
-    maxDuration: 300,
+    maxDuration: 600,
   });
   const debouncedFilters = useDebounce(filters, 400);
 
@@ -345,8 +345,8 @@ export default function Home() {
 
                 <DoubleRangeSlider
                   min={0}
-                  max={300}
-                  step={10}
+                  max={600}
+                  step={20}
                   suffix="min"
                   onChange={handleDurationRangeChange}
                 />
